@@ -53,62 +53,38 @@
       <h1 id="head1">CS4620 <span class=subtitle>Introduction to Computer Graphics</span></h1>
       <h1 id="head2"><a href="cs4621/">CS4621 <span class=subtitle>Computer Graphics Practicum</span></a></h1>
       <p class="courseinfo">Cornell University</p>
-      <p class="courseinfo">MWF 2:30pm, Uris Hall G01</p>
-      <p class="courseinfo">F 3:35pm, Uris Hall G01 [4621 only]</p>
-      <p class="courseinfo">Instructor: <a href="/~srm">Steve Marschner</a> (office hours T 3:15&ndash;4:15, W 4pm&ndash;5pm; see <a href="#officehours">calendar</a> for exceptions)</p>
+      <p class="courseinfo">MWF 2:30pm, Phillips 101</p>
+      <p class="courseinfo">F 3:35pm, Phillips 101 [4621 only]</p>
+      <p class="courseinfo">Instructor: <a href="/~srm">Steve Marschner</a> (office hours TBA; see <a href="#officehours">calendar</a> for exceptions)</p>
 
 
       <h2 id="staff">Staff</h2>
       <h3>Graduate TAs</h3>
       <p class="staff">
-         Eston Schweickart (CS4620 head TA, ers@cs.cornell.edu) <br>
-         Pramook Khungurn (CS4621 head TA, pramook@cs.cornell.edu) <br>
-         Albert Liu (ajul@cs.cornell.edu) <br>
+         Eston Schweickart (CS4621 head TA, ers@cs.cornell.edu) <br>
+         Mandy Xia (CS4620 head TA, mx83@cornell.edu) <br>
          Zechen Zhang (zz335@cornell.edu) <br>
-         Eric Lin (esl89@cornell.edu) <br>
+         Shiyu Wang (sw673@cornell.edu) <br>
       </p>
 
       <h3>Ugrad TAs</h3>
       <p class="staff">
-        James Noeckel (jwn48@cornell.edu) <br>
-        Kristen Crasto (kmc376@cornell.edu) <br>
-        Henry Chen (hjc77@cornell.edu) <br>
-        Olivia Dawd (ord5@cornell.edu) <br>
-        Linda Liu (ll538@cornell.edu) <br>
-        Nicolas Kuhn de Chizelle (nk436@cornell.edu) <br>
-        Naxin Chen (nc352@cornell.edu)
+        Sandy Fang (sf373@cornell.edu) <br>
+        Serge-Olivier Amega (sa837@cornell.edu) <br>
       </p>
 
       <p class="staff">See <a href="#officehours">below</a> for the office hours calendar.</p>
-      <!--
-      <h3>Office hours (week of 30 Jan only)</h3>
-      <p class="staff">
-        Eston: 2PM&minus;3PM Tuesday, Gates G11<br>
-        Pramook: 5:30PM&minus;6:30PM Tuesday, Gates G11<br>
-        Albert: 4PM&minus;5PM Wednesday, Gates G11<br>
-        Zechen: 10AM&minus;11AM Friday, Gates G15<br>
-        Eric: 1PM&minus;2PM Tuesday, Gates G15<br>
-        James: 11:45AM&minus;12:45PM Thursday, Gates G11<br>
-        Kristen: 10:30AM&minus;11:30AM Tuesday, Rhodes 400<br>
-        Olivia: 3:30PM&minus;4:30PM Tuesday, Gates G19<br>
-        Linda: 5:30PM&minus;6:30PM Monday, Gates G11<br>
-        Nicolas: 1:30PM&minus;2:30PM Thursday, Rhodes 400<br>
-        Henry: 4:30PM&minus;5:30PM Thursday, Rhodes 402<br>
-        Naxin: 6PM&minus;7PM Friday, Gates G11
-      </p>
-      -->
-      <!--<a style="font-weight: bold;" href="http://www.cs.cornell.edu/courses/cs4620/2015fa/OHcalendar.html">Office Hours</a></p>-->
 
       <h2 id="schedule">Schedule</h2>
 
-      <p>Videos of lectures from a previous run of CS4620 are 
-        <a href="http://cornell.videonote.com/channels/567/videos">available</a>.
+      <!-- <p>Videos of lectures from a previous run of CS4620 are 
+        <a href="http://cornell.videonote.com/channels/567/videos">available</a>. -->
       <div id="schedule_content"></div>
 
 
       <h2 id="asgn">Projects</h2>
 
-      <p>There will be 7 projects during the semester, due approximately every two weeks.</p>
+      <p>There will be 7 projects and 7 homeworks during the semester.</p>
 
       <div id="projects_content"></div>
 
@@ -117,7 +93,7 @@
 
       <p>There will be an evening midterm and a final exam:</p>
       <ul>
-        <li> Midterm: 21 March 2017, 7:30pm (Olin Hall 155)
+        <li> Midterm: (TBA)
         <li> Final: (not yet scheduled)
       </ul>
 
@@ -280,7 +256,7 @@ has changed from year to year.
 
 
       <div id="officehours">
-      <iframe src="https://calendar.google.com/calendar/embed?src=cornell.edu_vil2bo9fn8sa4vma3hpp5dtci4%40group.calendar.google.com&ctz=America/New_York" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+      <!--iframe src="https://calendar.google.com/calendar/embed?src=cornell.edu_vil2bo9fn8sa4vma3hpp5dtci4%40group.calendar.google.com&ctz=America/New_York" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe-->
       </div>
 
 
@@ -348,13 +324,13 @@ has changed from year to year.
     window.onload = function () {
       $('#schedule_content').load('schedule.html');
       projects = [
-        { tag: 'mesh', name: 'Mesh', text: '', src: 'a1mesh.html' },
-        { tag: 'ray1', name: 'Ray 1', text: '', src: 'a2ray1.html' },
-        { tag: 'scene', name: 'Scene', text: '', src: 'a3scene.html' },
-        { tag: 'shaders', name: 'Shaders', text: '', src: 'a4shaders.html' },
-        { tag: 'splines', name: 'Splines', text: '', src: 'a5splines.html' },
-        { tag: 'animation', name: 'Animation', text: '', src: 'a6animation.html' },
-        { tag: 'ray2', name: 'Ray 2', text: '', src: 'a7ray2.html' },
+        { tag: 'mesh', name: 'Mesh', text: 'Not yet released...', src: '' },
+        { tag: 'ray1', name: 'Ray 1', text: 'Not yet released...', src: '' },
+        { tag: 'scene', name: 'Scene', text: 'Not yet released...', src: '' },
+        { tag: 'shaders', name: 'Shaders', text: 'Not yet released...', src: '' },
+        { tag: 'splines', name: 'Splines', text: 'Not yet released...', src: '' },
+        { tag: 'animation', name: 'Animation', text: 'Not yet released...', src: '' },
+        { tag: 'ray2', name: 'Ray 2', text: 'Not yet released...', src: '' },
         // { tag: 'ray2', name: 'Ray 2', text: 'Not yet released...', src: '' },
       ]
       projects.map(function (proj) {
