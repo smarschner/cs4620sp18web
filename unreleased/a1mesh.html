@@ -1,7 +1,8 @@
 <!-- <h1><strong>PA 1: Meshes</strong></h1> -->
-<h3><strong>Due: Wednesday February 8th 2017 (11:59pm)</strong></h3>
+<h3><strong>Due: Wednesday February 2th 2018 (11:59pm)</strong></h3>
+<p>This particular assignment only has a programming exercise, and no written exercise.</p>
 
-<p><strong>Do this project alone or in groups of two, as you prefer. </strong>You can use <a href="https://piazza.com/class/iy7ekv7ao0r1aj">Piazza</a> to help pair yourselves up.
+<p><strong>Do this project alone or in groups of two, as you prefer.</strong><!--  You can use <a href="https://piazza.com/class/iy7ekv7ao0r1aj">Piazza</a> to help pair yourselves up. -->
 
 <h4>Introduction</h4>
 
@@ -22,9 +23,6 @@ href="http://en.wikipedia.org/wiki/Wavefront_.obj_file">OBJ file format</a>, a
 text format with one line for each vertex and face in the mesh.
 
 <h4>Building a mesh</h4>
-
-<p>The written part of this assignment is a warmup for generating more complex
-meshes. <strong>We ask that you complete this part of the assignment on your own, not in pairs.</strong>
 
 <p>Suppose we wish to generate a mesh for a loaded die as shown below:
 
@@ -64,15 +62,7 @@ are specified by providing 3 integers that index into this list of positions. Te
 and normals are abstracted similarly; thus, each triangle is specified by 3 position indices, 3 texture
 coordinate indices, and 3 normal indices.
 
-<p>For the written portion of this assignment, create an OBJ file that represents the die triangle
-mesh complete with texture coordinates. Your OBJ file will need:
-<ul>
-  <li> The coordinates of the 8 vertices in 3D space;
-  <li> The 4 texture coordinates of the vertices;
-  <li> The 6 normals of the vertices; and
-  <li> The position, texture coordinate, and normal indices of the 12 triangles that make up the mesh.
-</ul>
-A vertex position is specified on a single line by the letter "v" followed by 3 floating point
+<p>A vertex position is specified on a single line by the letter "v" followed by 3 floating point
 numbers that represent the \(x\), \(y\), and \(z\) coordinates of the point.
 A texture coordinate is specified by the letters "vt" followed by 2 floating point numbers
 that represent the \(u\) and \(v\) coordinates respectively.
@@ -88,23 +78,41 @@ normals). <strong>Please note all indices in the OBJ file format are 1-based!</s
 Vertices should be specified in counter-clockwise order, assuming you are looking down
 at the outer surface of the triangle (i.e., the triangle's normal is pointed towards you).
 
-<p>For example, a single triangle in the \(xz\)-plane, facing towards \(+y\) is:
+<p>Given all of this information, we can specify the loaded die above with the following OBJ file:
 <pre class="dark">
-v 0.0 0.0 0.0
-v 0.0 0.0 1.0
-v 1.0 0.0 0.0
-vt 0.0 0.0
+v 1.0 -1.0 -1.0
+v 1.0 -1.0 1.0
+v -1.0 -1.0 1.0
+v -1.0 -1.0 -1.0
+v 1.0 1.0 -1.0
+v 1.0 1.0 1.0
+v -1.0 1.0 1.0
+v -1.0 1.0 -1.0
+vt 1.0 1.0
 vt 0.0 1.0
+vt 0.0 0.0
 vt 1.0 0.0
+vn 1.0 0.0 0.0
+vn -1.0 0.0 0.0
 vn 0.0 1.0 0.0
-f 1/1/1 2/2/1 3/3/1
+vn 0.0 -1.0 0.0
+vn 0.0 0.0 1.0
+vn 0.0 0.0 -1.0
+f 1/1/4 2/2/4 3/3/4
+f 1/1/4 3/3/4 4/4/4
+f 1/4/1 5/1/1 6/2/1
+f 1/4/1 6/2/1 2/3/1
+f 2/4/5 6/1/5 7/2/5
+f 2/4/5 7/2/5 3/3/5
+f 3/2/2 7/3/2 8/4/2
+f 3/2/2 8/4/2 4/1/2
+f 4/2/6 8/3/6 5/4/6
+f 4/2/6 5/4/6 1/1/6
+f 5/1/3 8/2/3 7/3/3
+f 5/1/3 7/3/3 6/4/3
 </pre>
-Note that all vertices have the same normal, so we can just specify it once, and refer to that
-definition 3 times.
 
-When creating your OBJ file, make sure the cube is tessellated as shown above; that is, make sure all the
-triangles are oriented as shown. Additionally, pay attention to the way the "1" is oriented on each face.
-For full credit, your solution should appear exactly as shown above.
+<p>Note that even though there are 12 total triangles, there are only 8 unique locations for each triangle vertex, so there is no point in listing them multiple times. Similarly, each vertex has only 1 of 4 total texture coordinates, and each vertex has 1 of 6 total normals. This scheme allows us to eliminate the redundancy of listing these values once for each triangle. Also note that many vertices can share a position, but each can have different texture coordinates and normals; for instance, each corner of the mesh is shared by at least 3 triangles, but each may face a different direction and therefore may have its own normal.
 
 <h4>Specification</h4>
 
@@ -115,14 +123,20 @@ For full credit, your solution should appear exactly as shown above.
   (2) java MeshGen -i &lt;infile.obj&gt; -o &lt;outfile.obj&gt;
 </pre>
 
-<p>For usage (1), the first required argument is the geometry specifier, and the second is the output filename. If the geometry specifier is one of the fixed strings <tt>sphere</tt>, <tt>cylinder</tt>, or <tt>torus</tt>, a triangle mesh is generated that approximates that shape, where the number of triangles generated is controlled by the optional <tt>-n</tt> and <tt>-m</tt> options (details below), and written to the output file.
+<p>For usage (1), the first required argument is the geometry specifier, and the second is the output filename. If the geometry specifier is one of the fixed strings <tt>sphere</tt>, <tt>cylinder</tt>, or <tt>torus</tt>, a triangle mesh is generated that approximates that shape, where the number of triangles generated is controlled by the optional <tt>-n</tt> and <tt>-m</tt> options (details below), and written to the output OBJ file.
 
 <p>A triangle mesh that is an approximation of a smooth surface should have
 normal vectors stored at the vertices that indicate the direction normal to the
 exact surface at that point. When generating the predefined shapes, you
 generate points that are on the surface, and for each you should also calculate
 the normal vector that is perpendicular to the surface at that point. Additionally,
-the generated meshes will have texture coordinates.
+the generated meshes will have texture coordinates. Note that you should do take advantage
+of the indexed storage scheme where possible; for full credit, you should make sure that
+if two triangles meet at a position in space, that position should only be specified once
+in the resulting OBJ file. Similarly, if two vertices have both the same location and texture
+coordinates, those texture coordinates should only be specified once; if they share the same
+location and normal, then the normal should only be specified once. (Duplicate normals and texture coordinates
+are allowed, but only as long as they are used at different places on the mesh.)
 
 <p>For usage (2), the user provides an input OBJ mesh file, which the program reads in.
 The mesh is assumed to have no normals (if normals are included in the input file, they
@@ -170,10 +184,10 @@ quadrilateral formed by two adjacent longitude lines and two adjacent latitude
 lines is divided on the diagonal to form two triangles. The texture coordinates along the
 180th meridian are duplicated: one texture coordinate has \(u=0\) and
 the other has \(u=1\), to enable the discontinuity required for correct wrapping of a
-tileable texture image across the seam. The pole has \(n\) different texture
+image texture across the seam. The pole has \(n\) different texture
 coordinates, to enable nearly-appropriate texture in the row of
 triangles adjacent to the pole. Every other triangle around each pole becomes degenerate,
-i.e., collapses into a line; these degenerate triangles may be omited. the
+i.e., collapses into a line; these degenerate triangles should be omitted. the
 <tt>-r</tt> flag is ignored for the sphere.
 
 <div class="thumbnails" style="text-align: center">
@@ -238,12 +252,12 @@ single vertex, at the position \((0, 0, r-1)\) where the seams meet, shares 4 te
 <h4>Framework</h4>
 
 <p>We have provided a framework to help you get stared.
-The framework is available on a public <a href="https://github.com/smarschner/cs4620-17fa-frameworks">Git repository</a>.
+The framework is available on a public <a href="https://github.com/smarschner/cs4620-18sp-frameworks">Git repository</a>.
 If you have not used Git before, you can follow the tutorial <a href=https://git-scm.com/docs/gittutorial>
 here</a>, or ask a TA for assistance. We encourage you to use version control though
 <strong>we request that you refrain from publicly sharing your class repository.</strong>
 Future assignments will be distributed by pushing new commits to the repository linked above,
-so we recommend creating a separate branch before you begin working on each assingment.
+so we recommend creating a separate branch before you begin working on each assignment.
 
 <p>For this first assignment, we've provide a small library to help you build your utility.
 It contains data structures for dealing with vectors and meshes stored in the OBJ format.
@@ -279,9 +293,7 @@ in an <tt>ArrayList</tt>, and similarly for vertex texture coordinates and verte
 the mesh are represented via the <tt>OBJFace</tt> class, which defines a polygon on the mesh
 by listing integers for each vertex which index into the position, texture coordinate, and normal arrays.
 This structure allows you to reuse repeated positions, texture coordinates, and normals, which
-may come in handy when generating the geometries mentioned above. However, you are not required to take advantage of such
-optimizations; creating a mesh where each vertex has a unique triad of position, texture coordinate, and normal
-is a valid solution.
+will come in handy when generating the geometries mentioned above.
 </p>
 
 <p>The <tt>OBJMesh</tt> class provides methods for reading and writing OBJ files; thus, to create a mesh, you simply
@@ -301,7 +313,7 @@ retrieve the appropriate vectors from the mesh data, taking the indexing issues 
 
 <p>Since your program just writes a file full of inscrutable numbers, you need some way to look at the results.
 We have provided a mesh visualization tool that works in your browser, available
-<a href="http://www.cs.cornell.edu/courses/cs4620/2017sp/demos/obj_viewer/viewer.html">here</a>.
+<a href="http://www.cs.cornell.edu/courses/cs4620/2018sp/demos/obj_viewer/viewer.html">here</a>.
 To view a mesh, click "Select OBJ File" (or just drag an OBJ file onto the window). If the mesh has texture
 coordinates, you can upload an image texture by clicking "Select Texture File" (or, again, just drag the image
 file onto the window). The viewer optionally shows the wireframe structure and vertex normals of the mesh.
@@ -309,27 +321,8 @@ Coordinate axes may also be displayed; \(+x\) is red, \(+y\) is green, and \(+z\
 in the wrong direction, they appear yellow and will not be textured.
 
 <p>There are a number of additional programs to visualize meshes, for example <a href="http://www.blender.org/download/">Blender</a>,
-<a href="http://masc.cs.gmu.edu/wiki/ObjViewer">ObjViewer</a>, or <a href="http://p3d.in/">p3d.in</a>. Of these, we recommend
-<a href="http://meshlab.sourceforge.net/">MeshLab</a>, since it provides operations to better visualize your output.
-Here are some useful tools once you've imported your mesh:
-<ul>
-  <li>A number of mesh visualization modes are available on the top menu bar, such as Wireframe (which
-  displays the edges of the mesh without the faces), Flat Lines (which displays faces and edges), and Smooth
-  (which uses the provided normals, if any, to shade the surface smoothly).
-  <li>You can apply a texture to your mesh. Select <tt>Filters &gt; Texture &gt; Set Texture</tt>.
-  This will bring up a dialog in which you can enter the filename of the image texture. The texture must
-  be in the same directory as the mesh, and must be in PNG format.
-  <li>You can visualize how the mesh is embedded in <tt>uv</tt>-space via <tt>Render &gt; Show UV Tex Param</tt>.
-  <li>Show the <tt>x</tt>-, <tt>y</tt>-, and <tt>z</tt>-axes via <tt>Render &gt; Show Axis</tt>.
-  <li>View the vertex normals via <tt>Render &gt; Show Normal/Curvature</tt>. Note that if the input mesh
-  does not have vertex normals, MeshLab will add them; also, MeshLab does not support multiple normals per
-  vertex, and will merge them if detected (this is a problem, e.g., with the rims of the cylinder).
-  Note also that this option displays normals both for each vertex and each face.
-  <li>Show the texture seams via <tt>Render &gt; Show Texture Seams</tt>.
-  <li>You can display information associated with a particular face via <tt>Get Info</tt> (the <em>i</em>
-  symbol in the toolbar), and then selecting a face.
-</ul>
-</p>
+<a href="http://masc.cs.gmu.edu/wiki/ObjViewer">ObjViewer</a>, <a href="http://meshlab.sourceforge.net/">MeshLab</a>, or <a href="http://p3d.in/">p3d.in</a>.
+Be careful, though! Some of these programs add normals to your meshes if they don't already exist, or if they're malformed.
 
 
 <p>In addition, the <tt>OBJMesh</tt> class contains the <tt>isValid()</tt> method to check that your
@@ -396,16 +389,13 @@ that demonstrates that your code is functioning correctly.
 
 <h4>Handing in</h4>
 
-<p><strong>Submit a zip file containing your solution using <a href=https://cms.csuglab.cornell.edu>CMS</a>.</strong>
-You should include a readme in your zip that contains:
+<p>For ease of grading, please make sure your solution, named <tt>MeshGen.java</tt>, is in the <tt>meshgen</tt> package. When handing in your solution,
+just submit this file to <a href=https://cms.csuglab.cornell.edu>CMS</a>. Please also submit a README file that contains:
 <ul>
   <li>You and your partner's names and NetIDs.
   <li>Explanations of any extensions you implemented and incantations to run them via the command line.
   <li>Anything else you want us to know.
 </ul>
+<p>If there is anything else you would like to put in your solution (e.g., meshes you generated for extra credit), please place it in a ZIP file and submit it separately.
 
-<p><strong>Separately submit your loaded die OBJ file on 
-<a href=https://cms.csuglab.cornell.edu>CMS</a></strong>. This
-part of the assignment should be completed <b>alone</b>, and not in
-pairs. Please turn that in separately at the appropriate place in CMS.
 
