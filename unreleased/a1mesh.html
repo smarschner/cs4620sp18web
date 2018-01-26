@@ -305,11 +305,15 @@ Be careful, though! Some of these programs add normals to your meshes if they do
 
 <p>In addition, the <tt>OBJMesh</tt> class contains the <tt>isValid()</tt> method to check that your
 mesh conforms to the OBJ standard, and the <tt>compare()</tt> method to check if two different meshes
-are equivalent (ignoring the order in which faces are defined or differences in index optimization). Thus,
+are equivalent (ignoring the order in which faces are defined). Thus,
 another way to verify your code is correct is to compare your output to reference meshes, which are
-included in the <tt>data</tt> directory. To receive full credit, your output must be equivalent to ours, and generate no warnings
+included in the <tt>data</tt> directory. Reference meshes are given for the cylinder and sphere with default
+arguments. To receive full credit, your output must be equivalent to ours, and generate no warnings
 when used with the <tt>verbose</tt> option. (We will have other
-reference meshes to test your code against in addition to the ones provided below.)
+reference meshes to test your code against in addition to the ones provided.)
+In addition, we have provided two meshes without normals (a bunny and a horse), as well as examples of
+what the meshes should look like when normals have been estimated. Be patient with the horse example,
+as it contains many triangles and may take a while to process.
 </p>
 
 <ul class="thumbnails" style="text-align: center">
