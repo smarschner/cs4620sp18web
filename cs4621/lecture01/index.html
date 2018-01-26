@@ -53,8 +53,8 @@
                     <li>Stands for "<b>Open</b> <b>G</b>raphics <b>L</b>ibrary."</li>
                     <li>A low-level API for 2D/3D rendering with the GPU.</li>
                     <li>It is cross-platform.</li>
-                    <li>Main atlernative: <a href="https://en.wikipedia.org/wiki/DirectX">DirectX</a>,
-                        <a href="https://en.wikipedia.org/wiki/Vulkan_(API)">Vulkan</a></li>
+                    <li>Main atlernatives: <a href="https://en.wikipedia.org/wiki/DirectX">DirectX</a>,
+                        <a href="https://en.wikipedia.org/wiki/Vulkan_(API)">Vulkan</a>, <a href="https://en.wikipedia.org/wiki/Metal_(API)">Metal</a></li>
                 </ul>
             </li>
             <li>
@@ -90,15 +90,19 @@
         <h2>This Course</h2>
 
         <ul>
-            <li>Prerequisites:
+            <li>Prerequisites
                 <ul>
                     <li>You should know how to write HTML and Javascript.</li>
                     <ul>
-                        <li>If you don't, we suggest taking a MOOC or two about them.
-                            We recommend <a
-                                    href="https://www.coursera.org/learn/html-css-javascript-for-web-developers">this
-                                one by Johns Hopkins University</a>.
-                        </li>
+                        <li>If you don't, there are many online references available.
+                            <ul>
+                                <li><a href="https://javascript.info/">
+                                    The Modern Javascript Tutoral</a> (a free online resource for learning Javascript from scratch)</li>
+                                <li><a href="https://www.coursera.org/learn/html-css-javascript-for-web-developers">
+                                HTML, CSS, and Javascipt for Web Developers</a> (MOOC offered by Johns Hopkins University)</li>
+                                <li><a href="https://www.w3schools.com/js/">
+                                W3Schools</a> (a free online reference)</li>
+                            </ul>
                         <li>If you have taken CS 2300 or CS 3300, you're good to go!</li>
                     </ul>
                     <li>You should have a good handle on programming in general.
@@ -108,26 +112,26 @@
                         </ul>
                     </li>
                     <li>
-                        You should know linear algebra.
+                        You should know some linear algebra (small matrices, vector operations)
                     </li>
                 </ul>
             </li>
-            <li>What we want to do?
+            <li>Goals of this class
                 <ul>
-                    <li>Teach you how to use WebGL to write interactive graphics systems for the web.</li>
-                    <li>Have you develop such a system <em>by yourself</em>.
+                    <li>We will teach you how to use WebGL to write interactive graphics systems for the web.</li>
+                    <li>We will have you develop such a system <em>by yourself</em>.
                         <ul>
-                            <li>Write most code from scratch.</li>
-                            <li>No help from framework code from other people.</li>
-                            <li>Key to success = ability to come up with good abstractions.</li>
+                            <li>You will write most code from scratch.</li>
+                            <li>We will not distribute any frameworks.</li>
+                            <li>The key to success is the ability to come up with good abstractions.</li>
                         </ul>
                     </li>
                 </ul>
             </li>
             <li>Organization
                 <ul>
-                    <li>For the first 7 weeks, lectures + 3 individual programming assignments.</li>
-                    <li>For the rest of the courses, some lectures + time for a final project (groupwork).</li>
+                    <li>For the first half of the semester, there will be lectures and 3 programming assignments.</li>
+                    <li>For the rest of the semester, there will be some lectures, plus time for the final project (groupwork).</li>
                 </ul>
             </li>
             <li>
@@ -143,7 +147,7 @@
                     <li>
                         Use any IDE you want.
                         <ul>
-                            <li>I personally use <a href="https://www.jetbrains.com/webstorm/">JetBrains WebStorm</a>.
+                            <li><a href="https://www.jetbrains.com/webstorm/">JetBrains WebStorm</a> is a popular IDE for Javascript development.
                             </li>
                             <li>Smart text editors (<a href="http://www.vim.org/">Vim</a>,
                                 <a href="https://www.gnu.org/software/emacs/">Emacs</a>,
@@ -153,22 +157,18 @@
                             </li>
                         </ul>
                     </li>
-                    <li>Lecture notes and assigments are distributed through
-                        <a href="https://github.com/smarschner/4620sp17web">Github</a>.
-                        <ul>
-                            <li>So, you should know how to use <a href="https://git-scm.com/">Git</a>.</li>
-                        </ul>
-                    </li>
-                    <li>When dealing with content files, we will use <a href="http://nodejs.org">NodeJS</a>
-                        to run a <a href="https://www.npmjs.com/package/http-server">simple web server</a> to serve
-                        those files.
-                    </li>
+                    <li>We highly recommend using <a href="https://git-scm.com/">Git</a> to manage your code.</li>
+                    <li>When dealing with content files, we will use Python to run a simple web server.</li>
+                    <ul>
+                        <li>For Python 2: <code>python -m SimpleHTTPServer</code></li>
+                        <li>For Python 3: <code>python -m http.server</code></li>
+                    </ul>
                     <li>We will also make heavy use of <a href="https://jquery.com/">jQuery</a> and
                         <a href="http://jqueryui.com/">jQuery UI</a>.
                     </li>
                 </ul>
             </li>
-            <li>Your assignment and final project submissions:
+            <li>Your assignment and final project submissions
                 <ul>
                     <li>Submit the root directory of your assigment/project as a ZIP file.</li>
                     <li>We'll unzip and run a web server on the extracted directory.</li>
@@ -177,7 +177,7 @@
                     <li>This means you can code in any language you want (i.e.
                         <a href="https://www.typescriptlang.org/">TypeScript</a>,
                         <a href="http://coffeescript.org/">CoffeeScript</a>,
-                        etc) as long as you compile your code to Javascript, and the compiled code runs
+                        etc.) as long as you compile your code to Javascript, and the compiled code runs
                         in Chrome.
                     </li>
                 </ul>
@@ -189,37 +189,36 @@
         <h2>Final Project</h2>
 
         <ul>
-            <li>Work in group of 4-5 students.</li>
-            <li>You are free to decide on group members.</li>
+            <li>You will work in groups of 4-5 to create a graphics-heavy application of your choice.</li>
+            <li>Examples include music visualizers, mini-Minecraft, simple games, virtual environments, artistic tools, simple physics simulations...</li>
             <li>To ease group formation:
                 <ul>
-                    <li>We require people to pose a proposal they want to do by March 24 on CMS.
-                        We'll publish it on the course's web page.
-                    </li>
-                    <li>All groups (which can be incompletely formed) must give a short presentation on
-                        the projects they intend to do on March 31.
-                    </li>
-                    <li>Groups must be formed by April 14.</li>
+                    <li>You may form a group on your own. If you do, we will require your group to submit a project proposal mid-semester.</li>
+                    <li>Otherwise, you will submit a short abstract instead. We will group students by topic, and then your group will submit a fleshed-out proposal</li>
                 </ul>
             </li>
             <li>Two presentations:
                 <ul>
-                    <li><b>Milestone presentation on April 28</b>
+                    <li><b>Milestone presentation (late April)</b>
                         <ul>
-                            <li>This is to encourage you to take time to work on the project early.</li>
-                            <li>What have you done?</li>
+                            <li>Tell us the goal of your project.</li>
+                            <li>Show us what you have done so far.</li>
                             <li>Have you changed your goal? If so, how?</li>
-                            <li>What difficulty have you faced so far?</li>
+                            <li>What difficulties have you faced so far?</li>
+                            <li>What's left to do?</li>
                         </ul>
                     </li>
-                    <li><b>Final presentation in the final week.</b>
+                    <li><b>Final presentation (last week of class, or final exam period)</b>
                         <ul>
                             <li>Tell us again what your project is about.</li>
                             <li>Demo your system.</li>
+                            <li>What difficulties did you face? How did you solve them?</li>
+                            <li>How did each group member contribute to the final product?</li>
                         </ul>
                     </li>
                 </ul>
             </li>
+            <li>More details (including dates) will be released soon.</li>
         </ul>
     </section>
 
@@ -252,7 +251,7 @@
 </pre>
                     </li>
                     <li><b>Ray order</b> or <b>ray tracing</b>
-                        <pre>for each pixel in the image{
+                        <pre>for each pixel in the image {
      for each object in the scene {
         if (object affects pixel) {
             do something
@@ -264,14 +263,14 @@
                 </ul>
             </li>
             <li>The graphics pipeline is an instance object order rendering.</li>
-            <li>Input & output
+            <li>Input and output
                 <ul>
                     <li><b>Input:</b> <i>Vertices</i> and connections among them + other types of data (texture, etc.)
                     </li>
                     <li><b>Output:</b> Pixels on the <i>framebuffer</i>.</li>
                 </ul>
             </li>
-            <li>Some jargons:
+            <li>Some jargon:
                 <ul>
                     <li><b>Buffer</b> = "a region of physical memory used to temporarily store data "
                         (according <a href="https://en.wikipedia.org/wiki/Data_buffer">Wikipedia</a>).
@@ -279,7 +278,7 @@
                             <li>In our context, a buffer mostly resides in the GPU.</li>
                         </ul>
                     </li>
-                    <li><b>Framebuffer</b> = a buffer that holds the image that is displyaed on the monitor.</li>
+                    <li><b>Framebuffer</b> = a buffer that holds the image that is displayed on the monitor.</li>
                 </ul>
             </li>
             <li>The pipeline<br>
