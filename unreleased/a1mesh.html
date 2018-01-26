@@ -119,11 +119,11 @@ f 5/1/3 7/3/3 6/4/3
 <p>For this assignment, you will create a command line utility called <tt>MeshGen</tt>. Its usage is:
 
 <pre class="dark">
-  (1) java MeshGen -g &lt;sphere|cylinder|torus&gt; [-n &lt;divisionsU&gt;] [-m &lt;divisionsV&gt;] [-r &lt;minorRadius&gt;] -o &lt;outfile.obj&gt;
+  (1) java MeshGen -g &lt;sphere|cylinder&gt; [-n &lt;divisionsU&gt;] [-m &lt;divisionsV&gt;] -o &lt;outfile.obj&gt;
   (2) java MeshGen -i &lt;infile.obj&gt; -o &lt;outfile.obj&gt;
 </pre>
 
-<p>For usage (1), the first required argument is the geometry specifier, and the second is the output filename. If the geometry specifier is one of the fixed strings <tt>sphere</tt>, <tt>cylinder</tt>, or <tt>torus</tt>, a triangle mesh is generated that approximates that shape, where the number of triangles generated is controlled by the optional <tt>-n</tt> and <tt>-m</tt> options (details below), and written to the output OBJ file.
+<p>For usage (1), the first required argument is the geometry specifier, and the second is the output filename. If the geometry specifier is one of the fixed strings <tt>sphere</tt> or <tt>cylinder</tt>, a triangle mesh is generated that approximates that shape, where the number of triangles generated is controlled by the optional <tt>-n</tt> and <tt>-m</tt> options (details below), and written to the output OBJ file.
 
 <p>A triangle mesh that is an approximation of a smooth surface should have
 normal vectors stored at the vertices that indicate the direction normal to the
@@ -166,7 +166,7 @@ direction. The texture coordinates for the two caps are circles inscribed in
 the upper-left (for the \(-y\) cap) and upper-right (for the \(+y\) cap) quadrants of
 the unit square in the \(uv\)-plane, with the \(+u\) direction corresponding to the \(+x\) direction in 3D
 space, and the \(+v\) direction corresponding to the \(-z\) direction for the top cap, and the \(+z\)
-direction for the bottom cap. The <tt>-m</tt> and <tt>-r</tt> flags are ignored for the cylinder.
+direction for the bottom cap. The <tt>-m</tt> flag is ignored for the cylinder.
 
    <h5><strong> Sphere</strong></h5>
 
@@ -187,8 +187,7 @@ the other has \(u=1\), to enable the discontinuity required for correct wrapping
 image texture across the seam. The pole has \(n\) different texture
 coordinates, to enable nearly-appropriate texture in the row of
 triangles adjacent to the pole. Every other triangle around each pole becomes degenerate,
-i.e., collapses into a line; these degenerate triangles should be omitted. the
-<tt>-r</tt> flag is ignored for the sphere.
+i.e., collapses into a line; these degenerate triangles should be omitted.
 
 <div class="thumbnails" style="text-align: center">
     <img src="images/a1/a1cylinder-characteristics.png" height="485px" style="margin-right: 10px">
@@ -197,27 +196,6 @@ i.e., collapses into a line; these degenerate triangles should be omitted. the
         Specs illustration for the cylinder and sphere (for the case of n = 32 and m = 16)
       </div>
 </div> 
-
-   <h5><strong> Torus</strong></h5>
-
-<p>A <a href="https://en.wikipedia.org/wiki/Torus">torus</a> is a doughnut-shaped
-surface defined by a major radius, affecting the size of the hole, and a minor radius,
-affecting the thickness of the ring. Your code should create a torus with major radius \(1\) 
-and minor radius \(r\) (controlled by the
-<tt>-r</tt> flag with a default of \(0.25\)).  Its \(u\) coordinates are
-like the sphere, and the \(v\) coordinate runs from \(0\) to \(1\)
-around the inside of the torus, with the direction arranged so that the
-texture is right-reading from the outside (i.e., the texture is not flipped when mapped to the surface).
-Like the sphere, it has a seam on the \(-z\) half of the \(yz\)-plane, and it has a similar seam around the
-inner surface of the doughnut hole; vertices along each seam share a pair of texture coordinates, and
-single vertex, at the position \((0, 0, r-1)\) where the seams meet, shares 4 texture coordinates.
-
-<div class="thumbnails" style="text-align: center">
-    <img src="images/a1/a1torus-characteristics.png" height="485px" style="margin-right: 10px">
-      <div class="caption">
-        Specs illustration for the torus (for the case of n = 32, m = 16, and r = 0.25)
-      </div>
-</div>
 
 <h4>Computing vertex normals</h4>
 
@@ -313,15 +291,15 @@ retrieve the appropriate vectors from the mesh data, taking the indexing issues 
 
 <p>Since your program just writes a file full of inscrutable numbers, you need some way to look at the results.
 We have provided a mesh visualization tool that works in your browser, available
-<a href="http://www.cs.cornell.edu/courses/cs4620/2018sp/demos/obj_viewer/viewer.html">here</a>.
+<a href="https://www.cs.cornell.edu/courses/cs4620/2018sp/demos/obj_viewer/viewer.html">here</a>.
 To view a mesh, click "Select OBJ File" (or just drag an OBJ file onto the window). If the mesh has texture
 coordinates, you can upload an image texture by clicking "Select Texture File" (or, again, just drag the image
 file onto the window). The viewer optionally shows the wireframe structure and vertex normals of the mesh.
 Coordinate axes may also be displayed; \(+x\) is red, \(+y\) is green, and \(+z\) is blue. If triangle faces are wound
 in the wrong direction, they appear yellow and will not be textured.
 
-<p>There are a number of additional programs to visualize meshes, for example <a href="http://www.blender.org/download/">Blender</a>,
-<a href="http://masc.cs.gmu.edu/wiki/ObjViewer">ObjViewer</a>, <a href="http://meshlab.sourceforge.net/">MeshLab</a>, or <a href="http://p3d.in/">p3d.in</a>.
+<p>There are a number of additional programs to visualize meshes, for example <a href="https://www.blender.org/download/">Blender</a>,
+<a href="http://masc.cs.gmu.edu/wiki/ObjViewer">ObjViewer</a>, <a href="http://www.meshlab.net/">MeshLab</a>, or <a href="https://p3d.in/">p3d.in</a>.
 Be careful, though! Some of these programs add normals to your meshes if they don't already exist, or if they're malformed.
 
 
@@ -335,11 +313,9 @@ reference meshes to test your code against in addition to the ones provided belo
 </p>
 
 <ul class="thumbnails" style="text-align: center">
-  <div class="thumbnail span4">
-    <img src="images/a1/texture-example.png" width="1024px" />
-    <div class="caption">
-		A final version of a textured torus, sphere, and cylinder
-    </div>
+  <img src="images/a1/texture-example-notorus.png" />
+  <div class="caption">
+    A final version of a textured sphere and cylinder
   </div>
 </ul>
 </p>
@@ -349,6 +325,25 @@ reference meshes to test your code against in addition to the ones provided belo
 <p>There are many opportunities to expand your implementation and receive extra credit. Some ideas are listed below.
 
 <ul>
+<li><p>A <a href="https://en.wikipedia.org/wiki/Torus">torus</a> is a doughnut-shaped
+surface defined by a major radius, affecting the size of the hole, and a minor radius,
+affecting the thickness of the ring. Add <tt>torus</tt> to the list of geometries generated by your program.
+Your code should create a torus with major radius \(1\) 
+and minor radius \(r\) (controlled by an additional
+<tt>-r</tt> flag with a default of \(0.25\)).  Its \(u\) coordinates are
+like the sphere, and the \(v\) coordinate runs from \(0\) to \(1\)
+around the inside of the torus, with the direction arranged so that the
+texture is right-reading from the outside (i.e., the texture is not flipped when mapped to the surface).
+Like the sphere, it has a seam on the \(-z\) half of the \(yz\)-plane, and it has a similar seam around the
+inner surface of the doughnut hole; vertices along each seam share a pair of texture coordinates, and
+single vertex, at the position \((0, 0, r-1)\) where the seams meet, shares 4 texture coordinates.
+
+<div class="thumbnails" style="text-align: center">
+    <img src="images/a1/a1torus-characteristics.png" style="margin-right: 10px">
+      <div class="caption">
+        Specs illustration for the torus (for the case of n = 32, m = 16, and r = 0.25)
+      </div>
+</div></p></li>
 <li>You may have noticed that for the sphere, the triangles get compressed near the poles. Provide an
 alternative tessellation approach to create a more even mesh; see
 <a href="http://en.wikipedia.org/wiki/Icosphere">icosphere</a> as an example.
