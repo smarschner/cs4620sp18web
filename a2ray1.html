@@ -282,7 +282,7 @@ otherwise. Here, \(h = (\omega_i + \omega_o)/|\omega_i + \omega_o|\). See sectio
 4.5.2, but same warning as above.  </ul>-->
 <p>Same notice that these computations should be iterated through each light in the scene and the contribution from each light should be summed up if the light is visible to the shaded point.</p>
 
-<p>After both <tt>Lambertian</tt> and <tt>microfacet</tt> (Beckmann) shader are completed, you should be able to render <tt>one-sphere.xml</tt>, <tt>teapot.xml</tt>, <tt>wire-box.xml</tt>, <tt>wire-box-orthographic.xml</tt> and the bunny scenes correctly.
+<p>After both <tt>Lambertian</tt> and <tt>microfacet</tt> (Beckmann) shader are completed, you should be able to render <tt>one-sphere.xml</tt>, <tt>one-sphere2.xml</tt>, <tt>teapot.xml</tt>, <tt>teapot2.xml</tt> (different level of roughness with <tt>teapot.xml</tt>), <tt>wire-box.xml</tt>, <tt>wire-box-orthographic.xml</tt> and the bunny scenes correctly.
 </ul>
 
 
@@ -298,7 +298,7 @@ otherwise. Here, \(h = (\omega_i + \omega_o)/|\omega_i + \omega_o|\). See sectio
   <li><strong><tt>RepeatTexture</tt></strong>: This class repeats the texture for out-of-range UV-coordinates. In this case, copies of the texture are tiled across UV space.
 </ul>
 
-<p>The details of how to implement these are provided in the code.  Once these are completed, all scenes in subdirectory <tt>textured_scenes</tt> should render correctly.
+<p>The details of how to implement these are provided in the code.  Once these are completed, all scenes in subdirectory <tt>textured_scenes</tt> should render correctly except <tt>earth-GGX.xml</tt> and <tt>teapot_textured-GGX.xml</tt>.
 
 
 <h4>Appendix A: Testing</h4>
@@ -352,7 +352,7 @@ significant differences, consider checking for bugs in your code.
   <p>
     <tt>Hint:</tt> In <tt>Microfacet.java</tt>, there is a string variable <tt>NormalDistributionType</tt> parsed from XML scene files. When it's Beckmann distribution, the parsed string is <tt>"Beckmann"</tt>; when it's GGX distribution, the parsed string is <tt>"GGX"</tt>. You can make a <tt>switch</tt> statement or <tt>if-else</tt> statement in method <tt>EvalBRDF</tt> to calcuate term <tt>D</tt> and term <tt>G</tt> accordingly. GGX distribution's width parameter <tt>\(\alpha_g\)</tt> is parsed as varialbe <tt>alpha_g</tt> in microfacet shader.
   </p>
-  <p>After the microfacet shader with GGX distribution implemented, <tt>one-sphere-GGX.xml</tt>, <tt>textured_scenes/earth-GGX.xml</tt> and <tt>textured_scenes/teapot-GGX.xml</tt> can be rendered.</p>
+  <p>After the microfacet shader with GGX distribution implemented, <tt>one-sphere-GGX.xml</tt>, <tt>one-sphere2-GGX.xml</tt>, <tt>teapot-GGX.xml</tt>, <tt>teapot2-GGX.xml</tt>, <tt>textured_scenes/earth-GGX.xml</tt> and <tt>textured_scenes/teapot_textured-GGX.xml</tt> can be rendered.</p>
 </ul>
 
 <h4>Appendix C: Framework</h4>
