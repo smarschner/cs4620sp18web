@@ -45,7 +45,7 @@
             </ul>
         </li>
         <li>The vertex shader should set the varying variable, and the fragment shader can use it.
-<pre class="prettyprint"><code class="language-glsl"> // Vertex shader code
+<pre class="prettyprint"><code class="language-glsl">// Vertex shader code
 attribute vec3 vert_position;
 attribute vec3 vert_color;
 
@@ -55,8 +55,8 @@ void main() {
     gl_Position = vec4(vert_position, 1.0);
     geom_color = vert_color;
 }
-
-// Fragment shader code
+</code></pre>
+<pre class="prettyprint"><code class="language-glsl">// Fragment shader code
 precision highp float;
 
 varying vec3 geom_color;
@@ -198,7 +198,7 @@ void main() {
         var vertPositionLocation = gl.getAttribLocation(program, "vert_position");
         gl.enableVertexAttribArray(vertPositionLocation);
         gl.vertexAttribPointer(vertPositionLocation, 3, gl.FLOAT, false, 4*6, 0);
-        var vertColorLocation = gl.getAttribLocation(program, "vert_texCoord");
+        var vertColorLocation = gl.getAttribLocation(program, "vert_color");
         gl.enableVertexAttribArray(vertColorLocation);
         gl.vertexAttribPointer(vertColorLocation, 3, gl.FLOAT, false, 4*6, 4*3);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);

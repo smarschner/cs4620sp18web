@@ -75,11 +75,10 @@
         <li>Uniform variables are like global variables in a GLSL program.
             <ul>
                 <li>You can declare one in the vertex shader, and another with the same name in the fragment shader.
-                    These two are actually the same vraible.</li>
+                    These two are actually the same variable.</li>
             </ul>
         </li>
-        <li>Their values are the same for the whole during the program runs, until you set them
-            to other values from Javascript.</li>
+        <li>Their values are constant as the GLSL program runs; they can only be changed by the CPU (Javascript code).</li>
         <li>Declare one outside the scope of any function: <code>uniform &lt;type&gt; &lt;name&gt;;</code>
 <pre class="prettyprint"><code class="language-glsl">uniform float amplitude;
 uniform float period;

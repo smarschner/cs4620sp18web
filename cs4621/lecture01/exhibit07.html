@@ -94,7 +94,7 @@ void main() {
                 <li>
                     The NDC determines what is visible and what is not visible.
                     <ul>
-                        <li>For something (mainly a fragment) to be visible, its NDC must be in the volume
+                        <li>For something (namely a fragment) to be visible, its NDC must be in the volume
                             $[-1,1] \times [-1,1] \times [-1,1]$
                         </li>
                     </ul>
@@ -124,10 +124,6 @@ void main() {
                 <li>Floating point numbers in GLSL does not require the suffix <code>f</code> like in C or in Java.
                     <ul>
                         <li>That is, you write <code>1.0</code> instead of <code>1.0f</code>.</li>
-                        <li>However, unlike the two languages, these floating point literals are single precision (4
-                            bytes),
-                            not double (8 bytes).
-                        </li>
                     </ul>
                 </li>
             </ul>
@@ -156,7 +152,7 @@ void main() {
                     fragment being processed.
                     <ul>
                         <li>This is a <code>vec4</code> (rgba).</li>
-                        <li>So, this code basically says, "whatever fragment gets here, make it white."</li>
+                        <li>In this case, it simply colors the fragment white.</li>
                     </ul>
                 </li>
             </ul>
@@ -164,7 +160,7 @@ void main() {
         <li>
             To draw primitives:
             <ul>
-                <li>We need to create <b>vertex buffer</b> to hold vertex attributes.</li>
+                <li>We need to create <b>vertex buffer</b> to hold vertex attributes (in this case, the vertex positions).</li>
                 <li>Then, we need to associate the buffer with the attribute in the program.</li>
                 <li>Then, we call <code>gl.drawArrays</code> to actually draw the primitives.</li>
             </ul>

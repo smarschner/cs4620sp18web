@@ -45,9 +45,9 @@
         <li>You can get the number of uniforms that are used in a program with <code>gl.getProgramParameter(&lt;program&gt;, gl.ACTIVE_UNIFORMS)</code>.</li>
         <li>You can then get information about the uniform with the given index with <code>gl.getActiveUniform(&lt;program&gt;, &lt;uniform-index&gt;);</code>.
             <ul>
-                <li>Like the vertex attribute cause, the index goes from 0 to <code>gl.getProgramParameter(&lt;program&gt;, gl.ACTIVE_UNIFORMS)-1</code>.</li>
-                <li>You get an object that tells you the name, size, and the type of the uniform.
-                    <ul>The size is not 1 if it is a uniform array.</ul>
+                <li>Like vertex attributes, the index goes from 0 to <code>gl.getProgramParameter(&lt;program&gt;, gl.ACTIVE_UNIFORMS)-1</code>.</li>
+                <li>This returns an object that tells you the name, size, and the type of the uniform.
+                    <ul><li>The size is not 1 if it is a uniform array.</li></ul>
                     <li>For a uniform array, you get the name of the first entry.</li>
                 </li>
             </ul>

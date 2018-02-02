@@ -58,7 +58,7 @@ uniform float sizes[SHAPE_COUNT];
                         <li>The names of the entries of the <code>centers</code> uniform are
                             <code>centers[0]</code>, <code>centers[1]</code>, <code>centers[2]</code>, ...,
                             <code>centers[15]</code>.</li>
-                        <li>Here's how we assign the <code>centers</code> unform.
+                        <li>Here's how we assign the <code>centers</code> unform:
 <pre class="prettyprint"><code class="language-javascript">for(var i=0; i&lt;shapeCount; i++) {
     var centerUniformName = "centers[" + i + "]";
     var centerLocation = gl.getUniformLocation(program, centerUniformName);
@@ -68,10 +68,10 @@ uniform float sizes[SHAPE_COUNT];
                         </li>
                     </ul>
                 </li>
-                <li>Get the location of the first entry and assign all entries wholescale with <code>gl.uniform[1234][fi]v</code>
+                <li>Get the location of the first entry and assign all entries at the same time with <code>gl.uniform[1234][fi]v</code>
                     <ul>
-                        <li>This version of <code>gl.uniform</code> allows you to specify an array value values.</li>
-                        <li>This is how we assign the <code>sizes</code> uniforms
+                        <li>This version of <code>gl.uniform</code> allows you to pass an array to the GPU.</li>
+                        <li>This is how we assign the <code>sizes</code> uniforms:
 <pre class="prettyprint"><code class="language-javascript">var sizes = [];
 for(var i=0; i&lt;shapeCount; i++) {
     sizes.push(0.01 + Math.random()*0.09);

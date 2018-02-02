@@ -29,8 +29,49 @@
 
     <h2>What We Did</h2>
     <ul>
-        <li>We introduce <b>index buffer</b>, which enables reuse of vertex attributes when many primitives
-        share vertices.</li>
+        <li>We introduce the <b>index buffer</b>, which enables reuse of vertex attributes when many primitives
+        share vertices.
+        <pre class="prettyprint"><code class="javascript">// ****************************
+// * Creating a vertex buffer *
+// ****************************
+//
+// Step 1: Create an array containing the data.
+var vertexData = [
+    -0.5, -0.5, 0.0,
+    0.5, -0.5, 0.0,
+    0.5, 0.5, 0.0,
+    -0.5, 0.5, 0.0
+];
+// Step 2: Create a Float32Array from the data.
+var vertexArray = new Float32Array(vertexData);
+// Step 3: Create a buffer object.
+var vertexBuffer = gl.createBuffer();
+// Step 4: Bind the buffer to the ARRAY_BUFFER target.
+gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+// Step 5: Transfer the buffer data.
+gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW);
+// Step 6: Unbind the buffer.
+gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+// **************************
+// * Create an index buffer *
+// **************************
+//
+// Step 1: Create an array containing the data.
+var indexData = [
+    0, 1, 2, 0, 2, 3
+]
+// Step 2: Create a Uint16Array (or Uint32Array) from the data.
+var indexArray = new Uint16Array(indexData);
+// Step 3: Create a buffer object.
+var indexBuffer = gl.createBuffer();
+// Step 4: Bind the buffer to the ELEMENT_ARRAY_BUFFER target.
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+// Step 5: Transfer the buffer data.
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexArray, gl.STATIC_DRAW);
+// Step 6: Unbind the buffer.
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        </code></pre></li>
         <li>Again, this is a long, tedious process, which you should abstract.</li>
         <li>We will use this mode of rendering for the rest of the course.</li>
     </ul>
@@ -42,6 +83,8 @@
 <script src="../js/jquery-ui.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="../js/bootstrap.min.js"></script>
+<!-- Google Code Prettifier -->
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 
 <script id="vertexShader" type="x-shader/x-vertex">
     attribute vec3 vert_position;

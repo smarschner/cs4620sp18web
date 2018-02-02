@@ -74,22 +74,22 @@
     <h2>What We Did</h2>
 
     <ul>
-        <li>We used one of the most powerful tools of GLSL, <i>the full screen quad</i>.
+        <li>We used one of the most powerful tools in GLSL, <i>the full screen quad</i>.
             <ul>
-                <li>You just draw a quad whose bottom-left corner is $(-1,-1)$ and top-right corner is $(1,1)$.</li>
-                <li>The quad's "texture coordinates" (well, parameterization) go from $(0,0)$ at
+                <li>Draw a quad (or 2 triangles) whose bottom-left corner is $(-1,-1)$ and top-right corner is $(1,1)$.</li>
+                <li>The quad's "texture coordinates" (or width and height parameterization) go from $(0,0)$ at
                     the bottom-left corner to $(1,1)$ at the top-right corner.</li>
                 <li>The texture coordinate gets passed to the fragment shader through varying variable.</li>
-                <li>What happens is WebGL will generate a fragment for each pixel in the screen.
-                    Each fragment has a different texture coordinates, which indicate the location of the fragment.</li>
+                <li>WebGL will generate a fragment for each pixel in the screen.
+                    Each fragment has a different texture coordinate, which indicates the location of the fragment.</li>
                 <li>This allows you to do different things for each fragment.</li>
             </ul>
         </li>
         <li>The full screen quad is super useful for image processing.
-            Indeed, it is what enables the whole GPGPU enterprise.
+            Indeed, it is what enables GPGPU algorithms within OpenGL.
             <ul>
-                <li>Well, in order to actually do it, you need one more powerful tool, <i>the framebuffer object</i>,
-                    which we will talk about later in the course.</li>
+                <li>...Almost. In order to actually use GPGPU algorithms, you need one more powerful tool, <i>the framebuffer object</i>,
+                    to read the pixel values in the CPU context. We will talk about this later in the course.</li>
             </ul>
         </li>
     </ul>
