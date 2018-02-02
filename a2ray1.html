@@ -90,7 +90,7 @@ switching to your master branch, pulling this commit, and creating a new branch 
 solution) and committing your work there. This new commit contains all the framework changes and additions necessary for this project.</p>
 
 <p>
-	The ray1 framework set HDR as default output. The <tt>writeHDR</tt> variable in RayTracer.java is true. In order to output PNG formatted figures, set <tt>writeHDR</tt> to false. We use the openEXR library to produce HDR output. You need to configure your native library location. To do this in Eclipse, go to Project → Properties → Java Build Path → Select Libraries → Select the openexrjni-3.0.0.jar. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. Also in Project -> Properties -> Java Build Path → Select Source → Select the ray1/src. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. The HDR output file will be named as *.exr. You can download a tool from the following address to view the *.exr files as well as the *.pfm files. https://bitbucket.org/edgarv/hdritools/downloads
+	The ray1 framework set HDR as default output. The <tt>writeHDR</tt> variable in RayTracer.java is true. In order to output PNG formatted figures, set <tt>writeHDR</tt> to false. We use the openEXR library to produce HDR output. You need to configure your native library location. To do this in Eclipse, go to Project → Properties → Java Build Path → Select Libraries → Select the openexrjni-3.0.0.jar. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. Also in Project -> Properties -> Java Build Path → Select Source → Select the a2/src. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. The HDR output file will be named as *.exr. You can download a tool from the following address to view the *.exr files as well as the *.pfm files. https://bitbucket.org/edgarv/hdritools/downloads
 </p>
 
 <h4>Specification and Implementation</h4>
@@ -298,7 +298,7 @@ otherwise. Here, \(h = (\omega_i + \omega_o)/|\omega_i + \omega_o|\). See sectio
   <li><strong><tt>RepeatTexture</tt></strong>: This class repeats the texture for out-of-range UV-coordinates. In this case, copies of the texture are tiled across UV space.
 </ul>
 
-<p>The details of how to implement these are provided in the code.  Once these are completed, all scenes in subdirectory <tt>textured_scenes</tt> should render correctly except <tt>earth-GGX.xml</tt> and <tt>teapot_textured-GGX.xml</tt>.
+<p>The details of how to implement these are provided in the code.  Once these are completed, all scenes in subdirectory <tt>textured_scenes</tt> should render correctly except <tt>earth-GGX.xml</tt> and <tt>teapot_textured-GGX.xml</tt>, <tt>teapot_textured2-GGX.xml</tt>.
 
 
 <h4>Appendix A: Testing</h4>
