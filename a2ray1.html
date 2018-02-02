@@ -87,7 +87,11 @@ In this assignment, your ray tracer will have support for:
 
 <p>A new commit has been pushed to the class Github page in the master branch. We recommend
 switching to your master branch, pulling this commit, and creating a new branch (e.g. A2
-solution) and committing your work there. This new commit contains all the framework changes and additions necessary for this project.
+solution) and committing your work there. This new commit contains all the framework changes and additions necessary for this project.</p>
+
+<p>
+	The ray1 framework set HDR as default output. The <tt>writeHDR</tt> variable in RayTracer.java is true. In order to output PNG formatted figures, set <tt>writeHDR</tt> to false. We use the openEXR library to produce HDR output. You need to configure your native library location. To do this in Eclipse, go to Project → Properties → Java Build Path → Select Libraries → Select the openexrjni-3.0.0.jar. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. Also in Project -> Properties -> Java Build Path → Select Source → Select the ray1/src. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. The HDR output file will be named as *.exr. You can download a tool from the following address to view the *.exr files as well as the *.pfm files. https://bitbucket.org/edgarv/hdritools/downloads
+</p>
 
 <h4>Specification and Implementation</h4>
 
