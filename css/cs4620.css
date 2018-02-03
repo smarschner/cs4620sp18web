@@ -151,6 +151,11 @@ div.homework div.accordion-inner h3 {
   font-weight: 300;
   font-size: 25px;
   margin-top: 4ex;
+  margin-bottom: 2ex;
+}
+div.homework pre {
+  margin-top: 2ex;
+  margin-bottom: 2ex;
 }
 img.hwpic {
   float: right;

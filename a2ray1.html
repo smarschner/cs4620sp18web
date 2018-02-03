@@ -89,7 +89,19 @@ switching to your master branch, pulling this commit, and creating a new branch 
 solution) and committing your work there. This new commit contains all the framework changes and additions necessary for this project.</p>
 
 <p>
-	The ray1 framework set HDR as default output. The <tt>writeHDR</tt> variable in RayTracer.java is true. In order to output PNG formatted figures, set <tt>writeHDR</tt> to false. We use the openEXR library to produce HDR output. You need to configure your native library location. To do this in Eclipse, go to Project → Properties → Java Build Path → Select Libraries → Select the openexrjni-3.0.0.jar. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. Also in Project -> Properties -> Java Build Path → Select Source → Select the a2/src. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. The HDR output file will be named as *.exr. You can download a tool from the following address to view the *.exr files as well as the *.pfm files. https://bitbucket.org/edgarv/hdritools/downloads
+	The ray1 framework is set up to output high-dynamic range (HDR) images in the OpenEXR format.  We use the <tt>openexr</tt> C++ library to produce HDR output, via a JNI library called <tt>openexrjni</tt>. In order for the Java runtime to find the native library that is appropriate to your platform, you need to configure your native library location. To do this in Eclipse, go to Project → Properties → Java Build Path → Select Libraries → Select the openexrjni-3.0.0.jar dropdown menu → Modify Native Library Location. Modify this setting so that it matches your OS. Also in Project -> Properties -> Java Build Path → Select Source → Select the a2/src. Drop Down Menu → Modify Native Library Location. Modify this setting so that it matches your OS. 
+</p>
+<p>
+  The HDR output file will have a <tt>.exr</tt> extension. HDR images are becoming fairly widely supported; handy tools you can use to view them include:
+  <ul>
+  <li><a href="https://bitbucket.org/wkjarosz/hdrview">HDRView</a>, a minimal but convenient viewer that is cross-platform but comes precompiled only for MacOS.
+  <li><a href="http://www.irfanview.com/">IrfanView</a>, a mature and full featured image manipulation program that's free for commercial use but is Windows-only.
+  <li>The qt4image app, part of <a href="https://bitbucket.org/edgarv/hdritools">HDRITools</a> package from which our JNI library also comes, which is cross-platform but very minimal.
+  <li>The Preview app that comes with MacOS, which is handy (you can adjust exposure in the Adjust Color dialog) but has a habit of overwriting your files without asking.
+  <li>Photoshop, the widely used image manipulation program, if you already happen to own a license.
+  </ul>
+
+  The <tt>writeHDR</tt> variable in <tt>RayTracer</tt> can be set to false to output PNG images, but pixel values above 1.0 will be clipped.
 </p>
 
 <h4>Specification and Implementation</h4>
@@ -189,15 +201,17 @@ the light that comes from the incoming direction \(\omega_i\) (i.e. the directio
 
 <p>We ask you to implement two shaders:
 <ul style="list-style: none;">
-  <li><tt><strong>Lambertian</tt></strong>: This class implements the perfectly diffuse shader. Its diffuse color \(k_d\) is specified by  the <tt>diffuseColor</tt> field. The <tt>shade</tt> function should set 
+  <li><tt><strong>Lambertian</tt></strong>: This class implements the perfectly diffuse shader. Its diffuse reflectance \(R_d\) is specified by  the <tt>diffuseColor</tt> field; this is the fraction of light reflected for each color channel, so the valid range is from 0 to 1, and [0.18, 0.18, 0.18] is a photographer's middle gray. The <tt>shade</tt> function should set 
 <tt>outIntensity</tt> to:
   <ul style="list-style: none; text-align: center;">
-    \[\frac{k_L}{r^2} \; k_d \max ( n \cdot \omega_i , 0 ) \]
+    \[\frac{I_L}{r^2} \; \frac{R_d}{\pi} \max ( n \cdot \omega_i , 0 ) \]
   </ul>
-where n is the normal at the intersection point, \(k_L\) is the
+where n is the normal at the intersection point, \(I_L\) is the
 intensity of the light source, and \(r\) is the distance to the light source.
 See section 4.5.1, though notice the book's definition does not include the
-physically accurate \(1/r^2\) falloff.
+physically accurate \(1/r^2\) falloff, and uses a &ldquo;diffuse coefficient&rdquo; \(k_d\), which is our \(R_d/\pi\).</p>
+
+<p>If the surface is back-facing to the camera (that is, \(\omega_o \cdot n < 0\)), the camera is seeing the wrong side of the surface, and you should just return black.</p>
 
 <p>Notice that these values should be computed once for each light in the
 scene, and the contributions from each light should be summed, unless something
@@ -217,7 +231,15 @@ for each <tt>shade</tt> method should look something like:
 
 <p>After the <tt>Lambertian</tt> shader completed, you should be able to render <tt>two-boxes.xml</tt> correctly.
 
-<li><tt><strong>Microfacet</strong></tt>: This class implements the microfacet-based lighting model. Its BRDF function is product of several factors:
+<li><tt><strong>Microfacet</strong></tt>: This class implements a microfacet-based lighting model that includes diffuse reflection and also models light that reflects specularly from the top surface of the material.  This model is defined in terms of its bidirectional reflectance distribution function (BRDF) and <tt>outIntensity</tt> is computed as follows:
+  <ul style="list-style: none; text-align: center;">
+    \[\frac{I_L}{r^2} \;\left(\frac{R_d}{\pi} + f_r(\omega_i, \omega_o, n)\right) \max ( n \cdot \omega_i , 0 ) \]
+  </ul>
+and just as with the <tt>Lambertian</tt> shader, these computations should be repeated for each visible light in the scene and the contributions summed. </p>
+
+  The term in parentheses is the full BRDF of the surface, including the Lambertian BRDF (which is a constant, since diffuse reflection sends light equally in all directions) and the specular BRDF \(f_r\).
+
+  The specific microfacet model we use comes from <a href="https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf">this paper</a> and is product of several factors:
   <ul style="list-style: none; text-align: center;">
     \[ f_r(\omega_i,\omega_o,n) \; =  \; \frac{F(\omega_i,h)G(\omega_i,\omega_o,h)D(h)}{4|\omega_i \cdot n| |\omega_o \cdot n|} \]
   </ul>
@@ -225,43 +247,37 @@ for each <tt>shade</tt> method should look something like:
   <p><tt>\(\omega_i\)</tt>: Direction unit vector along incoming ray.</p>
   <p><tt>\(\omega_o\)</tt>: Direction unit vector along outgoing ray.</p>
   <p><tt>\(n\)</tt>: unit normal vector of surface at the shaded point.</p>
-  <p><tt>\(h\)</tt>: Half vector of \(\omega_i\) and \(\omega_o\) and its length is normalized to unit. 
+  <p><tt>\(h\)</tt>: normalized half vector of \(\omega_i\) and \(\omega_o\):
   <ul style="list-style: none; text-align: center;">
     \[  h(\omega_i, \omega_o) \; = \; \frac{\omega_i + \omega_o}{|\omega_i + \omega_o|} \]
   </ul>
   </p>
 
-  <p>After the BRDF function value \(f_r(\omega_i,\omega_o,n)\) computed, the <tt>shade</tt> function should set <tt>outIntensity</tt> to:
-  <ul style="list-style: none; text-align: center;">
-    \[ f_r(\omega_i,\omega_o,n) \; \max(n \cdot \omega_i, 0) \]
-  </ul>
-  only if \(n \cdot \omega_i\) is greater than  0, and sets it to 0
-otherwise.
-  </p>
+  <p>The three terms \(F\), \(D\), and \(G\) are the Fresnel factor, the slope distribution, and the shadowing/masking factor, and their particulars are given below.
 
-  <p>In implementation, same notice that these computations should be iterated through each light in the scene and the contribution from each light should be summed up if the light is visible to the shaded point. </p>
 
   <p>There is a BRDF object attribute for microfacet shader class. Its <tt>EvalBRDF</tt> method should be called for BRDF function value evaluation. </p>
 
-  <p>Microfacet shader with Beckmann distribution is required to implement. You are supposed to implement <tt>EvalBRDF</tt> method and all other necessary helper methods in <tt>Beckmann.java</tt>. Parsed microfacet model related parameters can be found as attributes in its super class file <tt>BRDF.java</tt>.</p>
+  <p>The microfacet model you're required to implement uses the Beckmann distribution to model the roughness of the surface (see below for info about a second model for extra credit).   You are supposed to implement <tt>EvalBRDF</tt> method and all other necessary helper methods in <tt>Beckmann.java</tt>. Parsed microfacet model related parameters can be found as attributes in its super class file <tt>BRDF.java</tt>.</p>
 
   <p>More details on each factor of the microfacet BRDF function.</p>
   
-  <p><tt>\(F(\omega_i,h)\)</tt>: This is the Fresnel term of unpolerized light and only reflection is considered in this assignment.
+  <p><tt>\(F(\omega_i,h)\)</tt>: This is the Fresnel term for unpolarized light, and only reflection (not refraction) is considered in this assignment.
   <ul style="list-style: none; text-align: center;">
     \[ F(\omega_i, h) \; = \; \frac{1}{2}\frac{(g-c)^2}{(g+c)^2}\left(1 \; + \; \frac{(c(g+c)-1)^2}{(c(g-c)+1)^2}\right)\]
   </ul>
-  where \(g \; = \; \sqrt{\frac{n_t^2}{n_i^2}-1+c^2}\) and \(c \; = \; |\omega_i \cdot h|\). \(n_t\) and \(n_i\) are the refractive index of material and air respectively. \(n_i\;=\;1.0\). In microfacet shader, there is a variable <tt>nt</tt> parsed from xml file and it corresponds to \(n_t\). Note that the value of \(g\) can be imaginary for some materials, clamp \(F\;=\;1\) in this case.
+  where \(g \; = \; \sqrt{\frac{n_t^2}{n_i^2}-1+c^2}\) and \(c \; = \; |\omega_i \cdot h|\). \(n_t\) and \(n_i\) are the refractive index of material and air respectively. \(n_i\;=\;1.0\). In microfacet shader, there is a variable <tt>nt</tt> parsed from xml file and it corresponds to \(n_t\). Note that when computing the value of \(g\), it is possible to encounter a neagive number under the square root in some edge cases.  In this case set \(F\;=\;1\).
 </p>
 
   <p><tt>\(D(h)\)</tt>: This factor comes from the microfacet distribution function. As for the required part of this assignment, we use Beckmann distribution.
   <ul style="list-style: none; text-align: center;">
-    \[ D(h) \; = \; \frac{\chi^{+}(h \cdot n)}{\pi\alpha_b^2\cos^2\theta_h} \; e^{\frac{-\tan^2\theta_h}{\alpha_b^2}} \]
+    \[ D(h) \; = \; \frac{\chi^{+}(h \cdot n)}{\pi\alpha_b^2\cos^2\theta_h} \; \exp\left(\frac{-\tan^2\theta_h}{\alpha_b^2}\right) \]
   </ul>
   where \(\theta_h\) denotes the angle between \(h\) and \(n\); \(\chi^{+}(a)\) is positive characteristic function (one if \(a>0\) and zero if \(a \leq 0\) ). \(alpha_b\) is width parameter of the Beckmann distribution, corresponding to parsed variable <tt>alpha</tt> in <tt>BRDF.java</tt>.</p>
 
 <p>
-  <tt>\(G(\omega_i,\omega_o,h)\)</tt>: This is Smith shadowing-masking term and depends on the choice of microfacet distribution function \(D(h)\). \(G(\omega_i, \omega_o,h)\) can be separated as the product of two parts:
+  <tt>\(G(\omega_i,\omega_o,h)\)</tt>: This is Smith shadowing-masking term; it is designed based on the choice of microfacet distribution function \(D(h)\). For 
+  the Beckmann model, we use a rational approximation calculated by Walter et al.  \(G(\omega_i, \omega_o,h)\) can be separated as the product of two parts:
   <ul style="list-style: none; text-align: center;">
     \[ G(\omega_i, \omega_o, h) = G_1(\omega_i,h)G_1(\omega_o,h) \]
   </ul>
@@ -280,7 +296,7 @@ otherwise.
 
 <p>After both <tt>Lambertian</tt> and <tt>microfacet</tt> (Beckmann) shader are completed, you should be able to render <tt>one-sphere.xml</tt>, <tt>one-sphere2.xml</tt>, <tt>teapot.xml</tt>, <tt>teapot2.xml</tt> (different level of roughness with <tt>teapot.xml</tt>), <tt>wire-box.xml</tt>, <tt>wire-box-orthographic.xml</tt> and the bunny scenes correctly.</p>
 
-<p>To help you ensure that each term in microfacet shader with Beckmann distribution is implemented correctly, please refer to directory <tt>a2/data/scenes/ray1/microfacet_Beckmann_debug_reference</tt>. For example, if the <tt>shade</tt> method in <tt>Microfacet.java</tt> is correctly implemented and the <tt>EvalBRDF</tt> method in <tt>Beckmann.java</tt> just returns Fresnel term <tt>F</tt>, rendering <tt>one-sphere.xml</tt> should lead to figure same as <tt>microfacet_Beckmann_debug_reference/one-sphere-F.xml.exr</tt>. Similar tricks for other figures in the subdirectory. </p>
+<p>To help you ensure that each term in microfacet shader with Beckmann distribution is implemented correctly, please refer to the directory <tt>a2/data/scenes/ray1/microfacet_Beckmann_debug_reference</tt>. For example, if the <tt>shade</tt> method in <tt>Microfacet.java</tt> is correctly implemented and the <tt>EvalBRDF</tt> method in <tt>Beckmann.java</tt> returns just the Fresnel term <tt>F</tt>, rendering <tt>one-sphere.xml</tt> should lead to an image the same as <tt>microfacet_Beckmann_debug_reference/one-sphere-F.xml.exr</tt>. The other images in this subdirectory give similar references for the other terms. Using these tests can help you isolate errors in the implementation.</p>
 </ul>
 
 
