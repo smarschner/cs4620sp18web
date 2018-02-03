@@ -36,14 +36,13 @@
 
     <h3>Programming Part</h3>
 
-You only are required to complete 3 of the following 4 features for full credit on this assignment:
+You are required to complete the following 4 features for full credit on this assignment:
   <ul>
-    <li> Texture coordinates for <tt>Sphere</tt>s (if omitted, always use texture coordinate (0,0))
-    <li> <tt>Microfacet</tt> shader (if omitted, behave as <tt>Lambertian</tt>)
-    <li> <tt>RepeatTexture</tt> (if omitted, behave as <tt>ClampTexture</tt>)
-    <li> <tt>ClampTexture</tt> (if omitted, behave as <tt>RepeatTexture</tt>)
+    <li> Texture coordinates for <tt>Sphere</tt>s 
+    <li> <tt>Microfacet</tt> shader 
+    <li> <tt>RepeatTexture</tt> 
+    <li> <tt>ClampTexture</tt> 
   </ul>
-Completing all four will earn extra credit.  Please make it clear which features you completed (so we know which ones to grade) in your Readme file.
 
 <h4>Introduction</h4>
 
@@ -218,7 +217,7 @@ for each <tt>shade</tt> method should look something like:
 
 <p>After the <tt>Lambertian</tt> shader completed, you should be able to render <tt>two-boxes.xml</tt> correctly.
 
-<li><tt><strong>Microfacet</strong></tt>: This class implements the Microfacet-based lighting model. Its BRDF function is product of several factors:
+<li><tt><strong>Microfacet</strong></tt>: This class implements the microfacet-based lighting model. Its BRDF function is product of several factors:
   <ul style="list-style: none; text-align: center;">
     \[ f_r(\omega_i,\omega_o,n) \; =  \; \frac{F(\omega_i,h)G(\omega_i,\omega_o,h)D(h)}{4|\omega_i \cdot n| |\omega_o \cdot n|} \]
   </ul>
@@ -240,6 +239,12 @@ for each <tt>shade</tt> method should look something like:
 otherwise.
   </p>
 
+  <p>In implementation, same notice that these computations should be iterated through each light in the scene and the contribution from each light should be summed up if the light is visible to the shaded point. </p>
+
+  <p>There is a BRDF object attribute for microfacet shader class. Its <tt>EvalBRDF</tt> method should be called for BRDF function value evaluation. </p>
+
+  <p>Microfacet shader with Beckmann distribution is required to implement. You are supposed to implement <tt>EvalBRDF</tt> method and all other necessary helper methods in <tt>Beckmann.java</tt>. Parsed microfacet model related parameters can be found as attributes in its super class file <tt>BRDF.java</tt>.</p>
+
   <p>More details on each factor of the microfacet BRDF function.</p>
   
   <p><tt>\(F(\omega_i,h)\)</tt>: This is the Fresnel term of unpolerized light and only reflection is considered in this assignment.
@@ -253,7 +258,7 @@ otherwise.
   <ul style="list-style: none; text-align: center;">
     \[ D(h) \; = \; \frac{\chi^{+}(h \cdot n)}{\pi\alpha_b^2\cos^2\theta_h} \; e^{\frac{-\tan^2\theta_h}{\alpha_b^2}} \]
   </ul>
-  where \(\theta_h\) denotes the angle between \(h\) and \(n\); \(\chi^{+}(a)\) is positive characteristic function (one if \(a>0\) and zero if \(a \leq 0\) ). \(alpha_b\) is width parameter of the Beckmann distribution, corresponding to parsed variable <tt>alpha_b</tt> in microfacet shader.</p>
+  where \(\theta_h\) denotes the angle between \(h\) and \(n\); \(\chi^{+}(a)\) is positive characteristic function (one if \(a>0\) and zero if \(a \leq 0\) ). \(alpha_b\) is width parameter of the Beckmann distribution, corresponding to parsed variable <tt>alpha</tt> in <tt>BRDF.java</tt>.</p>
 
 <p>
   <tt>\(G(\omega_i,\omega_o,h)\)</tt>: This is Smith shadowing-masking term and depends on the choice of microfacet distribution function \(D(h)\). \(G(\omega_i, \omega_o,h)\) can be separated as the product of two parts:
@@ -273,16 +278,9 @@ otherwise.
   where \(a=(\alpha_b\tan\theta_v)^{-1}\) and \(\theta_v\) is the angle between \(v\) and \(n\).
 </p>
 
-  <!--<li><tt><strong>Phong</strong></tt>: This class implements the Blinn-Phong lighting model. It has a diffuse color component  as defined above \(k_d\), as well as <tt>specularColor</tt> \(k_s\), and <tt> exponent</tt> \(p\) fields, where the <tt>exponent</tt> is the "shininess". The <tt>shade</tt> function should set <tt>outIntensity</tt> to:
-  <ul style="list-style: none; text-align: center;">
-		\[\frac{k_L}{r^2} \; (k_d \max(n \cdot \omega_i, 0) + k_s \max(n \cdot h, 0)^p) \]
-  </ul>
-	only if \(n \cdot \omega_i\) is greater than  0, and sets it to 0
-otherwise. Here, \(h = (\omega_i + \omega_o)/|\omega_i + \omega_o|\). See section
-4.5.2, but same warning as above.  </ul>-->
-<p>Same notice that these computations should be iterated through each light in the scene and the contribution from each light should be summed up if the light is visible to the shaded point.</p>
+<p>After both <tt>Lambertian</tt> and <tt>microfacet</tt> (Beckmann) shader are completed, you should be able to render <tt>one-sphere.xml</tt>, <tt>one-sphere2.xml</tt>, <tt>teapot.xml</tt>, <tt>teapot2.xml</tt> (different level of roughness with <tt>teapot.xml</tt>), <tt>wire-box.xml</tt>, <tt>wire-box-orthographic.xml</tt> and the bunny scenes correctly.</p>
 
-<p>After both <tt>Lambertian</tt> and <tt>microfacet</tt> (Beckmann) shader are completed, you should be able to render <tt>one-sphere.xml</tt>, <tt>one-sphere2.xml</tt>, <tt>teapot.xml</tt>, <tt>teapot2.xml</tt> (different level of roughness with <tt>teapot.xml</tt>), <tt>wire-box.xml</tt>, <tt>wire-box-orthographic.xml</tt> and the bunny scenes correctly.
+<p>To help you ensure that each term in microfacet shader with Beckmann distribution is implemented correctly, please refer to directory <tt>a2/data/scenes/ray1/microfacet_Beckmann_debug_reference</tt>. For example, if the <tt>shade</tt> method in <tt>Microfacet.java</tt> is correctly implemented and the <tt>EvalBRDF</tt> method in <tt>Beckmann.java</tt> just returns Fresnel term <tt>F</tt>, rendering <tt>one-sphere.xml</tt> should lead to figure same as <tt>microfacet_Beckmann_debug_reference/one-sphere-F.xml.exr</tt>. Similar tricks for other figures in the subdirectory. </p>
 </ul>
 
 
@@ -349,10 +347,9 @@ significant differences, consider checking for bugs in your code.
      \]
   </ul>
   The meaning of the variable notations and all other factors in the BRDF function keep the same as above.</p>
-  <p>
-    <tt>Hint:</tt> In <tt>Microfacet.java</tt>, there is a string variable <tt>NormalDistributionType</tt> parsed from XML scene files. When it's Beckmann distribution, the parsed string is <tt>"Beckmann"</tt>; when it's GGX distribution, the parsed string is <tt>"GGX"</tt>. You can make a <tt>switch</tt> statement or <tt>if-else</tt> statement in method <tt>EvalBRDF</tt> to calcuate term <tt>D</tt> and term <tt>G</tt> accordingly. GGX distribution's width parameter <tt>\(\alpha_g\)</tt> is parsed as varialbe <tt>alpha_g</tt> in microfacet shader.
-  </p>
-  <p>After the microfacet shader with GGX distribution implemented, <tt>one-sphere-GGX.xml</tt>, <tt>one-sphere2-GGX.xml</tt>, <tt>teapot-GGX.xml</tt>, <tt>teapot2-GGX.xml</tt>, <tt>textured_scenes/earth-GGX.xml</tt> and <tt>textured_scenes/teapot_textured-GGX.xml</tt> can be rendered.</p>
+
+  <p>To get extra credit for <tt>GGX</tt> shader, <tt>EvalBRDF</tt> and other necessary helper methods in <tt>GGX.java</tt> should be implemented. The width parameter <tt>\(alpha_g\)</tt> is parsed as variable <tt>alpha</tt> from super class <tt>BRDF.java</tt>.</p>
+  <p>After the microfacet shader with GGX distribution correctly implemented, <tt>one-sphere-GGX.xml</tt>, <tt>one-sphere2-GGX.xml</tt>, <tt>teapot-GGX.xml</tt>, <tt>teapot2-GGX.xml</tt>, <tt>textured_scenes/earth-GGX.xml</tt> and <tt>textured_scenes/teapot_textured-GGX.xml</tt> can be rendered.</p>
 </ul>
 
 <h4>Appendix C: Framework</h4>
