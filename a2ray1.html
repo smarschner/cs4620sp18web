@@ -233,11 +233,11 @@ for each <tt>shade</tt> method should look something like:
 
 <li><tt><strong>Microfacet</strong></tt>: This class implements a microfacet-based lighting model that includes diffuse reflection and also models light that reflects specularly from the top surface of the material.  This model is defined in terms of its bidirectional reflectance distribution function (BRDF) and <tt>outIntensity</tt> is computed as follows:
   <ul style="list-style: none; text-align: center;">
-    \[\frac{I_L}{r^2} \;\left(\frac{R_d}{\pi} + f_r(\omega_i, \omega_o, n)\right) \max ( n \cdot \omega_i , 0 ) \]
+    \[\frac{I_L}{r^2} \;\left(\frac{R_d}{\pi} + R_m\;f_r(\omega_i, \omega_o, n)\right) \max ( n \cdot \omega_i , 0 ) \]
   </ul>
 and just as with the <tt>Lambertian</tt> shader, these computations should be repeated for each visible light in the scene and the contributions summed. </p>
 
-  The term in parentheses is the full BRDF of the surface, including the Lambertian BRDF (which is a constant, since diffuse reflection sends light equally in all directions) and the specular BRDF \(f_r\).
+  The term in parentheses is the full BRDF of the surface, including the Lambertian BRDF (which is a constant, since diffuse reflection sends light equally in all directions) and the specular BRDF \(f_r\). Its specular reflectance \(R_m\) is specified by the <tt>microfacetColor</tt> field, representing the fraction of light reflected by specular component in each color channel. And the value of function \(f_r(\omega_i, \omega_o, n)\right)\) here is a number (scalar-valued).
 
   The specific microfacet model we use comes from <a href="https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf">this paper</a> and is product of several factors:
   <ul style="list-style: none; text-align: center;">
@@ -294,9 +294,9 @@ and just as with the <tt>Lambertian</tt> shader, these computations should be re
   where \(a=(\alpha_b\tan\theta_v)^{-1}\) and \(\theta_v\) is the angle between \(v\) and \(n\).
 </p>
 
-<p>After both <tt>Lambertian</tt> and <tt>microfacet</tt> (Beckmann) shader are completed, you should be able to render <tt>one-sphere.xml</tt>, <tt>one-sphere2.xml</tt>, <tt>teapot.xml</tt>, <tt>teapot2.xml</tt> (different level of roughness with <tt>teapot.xml</tt>), <tt>wire-box.xml</tt>, <tt>wire-box-orthographic.xml</tt> and the bunny scenes correctly.</p>
+<p>After both <tt>Lambertian</tt> and <tt>microfacet</tt> (Beckmann) shader are completed, you should be able to render <tt>one-sphere.xml</tt>, <tt>one-sphere2.xml</tt>, <tt>teapot.xml</tt>, <tt>teapot2.xml</tt> (different level of roughness with <tt>teapot.xml</tt>), <tt>wire-box.xml</tt>, <tt>wire-box-orthographic.xml</tt> and the bunny scenes correctly. </p>
 
-<p>To help you ensure that each term in microfacet shader with Beckmann distribution is implemented correctly, please refer to the directory <tt>a2/data/scenes/ray1/microfacet_Beckmann_debug_reference</tt>. For example, if the <tt>shade</tt> method in <tt>Microfacet.java</tt> is correctly implemented and the <tt>EvalBRDF</tt> method in <tt>Beckmann.java</tt> returns just the Fresnel term <tt>F</tt>, rendering <tt>one-sphere.xml</tt> should lead to an image the same as <tt>microfacet_Beckmann_debug_reference/one-sphere-F.xml.exr</tt>. The other images in this subdirectory give similar references for the other terms. Using these tests can help you isolate errors in the implementation.</p>
+<p>To help you ensure that each term in microfacet shader with Beckmann distribution is implemented correctly, please refer to the directory <tt>a2/data/scenes/ray1/microfacet_Beckmann_debug_reference</tt>. For example, if the <tt>shade</tt> method in <tt>Microfacet.java</tt> is correctly implemented and the <tt>EvalBRDF</tt> method in <tt>Beckmann.java</tt> returns just the Fresnel term <tt>F</tt>, rendering <tt>microfacet_Beckmann_debug_reference/one-sphere-debug.xml</tt> should lead to an image the same as <tt>microfacet_Beckmann_debug_reference/one-sphere-F.xml.exr</tt>. The other images in this subdirectory give similar references for the other terms. Using these tests can help you isolate errors in the implementation.</p>
 </ul>
 
 
