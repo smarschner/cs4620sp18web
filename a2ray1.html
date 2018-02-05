@@ -272,7 +272,7 @@ and just as with the <tt>Lambertian</tt> shader, these computations should be re
 
   <p><tt>\(D(h)\)</tt>: This factor comes from the microfacet distribution function. As for the required part of this assignment, we use Beckmann distribution.
   <ul style="list-style: none; text-align: center;">
-    \[ D(h) \; = \; \frac{\chi^{+}(h \cdot n)}{\pi\alpha_b^2\cos^2\theta_h} \; \exp\left(\frac{-\tan^2\theta_h}{\alpha_b^2}\right) \]
+    \[ D(h) \; = \; \frac{\chi^{+}(h \cdot n)}{\pi\alpha_b^2\cos^4\theta_h} \; \exp\left(\frac{-\tan^2\theta_h}{\alpha_b^2}\right) \]
   </ul>
   where \(\theta_h\) denotes the angle between \(h\) and \(n\); \(\chi^{+}(a)\) is positive characteristic function (one if \(a>0\) and zero if \(a \leq 0\) ). \(alpha_b\) is width parameter of the Beckmann distribution, corresponding to parsed variable <tt>alpha</tt> in <tt>BRDF.java</tt>.</p>
 
