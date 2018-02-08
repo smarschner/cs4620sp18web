@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 3 -- Exhibit #0: Introduction to Textures</title>
+    <title>CS 4621: Lecture 3 -- Exhibit #0: Using Textures for Indexed Triangle Meshes</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -19,7 +19,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit #0: Introduction to Textures</h1>
+    <h1>Exhibit #0: Using Textures for Indexed Triangle Meshes</h1>
 
     <canvas id="webglCanvas" style="border: none; background-color: black;" width="512" height="512"></canvas>
 
@@ -27,83 +27,131 @@
 
     <ul>
         <li>
-            Another way to transfer data to the GPU is through textures.
+            In the canvas above, there is a 2D indexed triangle mesh in the shape of the word "Hi". Each triangle in this mesh has an associated color.
         </li>
-        <ul>
-            <li>
-                Think of a texture as a 2D array of data that has special accessors.
-            </li>
-            <li>
-                Most commonly, textures are used to transfer pixel data to the GPU, but they are not limited to that (as this exhibit shows).
-            </li>
-            <li>
-                Textures are more flexible than uniform arrays:
-                <ul>
-                    <li>
-                        There is much higher memory limit for texture data than uniform arrays.
-                    </li>
-                    <li>
-                        Uniform arrays can only be traversed by combinations of constants and loop indices; random access is not allowed. Textures do not have this restriction.
-                        <ul>
-                            <li>
-                                Note that this means shaders cannot access indexed mesh structures through uniform arrays.
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        Extents can be set dynamically at runtime.
-                    </li>
-                </ul>
-            </li>
-        </ul>
         <li>
-            However, textures have a number of limitations as well.
+            Each fragment's color is determined by its nearest triangle in the mesh.
             <ul>
                 <li>
-                    Very few data types are supported; most are different representations of color data.
-                    <ul>
-                        <li>
-                            In WebGL 1, floating point data are not supported by default. There is an extension to enable floating point textures. In WebGL 2, floating point textures are allowed by default.
-                        </li>
-                    </ul>
+                    If the fragment is contained within a triangle, it is colored with the color associated to that triangle.
                 </li>
                 <li>
-                    In WebGL 1, texture dimensions are restricted to powers of 2.
+                    Otherwise, the fragment is colored with the color of the nearest triangle, scaled down by (a function of) the distance to that triangle.
                 </li>
             </ul>
         </li>
+        <li>
+            This is more complicated than simply displaying a mesh. Pixels outside of the mesh need to be colored too. In fact, they need to know the locations of all triangles in the mesh.
+            <ul>
+                <li>
+                    A full-screen quad is necessary here to color pixels outside of the mesh.
+                </li>
+                <li>
+                    All of the mesh data needs to be accessible from the fragment shader.
+                </li>
+            </ul>
+        </li>
+        <li>
+            We could transfer the mesh to the shaders through a uniform array, but there are some restrictions that make this inconvenient.
+            <ul>
+                <li>
+                    Uniform arrays can only by indexed by loop variables and constants. In particular, this means we cannot use an indexed mesh structure.
+                </li>
+            </ul>
+        </li>
+        <li>
+            Instead, we will use a texture to store vertex positions, and a uniform array will index into this structure.
+            <ul>
+                <li>
+                    We will use a separate texture to store triangle colors.
+                </li>
+            </ul>
+        </li>
+        <li>
+            First, we need to create the texture and store the relevant data.
+            <pre class="prettyprint"><code class="language-javascript">// In JavaScript...
+var data = [];
+        
+// ... fill data array ...
+// Note that the code below assumes you are storing vec3s in a flattened pattern
+
+// STEP 1: create the texture on the GPU.
+var texture = gl.createTexture();
+
+// STEP 2: The following line will enable floating points to be used in textures.
+// Note that WebGL 1 does not support floating point textures by default. (WebGL 2 does.)
+var ext = gl.getExtension('OES_texture_float');
+
+// STEP 3: Bind the texture. All following texture operations to the target gl.TEXTURE_2D will apply to the input texture.
+// Note there is no gl.TEXTURE_1D in WebGL.
+gl.bindTexture(gl.TEXTURE_2D, texture);
+
+// STEP 4: WebGL 1 expects a texture with dimensions that are powers of 2, so calculate the actual size of the texture given the data.
+var dataSize = nextPowerOf2(data.length / 3);
+// Pad the data with 0s to make sure it is the appropriate length.
+padWith0(data, dataSize * 3);
+
+// STEP 5: Convert data to the appropriate type
+var dataArray = new Float32Array(data);
+
+// STEP 6: Send the texture data to the GPU.
+// Arg 1 is the target (for now, always gl.TEXTURE_2D).
+// Arg 2 is the level of detail (for now, always 0).
+// Arg 3 is the internal format, which specifies number of data values per "pixel" in the texture.
+//     Use gl.ALPHA for 1, gl.RGB for 2 or 3, and gl.RGBA for 4.
+// Arg 4 is the width of the texture.
+// Arg 5 is the height of the texture.
+// Arg 6 is the border. This is always 0.
+// Arg 7 is the format. This is always the same as arg 3 for WebGL 1.
+// Arg 8 is the type of each data value; floating point in our case, but generally gl.BYTE for image textures.
+// Arg 9 is the data itself.
+// Note that you can call this function multiple times without creating a new texture. Once a texture is created, it can be overwritten.
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, dataSize, 1, 0, gl.RGB, gl.FLOAT, dataArray);
+
+// STEP 7: Cleanup; unbind the texture.
+gl.bindTexture(gl.TEXTURE_2D, null);</code></pre>
+        </li>
+        <li>
+            Textures can be accessed in the shaders through a <code>sampler</code> object.
+            <pre class="prettyprint"><code class="language-glsl">// in GLSL...
+uniform float vertexTextureSize; // The width of the texture that stores vertex positions
+uniform sampler2D vertexPositions; // Allows access to the vertex position texture
+
+// ...
+
+void main() {
+
+    // ...
+
+    vec2 t0 = texture2D(vertexPositions, vec2(float(indices.x) / vertexTextureSize, 0.0)).xy; // extract vertex 0 from the texture
+    vec2 t1 = texture2D(vertexPositions, vec2(float(indices.y) / vertexTextureSize, 0.0)).xy; // extract vertex 1 from the texture
+    vec2 t2 = texture2D(vertexPositions, vec2(float(indices.z) / vertexTextureSize, 0.0)).xy; // extract vertex 2 from the texture
+
+    // ...
+
+}</code></pre>
+        </li>
+        <li>
+            Before drawing, we need to tell WebGL which shaders are associated with with sampler.
+            <pre class="prettyprint"><code class="language-javascript">// In JavaScript...
+// STEP 1: Mark a texture unit as active. Only so many textures may be used at once;
+// each one has its own texture unit, specified by gl.TEXTUREi, for some integer i.
+gl.activeTexture(gl.TEXTURE0);
+
+// STEP 2: Bind the texture.
+gl.bindTexture(gl.TEXTURE_2D, texture);
+
+// STEP 3: Set filtering parameters. These lines are important, but don't worry about what they do for now.
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
+// STEP 4: Set the uniform sampler to read from the specified texture unit.
+gl.uniform1i(gl.getUniformLocation(program, "vertexPositions"), 0);</code></pre>
+        </li>
+        <li>
+            Similar steps are taken to store triangle face colors in a texture.
+        </li>
     </ul>
-
-<!--     <ul>
-        <li>
-            Create a <code>canvas</code> element.  Give it an ID for future reference.
-<pre class="prettyprint">&lt;canvas id="webglCanvas" style="border: none; background-color: black;" width="512" height="512">&lt;/canvas></pre>
-        </li>
-        <li>
-            In Javascript, retrieve the canvas element.
-<pre class="prettyprint">
-<code class="language-javascript">var canvas = document.getElementById("webglCanvas")</code>
-</pre>
-        </li>
-        <li>
-            Then, call <code>getContext("experimental-webgl")</code> or <code>getContext("webgl")</code> method
-            of the canvas element, which ever one works.
-<pre class="prettyprint">
-<code class="language-javascript">var gl = canvas.getContext("experimental-webgl");
-if (!gl) {
-    gl = canvas.getContent("webgl");
-    if (!gl) {
-        alert("Cannot get WebGL context!");
-    }
-}</code>
-</pre>
-        </li>
-        <li>
-            What we get is a <b>WebGL context</b>, a Javascript object that allows us to access functions and constants
-            in the WebGL API.
-        </li>
-    </ul> -->
-
 
 </div>
 
@@ -303,7 +351,7 @@ if (!gl) {
         // STEP 5: Convert data to the appropriate type
         var dataArray = new Float32Array(data);
 
-        // STEP 6: send the texture data to the GPU.
+        // STEP 6: Send the texture data to the GPU.
         // Arg 1 is the target (for now, always gl.TEXTURE_2D).
         // Arg 2 is the level of detail (for now, always 0).
         // Arg 3 is the internal format, which specifies number of data values per "pixel" in the texture.
