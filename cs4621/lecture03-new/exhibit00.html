@@ -86,34 +86,29 @@ var ext = gl.getExtension('OES_texture_float');
 // Note there is no gl.TEXTURE_1D in WebGL.
 gl.bindTexture(gl.TEXTURE_2D, texture);
 
-// STEP 4: WebGL 1 expects a texture with dimensions that are powers of 2, so calculate the actual size of the texture given the data.
-var dataSize = nextPowerOf2(data.length / 3);
-// Pad the data with 0s to make sure it is the appropriate length.
-padWith0(data, dataSize * 3);
-
-// STEP 5: Convert data to the appropriate type
+// STEP 4: Convert data to the appropriate type
 var dataArray = new Float32Array(data);
 
-// STEP 6: Send the texture data to the GPU.
+// STEP 5: Send the texture data to the GPU.
 // Arg 1 is the target (for now, always gl.TEXTURE_2D).
 // Arg 2 is the level of detail (for now, always 0).
 // Arg 3 is the internal format, which specifies number of data values per "pixel" in the texture.
 //     Use gl.ALPHA for 1, gl.RGB for 2 or 3, and gl.RGBA for 4.
-// Arg 4 is the width of the texture.
-// Arg 5 is the height of the texture.
+// Arg 4 is the width of the texture in "pixels".
+// Arg 5 is the height of the texture in "pixels".
 // Arg 6 is the border. This is always 0.
 // Arg 7 is the format. This is always the same as arg 3 for WebGL 1.
 // Arg 8 is the type of each data value; floating point in our case, but generally gl.BYTE for image textures.
 // Arg 9 is the data itself.
 // Note that you can call this function multiple times without creating a new texture. Once a texture is created, it can be overwritten.
-gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, dataSize, 1, 0, gl.RGB, gl.FLOAT, dataArray);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, data.length / 3, 1, 0, gl.RGB, gl.FLOAT, dataArray);
 
-// STEP 7: Cleanup; unbind the texture.
+// STEP 6: Cleanup; unbind the texture.
 gl.bindTexture(gl.TEXTURE_2D, null);</code></pre>
         </li>
         <li>
             Textures can be accessed in the shaders through a <code>sampler</code> object.
-            <pre class="prettyprint"><code class="language-glsl">// in GLSL...
+            <pre class="prettyprint"><code class="language-glsl">// In GLSL...
 uniform float vertexTextureSize; // The width of the texture that stores vertex positions
 uniform sampler2D vertexPositions; // Allows access to the vertex position texture
 
@@ -123,9 +118,10 @@ void main() {
 
     // ...
 
-    vec2 t0 = texture2D(vertexPositions, vec2(float(indices.x) / vertexTextureSize, 0.0)).xy; // extract vertex 0 from the texture
-    vec2 t1 = texture2D(vertexPositions, vec2(float(indices.y) / vertexTextureSize, 0.0)).xy; // extract vertex 1 from the texture
-    vec2 t2 = texture2D(vertexPositions, vec2(float(indices.z) / vertexTextureSize, 0.0)).xy; // extract vertex 2 from the texture
+    ivec3 indices; // Contains integer indices for each vertex of the triangle
+    vec2 t0 = texture2D(vertexPositions, vec2((float(indices.x) + 0.5) / vertexTextureSize, 0.5)).xy; // extract vertex 0 from the texture
+    vec2 t1 = texture2D(vertexPositions, vec2((float(indices.y) + 0.5) / vertexTextureSize, 0.5)).xy; // extract vertex 1 from the texture
+    vec2 t2 = texture2D(vertexPositions, vec2((float(indices.z) + 0.5) / vertexTextureSize, 0.5)).xy; // extract vertex 2 from the texture
 
     // ...
 
@@ -141,9 +137,11 @@ gl.activeTexture(gl.TEXTURE0);
 // STEP 2: Bind the texture.
 gl.bindTexture(gl.TEXTURE_2D, texture);
 
-// STEP 3: Set filtering parameters. These lines are important, but don't worry about what they do for now.
+// STEP 3: Set texture parameters. These lines are important, but don't worry about what they do for now.
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 // STEP 4: Set the uniform sampler to read from the specified texture unit.
 gl.uniform1i(gl.getUniformLocation(program, "vertexPositions"), 0);</code></pre>
@@ -234,9 +232,9 @@ gl.uniform1i(gl.getUniformLocation(program, "vertexPositions"), 0);</code></pre>
 
             ivec4 indices = triangleIndices[i];
 
-            vec2 t0 = texture2D(vertexPositions, vec2(float(indices.x) / vertexTextureSize, 0.0)).xy; // extract vertex 0 from the texture
-            vec2 t1 = texture2D(vertexPositions, vec2(float(indices.y) / vertexTextureSize, 0.0)).xy; // extract vertex 1 from the texture
-            vec2 t2 = texture2D(vertexPositions, vec2(float(indices.z) / vertexTextureSize, 0.0)).xy; // extract vertex 2 from the texture
+            vec2 t0 = texture2D(vertexPositions, vec2((float(indices.x) + 0.5) / vertexTextureSize, 0.5)).xy; // extract vertex 0 from the texture
+            vec2 t1 = texture2D(vertexPositions, vec2((float(indices.y) + 0.5) / vertexTextureSize, 0.5)).xy; // extract vertex 1 from the texture
+            vec2 t2 = texture2D(vertexPositions, vec2((float(indices.z) + 0.5) / vertexTextureSize, 0.5)).xy; // extract vertex 2 from the texture
 
             float distToTrii = BIG_DISTANCE;
             distToTrii = min(distToTrii, distanceToSegment(geom_texCoord, t0, t1));
@@ -249,7 +247,7 @@ gl.uniform1i(gl.getUniformLocation(program, "vertexPositions"), 0);</code></pre>
 
             if (distToTrii < distance) {
                 distance = distToTrii;
-                color = texture2D(triangleColors, vec2(float(indices.w) / colorTextureSize, 0.0)).xyz; // extract the triangle's color from the texture
+                color = texture2D(triangleColors, vec2((float(indices.w) + 0.5) / colorTextureSize, 0.5)).xyz; // extract the triangle's color from the texture
             }
         }
 
@@ -315,22 +313,6 @@ gl.uniform1i(gl.getUniformLocation(program, "vertexPositions"), 0);</code></pre>
         }
     }
 
-    // Finds an integer k such that k >= n where k = 2^p for some nonnegative integer p.
-    function nextPowerOf2(n) {
-        var result = 1;
-        while (n > result) {
-            result *= 2;
-        }
-        return result;
-    }
-
-    // Fills the input array with 0s until it its length is (at least) n.
-    function padWith0(data, n) {
-        while (data.length < n) {
-            data.push(0.0);
-        }
-    }
-
     // Creates a texture object, fills it with vec3 data (treating it as a 1D array), and returns it.
     function create1DVec3Texture(gl, data) {
         // STEP 1: create the texture on the GPU.
@@ -343,29 +325,24 @@ gl.uniform1i(gl.getUniformLocation(program, "vertexPositions"), 0);</code></pre>
         // Note there is no gl.TEXTURE_1D in WebGL.
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
-        // STEP 4: WebGL 1 expects a texture with dimensions that are powers of 2, so calculate the actual size of the texture given the data.
-        var dataSize = nextPowerOf2(data.length / 3);
-        // Pad the data with 0s to make sure it is the appropriate length.
-        padWith0(data, dataSize * 3);
-
-        // STEP 5: Convert data to the appropriate type
+        // STEP 4: Convert data to the appropriate type
         var dataArray = new Float32Array(data);
 
-        // STEP 6: Send the texture data to the GPU.
+        // STEP 5: Send the texture data to the GPU.
         // Arg 1 is the target (for now, always gl.TEXTURE_2D).
         // Arg 2 is the level of detail (for now, always 0).
         // Arg 3 is the internal format, which specifies number of data values per "pixel" in the texture.
         //     Use gl.ALPHA for 1, gl.RGB for 2 or 3, and gl.RGBA for 4.
-        // Arg 4 is the width of the texture.
-        // Arg 5 is the height of the texture.
+        // Arg 4 is the width of the texture in "pixels".
+        // Arg 5 is the height of the texture in "pixels".
         // Arg 6 is the border. This is always 0.
         // Arg 7 is the format. This is always the same as arg 3 for WebGL 1.
         // Arg 8 is the type of each data value; floating point in our case, but generally gl.BYTE for image textures.
         // Arg 9 is the data itself.
         // Note that you can call this function multiple times without creating a new texture. Once a texture is created, it can be overwritten.
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, dataSize, 1, 0, gl.RGB, gl.FLOAT, dataArray);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, data.length / 3, 1, 0, gl.RGB, gl.FLOAT, dataArray);
 
-        // STEP 7: Cleanup; unbind the texture.
+        // STEP 6: Cleanup; unbind the texture.
         gl.bindTexture(gl.TEXTURE_2D, null);
 
         return texture;
@@ -476,9 +453,11 @@ gl.uniform1i(gl.getUniformLocation(program, "vertexPositions"), 0);</code></pre>
             // STEP 2: Bind the texture.
             gl.bindTexture(gl.TEXTURE_2D, vertexPositionTexture);
 
-            // STEP 3: Set filtering parameters. These lines are important, but don't worry about what they do for now.
+            // STEP 3: Set texture parameters. These lines are important, but don't worry about what they do for now.
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
             // STEP 4: Set the uniform sampler to read from the specified texture unit.
             gl.uniform1i(program.vertexPositions, 0);
@@ -491,9 +470,11 @@ gl.uniform1i(gl.getUniformLocation(program, "vertexPositions"), 0);</code></pre>
             // STEP 2: Bind the texture.
             gl.bindTexture(gl.TEXTURE_2D, triangleColorTexture);
 
-            // STEP 3: Set filtering parameters. These lines are important, but don't worry about what they do for now.
+            // STEP 3: Set texture parameters. These lines are important, but don't worry about what they do for now.
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
             // STEP 4: Set the uniform sampler to read from the specified texture unit.
             gl.uniform1i(program.triangleColors, 1);
