@@ -19,7 +19,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>CS 4621: Lecture 7</h1>
+    <h1>CS 4621: Lecture 3</h1>
 
     <section>
         <h2>Recap</h2>
@@ -84,7 +84,7 @@
                     <li>Values in textures are indexed by continuous UV coordinate, not integers.
                         <ul>
                             <li>This means that if you want to find the value in row <code>i</code>, column <code>j</code>, you need to know the size of the texture.</li>
-                            <li>Add <code>0.5</code> to each index before normalization to target the center of the pixel.</li>
+                            <li>Add <code>0.5</code> to each index before dividing by size to target the center of the pixel.</li>
                             <li>UV coordinate for value at <code>(i,j)</code> with <code>r</code> rows and <code>c</code> columns: <code>((i + 0.5) / c, (j + 0.5) / r)</code></code></li>
                         </ul>
                     </li>

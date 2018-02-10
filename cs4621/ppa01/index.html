@@ -25,35 +25,44 @@
 
     </script>
     <!-- MathJax -->
-    <script type="text/javascript" async
+    <script type="text/javaScript" async
             src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
 </head>
 <body>
 <div class="container">
     <h1>CS 4621 PPA1 <span class="subtitle">WebGL Ray</span></h1>
-    <p class="courseinfo">Out: Friday February 17, 2017</p>
-    <p class="courseinfo">Due: Friday March 3, 2017 at 11:59pm</p>
-    <p class="courseinfo">Work in groups of up to 4</p>
+    <p class="courseinfo">Out: Friday February 9, 2018</p>
+    <p class="courseinfo">Due: Friday February 23, 2018 at 11:59pm</p>
+    <p class="courseinfo">Work in groups of up to 4. You can group up on <a href="https://piazza.com/class/jdghdojrfsa3wy">Piazza</a>.</p>
 
     <h2>Overview</h2>
 
     <p>In this programming assignment, you will implement a simplified GPU version of the CS4620 raytracer (Ray 1).
-        The goal here is not to reproduce all the features we have seen in the other assignment but rather to give you
-        some practice on WebGL programming.</p>
+        The goal here is not to reproduce all the features we have seen in the other assignment, but rather to give you
+        some practice programming WebGL applications.</p>
 
     <p><b>WARNING: WE THINK THIS ASSIGNMENT IS LONG.  START EARLY.</b></p>
 
-    <h2>What You Code Should Be Able to Do</h2>
+    <h2>Requirements</h2>
 
     <center>
         <iframe width="560" height="315" src="https://www.youtube.com/embed/e1PvI9ld-0k" frameborder="0" allowfullscreen></iframe>
     </center>
+    <small>
+        Note that this video was recorded by Pramook Khungurn for the Spring 2017 version of this class. The assignment
+        has changed in places, but everything in this video is up to date.
+    </small>
 
     <h2>Logistics</h2>
 
-    <p>First, clone the <a href="https://github.com/smarschner/4620sp17web">CS 4620 web repository</a>.
-    You will find the template code for this assignment in the <code>cs4621/ppa1_student</code> directory.</p>
+<!--     <p>First, clone the <a href="https://github.com/smarschner/4620sp18web">CS 4620 web repository</a>.
+    You will find the template code for this assignment in the <code>cs4621/ppa1_student</code> directory.</p> -->
+
+    <p>
+        First, download the <a href="ppa01_framework.zip">starter code</a>. We recommend creating a git repository for
+        development, but <b>please don't share your code publicly.</b>
+    </p>
 
     <p>Inside the directory, open <code>index.html</code>, and you should see something like this.</p>
 
@@ -63,29 +72,28 @@
 
     <p>Please modify <code>index.html</code> so that it performs ray tracing and shows the output in the black canvas
     on the top of the web page.  You may also add other code to the directory.  However, do not use any 3D rendering
-    framework such as <a href="https://threejs.org/">three.js</a>.  Linear algebra libraries such as
+    frameworks such as <a href="https://threejs.org/">three.js</a>.  Linear algebra libraries such as
     <a href="http://glmatrix.net/">glMatrix</a> are fine.  Our solution code, however, does not use any
     extra code besides what is already in the ZIP file.</p>
 
-    <p>Once you're done writing your solution, ZIP the <code>cs4621/ppa1_student</code>, and submit
-    the ZIP file to CMS.</p>
+    <p>Once you're done writing your solution, ZIP the directory, and submit it to CMS.</p>
 
     <h2>Implementation Details</h2>
 
     <h3>Camera and Ray Generation</h3>
 
-    <p>Instead of a more involved camera model in the Ray 1 assignment, the camera model in this assigment is a little
+    <p>Instead of the more involved camera model in the Ray 1 assignment, the camera model in this assignment is a little
         simpler.  It is specified by 4 parameters:
     </p>
 
     <ul>
         <li><b>Eye</b> = the camera's position in world space.</li>
-        <li><b>Target</b> = the point in world space that the camera is looking at.</li>
-        <li><b>Up</b> = the camera's up vector.</li>
+        <li><b>Target</b> = the point in world space at which the the camera is pointing.</li>
+        <li><b>Up</b> = the direction opposite gravity; specifies the orientation of the camera.</li>
         <li><b>Field of view (FOV)</b> = an indication of the extent of the scene observed by the camera.  It is an angle,
         measured in <em>degrees</em>.  You can find out more about FOV in this
-        <a href="">Wikipedia article</a>. Since our canvas is a square,
-        the horizontal FOV is equal to the vertical FOV.  So, there's one FOV instead of two.
+        <a href="https://en.wikipedia.org/wiki/Field_of_view_in_video_games">Wikipedia article</a>. Since our canvas is a square,
+        the horizontal FOV is equal to the vertical FOV.
         </li>
     </ul>
 
@@ -112,10 +120,10 @@
         In other words, we convert $FOV/2$ to radian and compute its tangent.
         Note that the ray starts right off from the eye position, not from a plane that is in front of it.
         This is because our camera model does not have something equivalent to <code>projDistance</code>
-        like the one in the Ray 1 assignment.
+        in the Ray 1 assignment.
     </p>
 
-    <p>The camera can be controlled by the GUI elements in <code>index.html</code>.  Its Javascript code
+    <p>The camera can be controlled by the GUI elements in <code>index.html</code>.  Its JavaScript code
         contains the convenience methods for retrieving the camera parameters:
     </p>
     <ul>
@@ -130,9 +138,9 @@
 
     <h3>Light Source</h3>
 
-    <p>All scenes we will render in this assignment has one point light source, and it is defined
+    <p>Every scene in this assignment has one point light source, and it is defined
     by two parameters: its <b>position</b> and <b>intensity</b>.  These parameters can be controlled
-    by GUI elements, and the template code's provide the following functions for retrieving their values:
+    by GUI elements, and the template code provides the following functions for retrieving their values:
     </p>
     <ul>
         <li><code>getLightPosition()</code></li>
@@ -153,47 +161,58 @@
 
     <p>
         In the template code, we have included three scenes that you can render: the "triangle," the "cube," and
-        the "full" scene.  You can switch between theme through the GUI.  In Javascript, use the
+        the "full" scene.  You can switch between theme through the GUI.  In JavaScript, use the
         <code>getScene()</code> function to retrieve the current scene specified by the GUI.</p>
 
     <p>
-        The value returned by the <code>getScene()</code> function is a Javascript object with the following fields:
+        The value returned by the <code>getScene()</code> function is a JavaScript object with the following fields:
     </p>
 
     <ul>
         <li><code>numTriangles</code> is the number of triangles in the scene.</li>
         <li>
-            <code>vertexPositions</code> is an array containing $3 \times 3 \times numTriangles$
-            floating point numbers.  It contains the 3D positions of the three vertices of the triangles.
+            <code>vertexPositions</code> is an array containing $3 \times n$
+            floating point numbers, where $n$ is the number of vertices in the mesh.
+            It contains the 3D positions of each vertex in a flat list.
         </li>
         <li>
-            <code>triangleColors</code> is an array containing $3 \times numTriangles$ floating point numbers
-            It contains the diffuse color $(k_D)$ of the triangles.
+            <code>triangleColors</code> is an array containing $3 \times k$ floating point numbers, where $k$ is the number of
+            colors used in the scene. It contains diffuse colors $(k_D)$ in RGB format in a flat list.
+        </li>
+        <li>
+            <code>triangleIndices</code> is an array containing $4 \times numTriangles$ integers. For each triangle, it specifies
+            3 indices into <code>vertexPositions</code> (one for each of its vertices), and one index into
+            <code>triangleColors</code>, in that order. Again, this is a flat list.
         </li>
     </ul>
 
     <p>
-        In other words, the triangles are specified using the "separate triangles" representation.
-        (See <a href="http://www.cs.cornell.edu/courses/cs4620/2017sp/slides/02trimesh.pdf">CS 4620 Lecture 2</a>.)
-        We would have loved to represent them using the "indexed triangle set" representation,
-        but WebGL did not allow us to.  (Trust us.  We tried.)  If you would like to know how the scene objects
+        This is similar to indexed structures you've seen before, except colors are specified for each face rather than for each
+        vertex. Note that none of the meshes have normal or texture coordinate data. If you would like to know how the scene objects
         are created, read <code>scenes.js</code>.
     </p>
 
     <p>
-        In your shader, you should create a uniform array that can store all the vertex positions and triangle
-        colors.  For example,
-<pre class="prettyprint"><code class="language-glsl">uniform vec3 vertexPositions[MAX_TRIANGLES*3];
-uniform vec3 triangleColors[MAX_TRIANGLES];
+        In your shader, you should create a uniform array that stores all of the indices for the triangles. For example:
+<pre class="prettyprint"><code class="language-glsl">uniform ivec4 triangleIndices[MAX_TRIANGLES];
 </code></pre>
-        The full scene is the largest scene, and it contains 132 triangles.  So, you can set <code>MAX_TRIANGLES</code>
-        to $132$.  Update these uniforms with the data in the scene object every frame.
+        The full scene is the largest scene, and it contains 132 triangles, so you can set <code>MAX_TRIANGLES</code>
+        to $132$.
     </p>
-
     <p>
-        With these uniforms, the 3 vertices of the $i$th triangle are given by:
-        <code>vertexPositions[3*i]</code>, <code>vertexPositions[3*i+1]</code>, and <code>vertexPositions[3*i+2]</code>.
-        The color of the $i$th triangle is given by <code>triangleColors[i]</code>.
+        To transfer the vertex positions and triangle colors, you'll need to use textures, as uniform arrays can only be accessed
+        monotonically (i.e., with loop variables and constants). Within your fragment shader, you can use samplers to access these
+        textures:
+<pre class="prettyprint"><code class="language-glsl">uniform sampler2D vertexPositions;
+uniform sampler2D triangleColors;
+</code></pre>
+    </p>
+    <p>
+        Note that transferring lots of data to the GPU is a slow operation. These scenes are small enough that you shouldn't
+        encounter performance problems if you update <code>triangleIndices</code>, <code>vertexPositions</code>, and
+        <code>triangleColors</code> on every frame (and you will not be penalized if you do this), but we recommend only
+        updating these variables when necessary (i.e., when the user changes which scene is displayed), since this is
+        good practice.
     </p>
 
     <h3>Render Modes</h3>
@@ -231,15 +250,15 @@ uniform vec3 triangleColors[MAX_TRIANGLES];
 
     <p>
         The render mode can be changed by the GUI.  You can retrieve the current rendering mode
-        in Javascript by calling the <code>getRenderMode()</code> function.  It returns an integer
+        in JavaScript by calling the <code>getRenderMode()</code> function.  It returns an integer
         where $1$ means the face color mode, $2$ means the normal mode, $3$ means the shadow mode,
         and $4$ means the full mode.  Pass this value to your shader every frame.
     </p>
 
-    <h3>Some Annoying WebGL Limitations We Would Like You to Know Before Hand</h3>
+    <h3>WebGL Limitations</h3>
 
-    <p>WebGL specification was written for hardward with limited capabilities.  So there are
-    something that you would be able to do in normal programming languages but cannot do
+    <p>The WebGL specification was written for hardware with limited capabilities, so there are
+    some operations you would be able to do in normal programming languages but cannot do
     in GLSL.</p>
 
     <ol>
@@ -254,7 +273,8 @@ for(int i=0; i&lt;numTriangles; i++) {
 }
 </pre>
             But you can do something like this:
-<pre class="prettyprint">#define MAX_TRIANGLES 132
+<pre class="prettyprint">const int MAX_TRIANGLES = 132;
+uniform int numTriangles;
 
 for(int i=0; i&lt;MAX_TRIANGLES; i++) {
     if (i >= numTriangles)
@@ -266,8 +286,10 @@ for(int i=0; i&lt;MAX_TRIANGLES; i++) {
         </li>
         <li>
             Array access in the fragment shader is limited.  You can only index an array with an expression
-            made up of loop counters and constants.  In other words, the following is okay:
-<pre class="prettyprint">
+            made up of loop counters and constants.  In other words, if we were to store vertex positions in
+            a uniform array, the following would be okay:
+<pre class="prettyprint">uniform vec3 vertexPositions;
+
 vec3 p = vertexPosition[0];
 
 for(int i=0; i&lt;MAX_TRIANGLES; i++) {
@@ -279,24 +301,24 @@ for(int i=0; i&lt;MAX_TRIANGLES; i++) {
 }
 </pre>
             But, this is not:
-<pre class="prettyprint">uniform int vertexIndex;
+<pre class="prettyprint">uniform vec3 vertexPositions;
+uniform int vertexIndex;
 
 vec3 p = vertexPositions[p];
 </pre>
-            This is why we could not use the "indexed triangle set" mesh representation with WebGL.
-            Moreover, you could not save the index of the triangle the ray first intersect and use
-            it to retrieve the triangle's normal or color later.  There is a work around for this,
-            but we leave it to you to figure it out.
+            This is why we are storing the vertex positions and triangle colors in textures; any
+            piece of a texture can be accessed by any pixel. This way, you can loop over all triangles
+            by looping over the <code>triangleIndices</code> array.
         </li>
     </ol>
 
-    <h3>A WebGL Feature We Would Like You to Know Before Hand</h3>
+    <h3>WebGL Features</h3>
 
     <p>
         When writing a function, you can use the keywords to quantify function parameters so that
-        you can pass value <i>back</i> from the function as well.  This is very useful when writing a function that
-        has more than one return values. The keywords you want to use
-        are <code>out</code> and/or <code>inout</code>.  Using them, you can do this:
+        you can pass values <i>back</i> from the function as well.  This is very useful when writing a function that
+        has more than one return value. The relevant keywords are <code>out</code> and/or <code>inout</code>.
+        Using them, you can do this:
 <pre class="prettyprint">void computeSomething(float x, out float y, inout float z) {
     y = x + 1.0;
     z = 2.0*(x+z);
@@ -317,33 +339,34 @@ void main() {
     <h2>Programming Tips</h2>
 
     <p>
-        Okay.  So, we give you some skeleton code, and it has nothing that deals with WebGL at all.
-        You are supposed to write all this by yourselves.  There are many features to implement
-        and many things to keep track of.  How would you actually do it all?
+        This may all seem a little daunting. This project contains many pieces in a language (or, potentially, in
+        languages) that you have never used before. Additionally, debugging is difficult; JavaScript has the
+        advantage of <code>console.log(...)</code>, but there is no way to print out values in GLSL code.
     </p>
 
     <p>
-        We advice you to:
+        We strongly recommend taking the following advice:
         <blockquote>KEEP CALM AND INCREMENTALLY ADD FEATURES.</blockquote>
-        Do not do it all at one time.  Break the assignment to easy-to-finish and easy-to-test pieces.
+        Do not implement all features at once without testing them individually. You will end up with a black canvas, and you will have
+        no idea what parts of your code aren't working. Break the assignment to easy-to-finish and easy-to-test pieces.
         Here is a possible road map.
     </p>
 
     <ol>
         <li>Initialize WebGL.
             <ul>
-                <li>Get a WebGL context.  See <a href="http://www.cs.cornell.edu/courses/cs4620/2017sp/cs4621/lecture01/exhibit00.html">Exhibit #0 of Lecture 1</a>.</li>
-                <li>Set up your rendering loop. See <a href="http://www.cs.cornell.edu/courses/cs4620/2017sp/cs4621/lecture01/exhibit05.html">Exhibit #5 of Lecture 1</a></li>
+                <li>Get a WebGL context.  See <a href="../lecture01/exhibit00.html">Exhibit #0 of Lecture 1</a>.</li>
+                <li>Set up your rendering loop. See <a href="../lecture01/exhibit05.html">Exhibit #5 of Lecture 1</a>.</li>
             </ul>
         </li>
         <li>
             Write a shader that draws the full screen quad and make sure it works.
             <ul>
                 <li>The easiest way to do this is to make use of the code
-                in <a href="http://www.cs.cornell.edu/courses/cs4620/2017sp/cs4621/lecture02/exhibit06.html">Exhibit #6 of Lecture 2</a>.
+                in <a href="../lecture02/exhibit06.html">Exhibit #6 of Lecture 2</a>.
                 </li>
                 <li>
-                    What is the texture coordinates of the 4 corners of the full screen quad in Exhibit #6?
+                    What are the texture coordinates of the 4 corners of the full screen quad in Exhibit #6?
                     Are they the most convenient for this assignment?
                 </li>
             </ul>
@@ -351,17 +374,19 @@ void main() {
         <li>
             Have your shader output the background color.
             <ul>
-                <li>Learn how to create and use uniforms from <a href="http://www.cs.cornell.edu/courses/cs4620/2017sp/cs4621/lecture02/exhibit06.html">Exhibit #2 of Lecture 2</a></li>
+                <li>Learn how to create and use uniforms from <a href="../lecture02/exhibit02.html">Exhibit #2 of Lecture 2</a></li>
             </ul>
         </li>
         <li>
-            Have your shader generate the rays.  Output ray direction as color.
-            You should see the picture changes as you change the FOV.
+            Have your shader generate the rays. Before attempting to intersect them with the scene, output the ray direction as a color,
+            using the same conversion from direction to color as with the normal render mode.
+            You should see the canvas change as you change the FOV, camera location, or camera target.
         </li>
         <li>
-            Work on the face color mode; i.e. eye ray intersection.
+            Work on the face color mode, i.e., ray intersection.
             <ul>
-                <li>Learn how to create and use uniform arrays from <a href="http://www.cs.cornell.edu/courses/cs4620/2017sp/cs4621/lecture02/exhibit06.html">Exhibit #3 of Lecture 2</a></li>
+                <li>Learn how to create and use uniform arrays from <a href="../lecture02/exhibit03.html">Exhibit #3 of Lecture 2</a>.</li>
+                <li>Learn how to create and use textures from <a href="../lecture03/exhibit00.html">Exhibit #0 of Lecture 3</a>.</li>
                 <li>Write your code to intersect just the first triangle in the mesh first.</li>
                 <li>Get your code to work with the "triangle" scene, which has only one triangle.</li>
                 <li>Then, write a for loop that goes through all the triangles to find the first intersection.</li>
@@ -375,19 +400,19 @@ void main() {
             Work on the normal mode.
         </li>
         <li>
-            Work on the shadow mode; i.e. shadow ray casting.
+            Work on the shadow mode, i.e., shadow ray casting.
         </li>
         <li>
             Work on the full mode.
         </li>
     </ol>
 
-    <p>We would like to also remind you that the exhibits are for you to use.  However, do not just
+    <p>We would also like to remind you that the exhibits are for you to use.  However, do not just
     copy and paste them in your code.  Read and understand them so that so you can modify them to do
-    your bidding.  Also, make use of the code you wrote for the Ray 1 assignment.  If you have to get that
+    your bidding.  Also, make use of the code you wrote for the Ray 1 assignment.  If you have to get a
     part of Ray 1 fixed first, come to us for help.</p>
 
-    <p>To help you check your progress, we provide screenshots of the reference program's renderings
+    <p>To help you check your progress, below are screenshots of the reference program's renderings
     of the three scenes under all the modes below.</p>
 
     <table class="table table-bordered">
