@@ -22,40 +22,26 @@
     <h1>CS 4621: Lecture 4</h1>
 
     <section>
-        <h2>Recap</h2>
-
+        <h2>Interaction</h2>
         <ul>
-            <li>The GLSL Programming Language
+            <li>
+                For many applications, we would like for the users to be able to interact with
+                elements displayed on the webpage.
                 <ul>
-                    <li>Vector data types: <code>vec2</code>, <code>vec3</code>, <code>vec4</code>, and so on.</li>
-                    <li>Matrix data types: <code>mat2</code>, <code>mat3</code>, and <code>mat4</code>.</li>
-                    <li>Arrays</li>
-                    <li>Swizzling</li>
+                    <li>For example, through keystrokes and mouse buttons.</li>
                 </ul>
             </li>
-            <li>Three ways to pass data to GLSL
-                <ul>
-                    <li>Vertex attributes</li>
-                    <li>Uniform variables</li>
-                    <li>Varying variables</li>
-                </ul>
-            </li>
-        </ul>
-
-        <h2>This time</h2>
-
-        <ul>
-            <li>The <code>glMatrix</code> library</li>
-            <li>Passing vectors and matrices to WebGL</li>
-            <li>Applying linear and affine transformations in GLSL code</li>
+            <li>Fortunately, browsers provide an event system to capture these events.</li>
+            <li>JavaScript callback functions can be run on user input, and in turn, this can change WebGL behavior.</li>
         </ul>
 
         <h2>Exhibits</h2>
 
         <ul>
-            <li><a href="exhibit00.html">#0: glMatrix</a></li>
-            <li><a href="exhibit01.html">#1: Linear Transformation</a></li>
-            <li><a href="exhibit02.html">#2: Affine Transformation</a></li>
+            <li><a href="exhibit00.html">#0: Handling Keyboard Events</a></li>
+            <li><a href="exhibit01.html">#1: Breakout 1.0</a></li>
+            <li><a href="exhibit02.html">#2: Handling Mouse Events</a></li>
+            <li><a href="exhibit03.html">#3: Breakout 2.0</a></li>
         </ul>
     </section>
 </div>

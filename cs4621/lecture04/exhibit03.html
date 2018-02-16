@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 3 -- Exhibit #1: Breakout 1.0</title>
+    <title>CS 4621: Lecture 4 -- Exhibit #4: Breakout 2.0</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -31,15 +31,16 @@
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit #1: Breakout 1.0</h1>
+    <h1>Exhibit #3: Breakout 2.0</h1>
 
     <canvas id="webglCanvas" style="border: none; background-color: black;" width="512" height="512"></canvas>
 
     <h2>How to Play</h2>
 
     <ul>
-        <li>Use the left arrow and right arrow.</li>
-        <li>Refresh to run a new game.</li>
+        <li>Click the canvas to begin the game.</li>
+        <li>Move the mouse pointer to move the paddle.</li>
+        <li>Refresh to start a new game.</li>
     </ul>
 </div>
 
@@ -224,7 +225,7 @@
     var l = Math.sqrt(ball.direction.x*ball.direction.x + ball.direction.y*ball.direction.y);
     ball.direction.x /= l;
     ball.direction.y /= l;
-    ball.speed = 0.001;
+    ball.speed = 0.003;
 
     function clamp(x, min, max) {
         if (x < min)
@@ -240,20 +241,6 @@
     var gameState = GAME_NOT_STARTED;
 
     var lastTime = performance.now();
-
-    function updatePaddle(delta) {
-        var paddleVelocity = 0.0;
-        if (paddle.goLeft) {
-            paddleVelocity -= 0.001;
-        }
-        if (paddle.goRight) {
-            paddleVelocity += 0.001;
-        }
-        paddle.position.x = clamp(
-            paddle.position.x + delta * paddleVelocity,
-            -1.0 + paddle.width / 2.0,
-            1.0 - paddle.width / 2.0);
-    }
 
     function updateBall(delta) {
         ball.position.x += ball.direction.x * ball.speed * delta;
@@ -284,7 +271,6 @@
         lastTime = time;
 
         if (gameState == GAME_PLAYING) {
-            updatePaddle(delta);
             updateBall(delta);
         }
 
@@ -302,28 +288,18 @@
 
     window.requestAnimationFrame(updateWebGL);
 
-    $(document).keydown(function (event) {
+    var webglCanvas = $("#webglCanvas");
+
+    webglCanvas.click(function(event) {
         if (gameState == GAME_NOT_STARTED) {
-            if (event.key == "ArrowLeft" || event.key == "ArrowRight")
-                gameState = GAME_PLAYING;
-        }
-        if (gameState == GAME_PLAYING) {
-            if (event.key == "ArrowLeft") {
-                paddle.goLeft = true;
-            }
-            if (event.key == "ArrowRight") {
-                paddle.goRight = true;
-            }
+            gameState = GAME_PLAYING;
         }
     });
-    $(document).keyup(function (event) {
+    webglCanvas.mousemove(function(event) {
+        var clientRect = webglCanvas[0].getBoundingClientRect();
+        var x = 2.0*((event.clientX - clientRect.left) * 1.0 / clientRect.width) - 1.0;
         if (gameState == GAME_PLAYING) {
-            if (event.key == "ArrowLeft") {
-                paddle.goLeft = false;
-            }
-            if (event.key == "ArrowRight") {
-                paddle.goRight = false;
-            }
+            paddle.position.x = clamp(x, -1.0 + paddle.width/2.0, 1.0 - paddle.width/2.0);
         }
     });
 </script>
