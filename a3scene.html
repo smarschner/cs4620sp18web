@@ -1,13 +1,14 @@
 <!-- <h1><strong>PA 3: Scene</strong></h1> -->
 <script type="text/javascript" async
         src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+ 
 </script>
 
 <p><strong>Do this project alone or in groups of two, as you prefer. </strong>You can use <a href="https://piazza.com/class/jd0ealxkqom6s8">Piazza</a> to help pair yourselves up.
 
     <h3>Written Part</h3>
-    <h3><strong>Due:  Friday Monday 26th 2017 (11:59pm)</strong></h3>
-
+    <h3><strong>Due: Monday Feb 26th 2017 (11:59pm)</strong></h3>
+    <!-- <hr/> -->
 
     <h4>Q1. 2-D transformations (with 3x3 matrices)</h4>
 
@@ -35,9 +36,24 @@
 </ol>
 
 <h4> Q2. Perspective Projection</h4>
+In the question, we want to prove the following property: The perspective projection maps any line through the origin/eye to a line parallel to the z-axis and without moving the point on the line at z = n. 
+<h5>1)</h5> If z=n is near plane and z=f is far plane, the perspective matrix is : 
+\[M_p = \begin{pmatrix}
+1 & 0 & 0 & 0\\
+0 & 1 & 0 & 0 \\
+0 & 0 & \frac{n+f}{n} & -f \\
+0 & 0 & \frac{1}{n}& 0
+\end{pmatrix}\]
+
+If we apply perspective projection to the point (x, y, z), what is the point in homogeneous coordinates we end up with?
+
+<h5>2)</h5> We can parametrize a line in 3d space by: $$x = x_0 + a * t, \quad y = y_0 + b * t, \quad z = z_0 + c * t.$$ What is the parametrization of lines that go through the origin?
+
+<h5>3)</h5> Prove the property.
+
 
 <h4>Q3. Manipulator Warmup</h4>
-In this assignment, you're going to be implementing "manipulators." Manipulators allow users to apply transformations to objects in scenes visually. In this question, we will consider a translation manipulator. A translation manipulator can be thought of as a ray in three-dimensional space that corresponds to an object space axis (either x, y, or z) for a given object. One challenge with implementing manipulators is how one maps the actions of users (in a 2-D image plane) to 3-D transformations. We will think of a simplified case -- we are given the coordinates and direction of the manipulator and two click locations on screen. The question we will investigate is: given all of this information, what translation should be applied to the object in question?
+Manipulators allow users to apply transformations to objects in scenes visually. In this question, we will consider a translation manipulator. A translation manipulator can be thought of as a ray in three-dimensional space that corresponds to an object space axis (either x, y, or z) for a given object. One challenge with implementing manipulators is how one maps the actions of users (in a 2-D image plane) to 3-D transformations. We will think of a simplified case -- we are given the coordinates and direction of the manipulator and two click locations on screen. The question we will investigate is: given all of this information, what translation should be applied to the object in question?
 
 <p> Consider a manipulator as a ray with a given origin o and direction d. Any point p on that ray can be described by a parameter t in the usual p = o + td fashion. For a translation manipulator, the goal is to find the positions on the ray that the user clicked (t1 being the first click point, and t2 being the second). Once we've determined the best t1 and t2, we can then apply a translation transformation on the object in the object's frame along the manipulator's axis by the amount (t2-t1).
 
@@ -75,7 +91,91 @@ What are the coordinates of the two points in question?
 <!-- <hr/> -->
 
 <h3>Programming Part</h3>
-<p><strong>Do this programming part alone or in groups of two, as you prefer.</strong>
+
+    <!-- <hr/> -->
+
+    <h4>Q1. 2-D transformations (with 3x3 matrices)</h4>
+
+    Consider the following matrices:
+
+    \[A = \begin{pmatrix}
+    0.707 & -0.707 & 0 \\
+    0.707 & .707 & 0 \\
+    0 & 0 & 1 
+    \end{pmatrix} 
+    B = \begin{pmatrix}
+    3 & 0 & 0 \\
+    0 & 1 & 0 \\
+    0 & 0 & 1  
+    \end{pmatrix}
+    C = \begin{pmatrix}
+    1 & 0 & 2 \\
+    0 & 1 & 1 \\
+    0 & 0 & 1 
+    \end{pmatrix}\]
+
+    <li>What do the matrices A, B, and C represent, in English? (e.g. X represents a rotation by Y degrees, etc.)
+    <li>Consider transforming a 2-dimensional square defined by corner coordinates \((0,0),(0,1),(1,0),(1,1)\). What are the resulting corner coordinates when you transform it by matrix ABC? How about matrix CBA?
+    <li>Why are these different?
+</ol>
+
+<h4> Q2. Perspective Projection</h4>
+In the question, we want to prove the following property: The perspective projection maps any line through the origin/eye to a line parallel to the z-axis and without moving the point on the line at z = n. 
+<h5>1)</h5> If z=n is near plane and z=f is far plane, the perspective matrix is : 
+\[M_p = \begin{pmatrix}
+1 & 0 & 0 & 0\\
+0 & 1 & 0 & 0 \\
+0 & 0 & \frac{n+f}{n} & -f \\
+0 & 0 & \frac{1}{n}& 0
+\end{pmatrix}\]
+
+If we apply perspective projection to the point (x, y, z), what is the point in homogeneous coordinates we end up with?
+
+<h5>2)</h5> We can parametrize a line in 3d space by: $$x = x_0 + a * t, \quad y = y_0 + b * t, \quad z = z_0 + c * t.$$ What is the parametrization of lines that go through the origin?
+
+<h5>3)</h5> Prove the property.
+
+
+<h4>Q3. Manipulator Warmup</h4>
+Manipulators allow users to apply transformations to objects in scenes visually. In this question, we will consider a translation manipulator. A translation manipulator can be thought of as a ray in three-dimensional space that corresponds to an object space axis (either x, y, or z) for a given object. One challenge with implementing manipulators is how one maps the actions of users (in a 2-D image plane) to 3-D transformations. We will think of a simplified case -- we are given the coordinates and direction of the manipulator and two click locations on screen. The question we will investigate is: given all of this information, what translation should be applied to the object in question?
+
+<p> Consider a manipulator as a ray with a given origin o and direction d. Any point p on that ray can be described by a parameter t in the usual p = o + td fashion. For a translation manipulator, the goal is to find the positions on the ray that the user clicked (t1 being the first click point, and t2 being the second). Once we've determined the best t1 and t2, we can then apply a translation transformation on the object in the object's frame along the manipulator's axis by the amount (t2-t1).
+
+<h5>Parameters</h5>
+<ul>
+<li> The camera is at the origin pointing in the negative z direction, the y-axis is up (as per usual)
+<li> The image plane is a square in the z=-4 plane with side length 5 centered at (0,0,-4).
+<li> The translation manipulator's origin is located at (2,2,-6)
+<li> The translation manipulator is pointing in the direction of (-1,-1,-1). Note that you should normalize this vector such that your final parameter values match ours
+<li> The translation manipulator corresponds to the object's object-space x-axis.
+<li> The user has clicked on world-space coordinates c1 = (1.5,2,-4) and c2 = (-.5,0,-4) [note that these are on the image plane]
+</ul>
+
+Here are some reference images that might be useful for you to visualize the process of determining t1 and t2.
+
+<div class="thumbnails" style="text-align: center">
+    <img src="images/a3/rayGenerate.png" alt="Ray Generation">
+    <img src="images/a3/pointProject.png" alt="Point Projection">
+</div>
+
+<h5>Questions</h5>
+<ul>
+<li> Our first job is to describe the rays outgoing from the eye intersecting the image plane in the places where the user clicked. What are the equations of the two rays in question?
+<li> Next, we need to find the world coordinates of the points where these rays intersect the plane defined by the translation manipulator's origin and direction. A point and a direction, however, aren't enough to determine a plane -- we need an additional constraint. We want the plane to contain...
+<ul>
+<li>the manipulator's origin</li>
+<li>the manipulator's direction</li>
+<li>a ray perpendicular to the manipulator's ray and parallel to the image plane </li>
+</ul>
+What are the coordinates of the two points in question?
+<li> Now we need to find the points on the manipulator ray that are closest to these points. Keeping in mind that points on our ray can be completely described by their associated t parameters, what are t1 and t2?
+<li> Finally, what is the matrix we would apply to translate the object appropriately in its own coordinate space?
+</ul>
+
+<!-- <hr/> -->
+
+<h3>Programming Part</h3>
+<h3><strong>Due:  Monday March 5th 2017 (11:59pm)</strong></h3>
 
 <!-- <h4 id="code_overview">Getting Started</h4> -->
 
