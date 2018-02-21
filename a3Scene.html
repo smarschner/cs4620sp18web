@@ -104,6 +104,16 @@ What are the coordinates of the two points in question?
 
 <p> In this framework, an object to be manipulated (that is, a mesh specified by a user) has several \(4\times 4\) matrices that compose together to specify the transformation from a point on the object in that object's local space to the same point in world space. These matrices are separated into a translation matrix \(T\), 3 rotation matrices \(R_x\), \(R_y\), and \(R_z\) (one for rotations around each axis), and a scale matrix \(S\). The order in which these matrices are multiplied is important (remember that in general, transformation matrices do not commute!). For this assignment, the order is \(TR_xR_yR_zS\); that is, when computing the world space location of a point on the mesh, scaling is applied first, then rotations (\(Z\), then \(Y\), then \(X\)), and then translations are applied last. These matrices could be multiplied together to form the model matrix, but keeping the components separated like this allows them to be modified more easily.
 
+<h5>Setup</h5>
+
+<p> A new commit has been pushed to the <a href="https://github.com/smarschner/cs4620-18sp-frameworks">cs4620-18sp-frameworks repository</a>. The framework for this assignment is under the <tt>a3</tt> directory.
+
+<p> This assignment uses OpenGL to display and update 3D graphics in real-time. In order to take advantage of OpenGL from within Java, we use the <a href="https://www.lwjgl.org/">LWJGL library</a>, which provides bindings to OpenGL. It also provides bindings to <a href="http://www.glfw.org/">GLFW</a>, which is a framework for managing application windows. These libraries are included in the <tt>lib</tt> directory under the <tt>a3</tt> directory; you'll need to link to them to run the program. If you're using Eclipse, select Project > Properties. In the menu on the left, click "Java Build Path", and then click "Add JARs...". Navigate to the <tt>lib</tt> directory within the project, and select <tt>lwjgl.jar</tt>, <tt>lwjgl-opengl.jar</tt>, and <tt>lwjgl-glfw.jar</tt>. In addition, select any JAR files that contain the word "natives" followed by the name of your operating system.
+
+<p> <strong>IMPORTANT NOTE FOR MAC USERS:</strong> In order to use GLFW in Java, you need to tell Java to run your program on the first thread that is spawned when you run your program. To do this, select Run > Run Configurations. In the Arguments tab, under VM arguments, add <tt>-XstartOnFirstThread</tt>.
+
+<h5>Specification</h5>
+
 <p> The code in the framework handles displaying objects, drawing the manipulators, and detecting when the user has clicked on a manipulator. Manipulators are specified by extending the abstract <tt>Manipulator</tt> class; concrete child classes must implement the method called <tt>applyTransformation</tt>. Each manipulator has a member variable called <tt>axis</tt> (an enum that is either <tt>X</tt>, <tt>Y</tt>, or <tt>Z</tt>), and a member variable called <tt>reference</tt> that keeps track of the object being manipulated. When the user clicks on a manipulator and drags, the framework code calls <tt>applyTransformation</tt> to compute and apply the transformation on the referenced object's matrix stack. For instance, in translation mode, if the user clicks on the red (X axis) arrow and drags the mouse, the method <tt>applyTransformation</tt> will be called on the <tt>TranslationManipulator</tt> with <tt>axis==X</tt>. This method will then update <tt>reference.translation</tt>, which is a <tt>Matrix4</tt> that contains the translation portion of the object's current transformation. The input to this function includes the previous and current mouse positions, as well as the camera's current view projection matrix. Your task is to implement <tt>applyTransformation</tt> for <tt>TranslationManipulator</tt>, <tt>ScaleManipulator</tt>, and <tt>RotationManipulator</tt>.
 
 <p> The first step in implementing manipulators is to get the correct transformations, not worrying yet about the size of the transformations. For this, you just need to make a transformation of the right type, along the given axis, with a magnitude that is computed from the mouse delta in some easy way: for instance, translate by the difference in mouse x coordinate times 0.01 (the details don't matter since this is just temporary). Once this works, you will see the object moving in the direction of the manipulator arrow you clicked on, but it will generally be confusing to figure out which way to move the mouse to get the desired result.
@@ -147,9 +157,10 @@ referenced object around the appropriate axis by that angle. Note that you can u
 normal (i.e., the manipulator axis) to find out if the angle is positive or negative. </p>
 
 <p> These manipulators behave like a set of gimbals; that is, rotating with one manipulator
-updates the world-space axis of other rotation manipulators further up the stack. For example,
-rotating the \(Z\) rotation manipulator also rotates the \(X\) and \(Y\) rotation manipulators;
-rotating the \(Y\) rotation manipulator updates the \(X\) manipulator, but NOT the \(Z\) manipulator.
+updates the world-space axis of other rotation manipulators further down the stack. For example,
+rotating the \(X\) rotation manipulator also rotates the \(Y\) and \(Z\) rotation manipulators;
+rotating the \(Y\) rotation manipulator updates the \(Z\) manipulator, but NOT the \(X\) manipulator.
+The scaling manipulators will be affected by all three rotations.
 
 <div class="thumbnails" style="text-align: center">
     <img src="images/a3/rotation-manipulator.png" alt="Rotation Manipulator">
@@ -158,21 +169,20 @@ rotating the \(Y\) rotation manipulator updates the \(X\) manipulator, but NOT t
 
 <h4>The Complete Program</h4>
 
-<p>What this program actually does is to load and display a scene that is defined in an XML file. The loaded scene can then be viewed using the implemented camera controls, and modified using the implemented manipulators. A side window shows the structure of the scene, and allows the user to replace meshes, materials, and/or textures, as well as control the camera and manipulators using raw numbers.
-
-<p>As with previous assignments, some example scenes are provided in the <tt>data/</tt> directory.
+<p>The program's <tt>main</tt> method is found in <tt>Main.java</tt>, within the <tt>main</tt> package. The program has a single command line argument, which is the path to an OBJ mesh (try <tt>data/meshes/teapot.obj</tt>).
     
 <h5>Control Guide</h5>
 <ul>
-<li> Arrow Keys + EQ: Camera Rotation
-<li> WASD + Left Shift + Space: Camera Movement
-<li> O/F: Orbit/Fly Mode Toggles
-<li> R/T/Y: Manipulator toggles (rotation, translate, scale)
-<li> P: Parent space toggle
-<li> G: Toggle grid on and off
+<li> Left click and drag to orbit the camera.
+<li> Right click and drag to move the camera in the view plane.
+<li> Scroll to zoom the camera.
+<li> Press 'T' to display the translation manipulators.
+<li> Press 'S' to display the scale manipulators.
+<li> Press 'R' to display the rotation manipulators.
+<li> Pres 'esc' to exit.
 </ul>
 
-<h5 id="code_demo"> Demo Video</h5>
+<!-- <h5 id="code_demo"> Demo Video</h5>
 
 <p>The following video contains a demo of our solution for this assignment. This should give you an idea of what behavior to expect from working manipulators and camera operations.</p>
 
@@ -181,18 +191,15 @@ rotating the \(Y\) rotation manipulator updates the \(X\) manipulator, but NOT t
       <div class="caption">
         <strong>Project demo</strong>
       </div>
-</div> 
+</div>  -->
 
 <h4>What to Submit</h4>
-<p>Submit your solution of the written part individually on CMS as a PDF file.
-<p>As for the code part, submit a zip file containing your solution organized the same way as the code on Github, along with any additional files.
-Include a readme in your zip that contains:
+<p>Submit a zip file containing your solution organized the same way as the code on Github.
+Include a README in your zip that contains:
 <ul>
   <li>You and your partner's names and NetIDs.
   <li>Any problems with your solution.
   <li>Anything else you want us to know.
 </ul>
-<p><strong><a href=https://cms.csuglab.cornell.edu>Upload here (CMS)</a></strong>
-
-<p> Not yet released.</p>
+<p><strong><a href=https://cmsx.cs.cornell.edu/>Upload here (CMS)</a></strong>
 
