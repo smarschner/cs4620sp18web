@@ -136,13 +136,22 @@ the selected axis, the translation should follow the mouse as much as possible (
 
 <p> The rotation manipulator displays three circles on a sphere surrounding the origin
 of the object's coordinates. Each circle is perpendicular to one of the rotation axes,
-and clicking on that circle and dragging performs a rotation around that axis. Because getting
-the transformation to follow the mouse is complicated for this manipulator, it is fine if you just
-map vertical mouse motion directly to the rotation angle.
+and clicking on that circle and dragging performs a rotation around that axis. Again, you'll want
+the rotation to follow the mouse as it drags across the screen.</p>
 
-<p>The rotation manipulator should be the easiest to implement of the three because we map all specifications to simply the change in the mouse position's y coordinate.
-Then, you should multiply this quantity by some constant (pick something reasonable) to determine
-the change in the angle of rotation about the selected axis.
+<p> The rotation manipulator is slightly different than the previous two; rather than modifying
+the referenced object along a specific axis, each rotation manipulator rotates the object in
+the plane which is perpendicular to the given axis. For instance, the \(X\)-axis rotation manipulator
+rotates the object in the \(YZ\)-plane.</p>
+
+<p> To implement this manipulator, trace mouse rays into the scene for the current and last
+mouse positions, and intersect them with the plane defined by the manipulator's origin and
+axis (transformed according to their position in the matrix stack). If one or both of the rays
+is parallel to the plane, then don't apply any transformation to the object. Otherwise, calculate
+the vectors from the manipulator origin to each intersection point. Find the <i>signed</i> angle
+from the previous mouse position to the current mouse position along the plane, and rotate the
+referenced object by that angle. Note that you can use the plane's normal (i.e., the manipulator axis)
+to find out if the angle is positive or negative. </p>
 
 <h4>The Complete Program</h4>
 
@@ -183,5 +192,4 @@ Include a readme in your zip that contains:
 <p><strong><a href=https://cms.csuglab.cornell.edu>Upload here (CMS)</a></strong>
 
 <p> Not yet released.</p>
-
 
