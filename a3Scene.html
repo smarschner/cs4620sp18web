@@ -96,6 +96,92 @@ What are the coordinates of the two points in question?
 <h3>Programming Part</h3>
 <h3><strong>Due:  Monday March 5th 2018 (11:59pm)</strong></h3>
 
+<p> For the programming part of this assignment, you will implement a 3D user interface of a type commonly provided in 3D modeling tools, which we call manipulators.  A 3D UI element is one that appears in a 3D scene, and like 2D UI elements such as scroll bars and sliders, it responds to a user's mouse input to adjust a property of the scene the user wants to control.  In particular, manipulators are 3D UI elements that are used to edit the transformations that position objects in a scene.</p>
+
+<p> Manipulators are designed to follow the UI design principle of direct manipulation; if you want to translate or rotate an object, you do so by grabbing it with the mouse and pulling in the direction you want it to go.  Because transformations have a lot of degrees of freedom (ours has 9), manipulators let the user edit one part of the transformation at a time, constraining the motion so that 2D mouse input suffices to define how the object moves.  Our manipulators are all single-axis manipulators, editing translation or scale along a single axis, or a single fixed-axis rotation, at a time.
+
+<p> Inour framework, the user chooses a manipulation mode using the keyboard: T for translation, R for rotation, S for scaling, and the appropriate manipulator&mdash;or more precisely, a trio of manipulators, ond for X, one for Y, and one for Z&mdash;appears.  The user uses a manipulator by clicking on it, to indicate that he or she wishes to edit the object's transformation on that particular axis. We modify the transformations by applying axis-aligned rotations, translations, or scales to them, and the goal of a manipulator is (a) to give a visual indication of what will happen when you apply one of these transforms and (b) to give a direct "handle" to pull on to indicate the direction and size of the transformation.
+
+<p> There are two ways to modify the transformation. Suppose we want to apply a translation T. We could compose T with the object's current transformation M on the right (M = M * T, where T is the adjustment), which corresponds to translating along an axis in the object's coordinate system, or on the left (M = T * M), which corresponds to translating it along an axis in the parent's coordinate system. When M contains any rotation, these axes will be different. Each is equally easy to do, so we want to provide both options to the user, and the Scene application does this by providing the 'P' key, which toggles "parent mode" on and off. When parent mode is on, adjustments to an object's transformation happen along the axes of the parent space; when it is off ("local mode"), adjustments happen in the object's space.
+
+<p> The code in the framework handles selecting objects, drawing the manipulators, and detecting when the user has clicked on a part of a manipulator (they each have three parts, one for each axis). When the user clicks on a manipulator and drags, the framework code calls your code to compute and apply the transformation. For instance, if an object is selected in translation mode, and the user clicks on the red (x axis) arrow and drags the mouse, the method <tt>applyTranslation</tt> will be called with <tt>axis==Manipulator.Axis.X</tt>, with the currently selected camera and object, and the previous and current mouse position. Specifically, the parameters are...
+
+<ul>
+<li> <tt>int axis</tt>, an integer identifying which axis the manipulator corresponds to
+<li> <tt>Matrix4</tt> <tt>mViewProjection</tt>, which takes coordinates in world space and transforms them into the canonical view volume.
+<li> <tt>RenderObject</tt> object, the object that's being directly manipulated (it's children would be as well, if it has them)
+<li> <tt>Vector2 lastMousePos</tt>, the starting position of the mouse 
+<li> <tt>Vector2 curMousePos</tt>, the current position of the mouse
+<li> (implicitly -- it is a member of the class that you need to use) <tt>boolean parentSpace</tt>, a boolean indicating whether the transformation should occur in the object space of the parent, or the child
+</ul> 
+
+<p> The first step in implementing manipulators is to get the correct transformations, not worrying yet about the size of the transformations. For this, you just need to make a transformation of the right type, along the given axis, with a magnitude that is computed from the mouse delta in some easy way: for instance, translate by the difference in mouse x coordinate times 0.01 (the details don't matter since this is just temporary). Once this works, you will see the object moving in the direction of the manipulator arrow you clicked on, but it will generally be confusing to figure out which way to move the mouse to get the desired result.
+
+<p> The last and final step is to make translation and scaling manipulations "follow the mouse". This means that if you click on the axis and move the mouse along the axis, the point you clicked on should remain exactly under the mouse pointer as you drag. The strategy we recommend is to express the ray corresponding to the user's click and the line corresponding to the manipulation axis both in world space, then use the warmup problem to compute the t values along the axis that correspond to the user's mouse movement. Once you have these values you know how much to translate: it is by the difference of the two values. Once this works, if you click on points that are on the manipulation axis and drag exactly along the axis, the object will exactly follow the mouse.
+
+<h5>Translation Manipulator</h5>
+
+<p> The translation manipulator, which you considered already in one of the written questions, displays three arrows that represent the x, y, or z
+axes in the coordinates of the selected transform. If the user clicks and drags along an axis,
+the resulting translation should exactly follow the mouse. When the drag is not parallel to
+the selected axis, the translation should follow the mouse as much as possible (hence your projection scheme you worked with in the written questions).
+
+<p> The translation manipulator is the most complicated manipulator of the three, particularly if it is the first one you're implementing, but you've already had some experience dealing with it in the written questions. As before, the idea is that the matrix you construct must be a translation of (t2-t1) along the specified axis.
+
+<h5>Scale Manipulator</h5>
+
+<p> The scaling manipulator shows the three scaling axes by drawing three lines with small boxes at the ends. This manipulator is very, very similar to the translation manipulator (in fact, until you construct your final matrix, finding the appropriate t1 and t2 are identical, and as such you might find it useful to break up this functionality into its own method). The magnitude of your scale, however, should be based on a ratio of t1 and t2, rather than a difference. Here, you should scale by t1/t2 in the appropriate direction.
+
+<h5>Rotation Manipulator</h5>
+
+<p> The rotation manipulator displays three circles on a sphere surrounding the origin
+of the object's coordinates. Each circle is perpendicular to one of the rotation axes,
+and clicking on that circle and dragging performs a rotation around that axis. Because getting
+the transformation to follow the mouse is complicated for this manipulator, it is fine if you just
+map vertical mouse motion directly to the rotation angle.
+
+<p>The rotation manipulator should be the easiest to implement of the three because we map all specifications to simply the change in the mouse position's y coordinate.
+Then, you should multiply this quantity by some constant (pick something reasonable) to determine
+the change in the angle of rotation about the selected axis.
+
+<h4>The Complete Program</h4>
+
+<p>What this program actually does is to load and display a scene that is defined in an XML file. The loaded scene can then be viewed using the implemented camera controls, and modified using the implemented manipulators. A side window shows the structure of the scene, and allows the user to replace meshes, materials, and/or textures, as well as control the camera and manipulators using raw numbers.
+
+<p>As with previous assignments, some example scenes are provided in the <tt>data/</tt> directory.
+    
+<h5>Control Guide</h5>
+<ul>
+<li> Arrow Keys + EQ: Camera Rotation
+<li> WASD + Left Shift + Space: Camera Movement
+<li> O/F: Orbit/Fly Mode Toggles
+<li> R/T/Y: Manipulator toggles (rotation, translate, scale)
+<li> P: Parent space toggle
+<li> G: Toggle grid on and off
+</ul>
+
+<h5 id="code_demo"> Demo Video</h5>
+
+<p>The following video contains a demo of our solution for this assignment. This should give you an idea of what behavior to expect from working manipulators and camera operations.</p>
+
+<div class="thumbnails" style="text-align: center">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/i4FWBsjMO9g" frameborder="0" allowfullscreen></iframe>
+      <div class="caption">
+        <strong>Project demo</strong>
+      </div>
+</div> 
+
+<h4>What to Submit</h4>
+<p>Submit your solution of the written part individually on CMS as a PDF file.
+<p>As for the code part, submit a zip file containing your solution organized the same way as the code on Github, along with any additional files.
+Include a readme in your zip that contains:
+<ul>
+  <li>You and your partner's names and NetIDs.
+  <li>Any problems with your solution.
+  <li>Anything else you want us to know.
+</ul>
+<p><strong><a href=https://cms.csuglab.cornell.edu>Upload here (CMS)</a></strong>
+
 <p> Not yet released.</p>
 
 
