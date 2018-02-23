@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 5 -- Exhibit #0: Chaining 2D Transformations</title>
+    <title>CS 4621: Lecture 5 -- Exhibit #0: Using an Image Texture</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -33,239 +33,194 @@
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit 0 <span class="subtitle">Chaining 2D Transformations</span></h1>
+    <h1>Exhibit 0 <span class=subtitle>Using an Image Texture</a></h1>
 
-    <div class="center-block">
-        <canvas id="objCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
-        <canvas id="worldCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
-    </div>
+    <canvas id="webglCanvas" style="border: none; background-color: black;" width="512" height="512"></canvas>
 
-    <table class="table table-bordered">
-        <tr>
-            <td colspan="4" align="center"><b>Transformation</b></td>
-        </tr>
-        <tr>
-            <td>
-                Translation:
-            </td>
-            <td>
-                X = <input type="text" id="transX" value="0.0">
-            </td>
-            <td>
-                Y = <input type="text" id="transY" value="0.0">
-            </td>
-            <td>
-                <table id="transMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Rotation: 
-            </td>
-            <td>
-                angle = <input type="text" id="rotAngle" value="0.0">
-            </td>
-            <td>
-            </td>
-            <td>
-                <table id="rotMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Scale: 
-            </td>
-            <td>
-                X = <input type="text" id="scaleX" value="1.0">
-            </td>
-            <td>
-                Y = <input type="text" id="scaleY" value="1.0">
-            </td>
-            <td>
-                <table id="scaleMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Compound Transformation: 
-            </td>
-            <td>
-              <fieldset>
-                <legend>Order: </legend>
-                <label for="orderTRS">TRS</label>
-                <input type="radio" name="order" id="orderTRS" checked="true">
-                <label for="orderSRT">SRT</label>
-                <input type="radio" name="order" id="orderSRT">
-              </fieldset>
-            </td>
-            <td>
-            </td>
-            <td>
-                <table id="compMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+    <h2>What We Did</h2>
 
+    <ul>
+        <li>Loading and using a texture is a multi-step process. You have seen most of these steps already.</li>
+        <li>
+            First, you need to load the image.
+            <ul>
+                <li>Create a Javascript <code>Image</code> object, which is an <code>img</code> tag in the HTML document.</li>
+                <li>Set the callback function that gets called when the image loading is completed.</li>
+                <li>
+                    Set the <code>src</code> field of the image object to the file name that you want.
+                    This starts loading the image, <i>but does not finish before continuing.</i> This
+                    is why we need a callback function.
+                </li>
+                <li>Code:
+<pre class="prettyprint">var cornellImage = new Image();
+cornellImage.onload = function() {
+    runWebGL(cornellImage);
+};
+cornellImage.src = "cornell-logo.jpg";
+</pre>
+                </li>
+                <li>The <code>runWebGL</code> function takes the image instance and proceeds to run WebGL
+                with it (creating the WebGL 1 context, starting the rendering loop, etc.).  It is important
+                that the image is loaded before we proceed with WebGL; otherwise, we cannot transfer it to
+                the GPU.</li>
+            </ul>
+        </li>
+        <li>
+            Second, you need to create the WebGL texture object to hold the image data in
+            GPU memory.
+            <ul>
+                <li>Here are the steps:
+<pre class="prettyprint">// Step 1: Create the texture object.
+var cornellTexture = gl.createTexture();
+// Step 2: Bind the texture object to the "target" TEXTURE_2D
+gl.bindTexture(gl.TEXTURE_2D, cornellTexture);
+// Step 3: (Optional) Tell WebGL that pixels are flipped vertically,
+//         so that we don't have to deal with flipping the y-coordinate.
+gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+// Step 4: Send the image data to the GPU.
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cornellImage);
+// Step 5: Clean up. Tell WebGL that we are done with the target.
+gl.bindTexture(gl.TEXTURE_2D, null);
+</pre>
+                </li>
+                <li>
+                    The <code>TEXTURE_2D</code> target tells us that we are dealing with the 2D texture system,
+                    that is, we are reading from an image where each pixel is indexed with two coordinates.
+                    There are other targets such as <code>TEXTURE_CUBE_MAP</code>, and WebGL 2 has
+                    <code>TEXTURE_3D</code>.
+                    <ul>
+                        <li>In a sense, WebGL API deals with one texture at a time, that is, whichever is bound to the appropriate target.
+                        Remember to bind the image before using it in any context.</li>
+                    </ul>
+                </li>
+                <li>
+                    <code>texImage2D</code> sends the image data to the GPU.
+                    <ul>
+                        <li>See <a href="../lecture03/">Textures (Part 1)</a> for more information on the function arguments.</li>
+                        <li>Alternatively, you can look at the documentation <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D">here</a>.</li>
+                        <li>When using image data, you can use this version of the function: <pre class="prettyprint">void gl.texImage2D(target, level, internalformat, format, type, HTMLImageElement? pixels);</pre>
+                            <ul>
+                                <li><code>pixels</code> can just be the <code>Image</code> object. This already knows the size of the image, so these arguments are omitted.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            Third, write your shader so that you can use the texture.
+            <ul>
+                <li>
+                    Texture usage is mostly in the fragment shader, so we'll talk about texture access
+                    in fragment shader here.
+                    <ul>
+                        <li>You can do it in the vertex shader too, but it's a little more cumbersome.</li>
+                    </ul>
+                </li>
+                <li>
+                    Declare a uniform with type <code>sampler2D</code> in your fragment shader.
+<pre class="prettyprint">uniform sampler2D texture;
+</pre>
+                </li>
+                <li>
+                    To fetch a pixel value from the texture, use the <code>texture2D(&lt;sampler2D>, &lt;texCoord>)</code> function.
+                    <ul>
+                        <li>The <code>&lt;texCoord></code> parameter must be a <code>vec2</code>.</li>
+                        <li>The return value is a <code>vec4</code>, so it has the 4 RGBA channels.</li>
+                    </ul>
+                </li>
+                <li>
+                    For example:
+<pre class="prettyprint">precision highp float;
+
+varying vec2 geom_texCoord;
+
+uniform sampler2D texture;
+
+void main() {
+    gl_FragColor = texture2D(texture, geom_texCoord);
+}</pre>
+                </li>
+                <li>
+                    The texture coordinate (stored in <code>geom_texCoord</code>)
+                    comes from the vertex shader:
+<pre class="prettyprint">attribute vec3 vert_position;
+attribute vec2 vert_texCoord;
+
+varying vec2 geom_texCoord;
+
+void main() {
+    gl_Position = vec4(vert_position, 1.0);
+    geom_texCoord = vert_texCoord;
+}
+</pre>
+                </li>
+                <li>
+                    In general, the vertex shader will specify the varying variable that is
+                    interpolated into the texture coordinate at each fragment.
+                    The fragment shader will use that texture coordinate to fetch pixel values
+                    from the texture.
+                </li>
+            </ul>
+        </li>
+        <li>
+            Lastly, you need to hook up your texture object with the uniform in the GLSL program.
+            <ul>
+                <li>
+                    First, use your program.
+                </li>
+                <li>
+                    Then:
+<pre class="prettyprint">if (gl.getUniformLocation(program, "texture") != null) {
+    // Step 1: Activate a "texture unit" of your choosing.
+    gl.activeTexture(gl.TEXTURE0);
+    // Step 2: Bind the texture you want to use.
+    gl.bindTexture(gl.TEXTURE_2D, cornellTexture);
+    // Step 3: Set the uniform to the "index" of the texture unit you just activated.
+    var textureLocation = gl.getUniformLocation(program, "texture");
+    gl.uniform1i(textureLocation, 0);
+}
+</pre>
+                </li>
+                <li>Do all of the above before you actually draw your geometric primitive.</li>
+            </ul>
+        </li>
+    </ul>
 </div>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="../js/jquery-3.1.1.min.js"></script>
 <script src="../js/jquery-ui.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<!-- <script src="../js/bootstrap.min.js"></script> -->
-<script src="../js/gl-matrix-min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
 <!-- Google Code Prettifier -->
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 
 <script id="vertexShader" type="x-shader/x-vertex">
-    attribute vec2 position;
+    attribute vec3 vert_position;
+    attribute vec2 vert_texCoord;
 
-    uniform mat3 toWorld;
+    varying vec2 geom_texCoord;
 
     void main() {
-        gl_Position = vec4((toWorld * vec3(position, 1.0)).xy, 0.0, 1.0);
+        gl_Position = vec4(vert_position, 1.0);
+        geom_texCoord = vert_texCoord;
     }
 </script>
 
 <script id="fragmentShader" type="x-shader/x-fragment">
     precision highp float;
 
-    uniform vec3 color;
+    varying vec2 geom_texCoord;
+
+    uniform sampler2D texture;
 
     void main() {
-        gl_FragColor = vec4(color, 1.0);
+        gl_FragColor = texture2D(texture, geom_texCoord);
     }
 </script>
 
 <script>
-    var catData = {
-        vertices: [
-            -0.2461,  0.2279,
-            -0.4069,  0.4277,
-            -0.4069, -0.1475,
-            -0.3561, -0.2904,
-             0.    , -0.4164,
-             0.3561, -0.2904,
-             0.4068, -0.1475,
-             0.4068,  0.4277,
-             0.2461,  0.2279,
-             0.    , -0.3226,
-             0.    , -0.243 ,
-            -0.1142, -0.2912,
-             0.    , -0.3226,
-             0.1142, -0.2912,
-            -0.26  ,  0.0102,
-            -0.2157,  0.06  ,
-            -0.1001,  0.0454,
-            -0.0842, -0.0121,
-            -0.1178, -0.0487,
-            -0.245 , -0.0326,
-             0.26  ,  0.0102,
-             0.2157,  0.06  ,
-             0.1001,  0.0454,
-             0.0842, -0.0121,
-             0.1179, -0.0487,
-             0.245 , -0.0326,
-            -0.0842, -0.0121,
-            -0.0746, -0.1475,
-             0.0842, -0.0121,
-             0.0746, -0.1475,
-            -0.0746, -0.1475,
-             0.0746, -0.1475,
-             0.0398, -0.243 ,
-            -0.0398, -0.243 ,
-            -0.1721,  0.0333,
-            -0.1788, -0.0168,
-             0.1721,  0.0333,
-             0.1788, -0.0168,
-             0.2265,  0.205 ,
-             0.3098,  0.1672,
-             0.2894,  0.3481,
-             0.2102,  0.2676,
-             0.1412,  0.2513,
-             0.0344,  0.2879,
-             0.097 ,  0.117 ,
-             0.1546,  0.1881,
-             0.2251,  0.2047
-        ],
-        lineInd: [
-            0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 0, // head
-            14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 14, // eye
-            20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 20, // eye
-            30, 31, 31, 32, 32, 33, 33, 30,  // nose
-            9, 10, 11, 12, 12, 13, 26, 27, 28, 29, 34, 35, 36, 37, // nose and mouth
-            //38, 39, 39, 40, 40, 41, 41, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 38  // bow
-        ],
-        triInd: [
-            0,1,2, 0,2,3, 0,3,4, 8,6,7, 8,5,6, 8,4,5, 4,8,0,
-        ],
-        lineColor: [0.2, 0.2, 0.2],
-        fillColor: [1.0, 0.9, 0.7]
-    };
-
-    function initGUI() {
-        $('#transX').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#transY').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#rotAngle').spinner({'min': -360, 'max': 360, 'step': 5});
-        $('#scaleX').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#scaleY').spinner({'min': -2, 'max': 2, 'step': 0.1});
-    }
-
-    function displayMatrix3(sel, M) {
-        $(sel).find('tr').each(function (i, elt) {
-            $(elt).find('td').each(function (j, elt) {
-                $(elt).html(M[i + 3 * j].toFixed(3));
-            });
-        });
-    }
-
-    function getMatrix() {
-        var t = vec2.fromValues($('#transX').spinner('value'), $('#transY').spinner('value'));
-        var T = mat3.create();
-        mat3.fromTranslation(T, t);
-        displayMatrix3('#transMatrix', T);
-
-        var R = mat3.create();
-        mat3.fromRotation(R, $('#rotAngle').spinner('value') * Math.PI/180);
-        displayMatrix3('#rotMatrix', R);
-
-        var s = vec2.fromValues($('#scaleX').spinner('value'), $('#scaleY').spinner('value'));
-        var S = mat3.create();
-        mat3.fromScaling(S, s);
-        displayMatrix3('#scaleMatrix', S);
-
-        var M = mat3.create();
-        if ($('#orderTRS').get(0).checked) { 
-            mat3.mul(M, S, M);
-            mat3.mul(M, R, M);
-            mat3.mul(M, T, M);
-        } else  { 
-            mat3.mul(M, M, S);
-            mat3.mul(M, M, R);
-            mat3.mul(M, M, T);
-        }
-        displayMatrix3('#compMatrix', M);
-        return M;
-    }
-
-    initGUI();
-
     function initializeWebGL(canvas) {
         // Getting WebGL context the right way
         var gl = null;
@@ -322,104 +277,115 @@
         }
     }
 
-
-    function createShape(gl, data) {
+    function createShape(gl, vertexData, indexData) {
         var shape = {};
 
-        shape.vertexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, shape.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertices), gl.STATIC_DRAW);
+        var vertexArray = new Float32Array(vertexData);
+        var vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        shape.lineIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.lineIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.lineInd), gl.STATIC_DRAW);
+        var indexArray = new Uint16Array(indexData);
+        var indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-        shape.triIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triInd), gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-        shape.lineLen = data.lineInd.length;
-        shape.triLen = data.triInd.length;
-        shape.lineColor = data.lineColor;
-        shape.fillColor = data.fillColor;
+        shape.vertexBuffer = vertexBuffer;
+        shape.indexBuffer = indexBuffer;
+        shape.size = indexData.length;
 
         return shape;
     }
 
-    function drawShape(gl, shape, program, xf) {
-        gl.useProgram(program);
-
+    function drawShape(gl, program, shape) {
         gl.bindBuffer(gl.ARRAY_BUFFER, shape.vertexBuffer);
-        var positionLocation = gl.getAttribLocation(program, "position");
+        var positionLocation = gl.getAttribLocation(program, "vert_position");
         gl.enableVertexAttribArray(positionLocation);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 4 * 2, 0);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 4 * 5, 0);
+        var texCoordLocation = gl.getAttribLocation(program, "vert_texCoord");
+        gl.enableVertexAttribArray(texCoordLocation);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 4 * 5, 4 * 3);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        gl.uniformMatrix3fv(gl.getUniformLocation(program, "toWorld"), false, xf);
-
-        gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.fillColor);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
-        gl.drawElements(gl.TRIANGLES, shape.triLen, gl.UNSIGNED_SHORT, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-        gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.lineColor);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.lineIndexBuffer);
-        gl.drawElements(gl.LINES, shape.lineLen, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.indexBuffer);
+        gl.drawElements(gl.TRIANGLES, shape.size, gl.UNSIGNED_SHORT, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
         gl.useProgram(null);
     }
 
-    function glEnv(canvas) {
-
-        var gl = initializeWebGL(canvas);
-        var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
-        var cat = createShape(gl, catData);
-
-        var xf = mat3.create();
-        function setXf(newXf) {
-            mat3.copy(xf, newXf);
-        }
-
-        function drawFrame() {
-            gl.clearColor(0.15, 0.2, 0.5, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            drawShape(gl, cat, program, xf);
-        }
-
-        return {
-            setXf: setXf,
-            drawFrame: drawFrame
-        }
+    function startWebGL() {
+        var cornellImage = new Image();
+        cornellImage.onload = function() {
+            runWebGL(cornellImage);
+        };
+        cornellImage.src = "cornell-logo.jpg";
     }
 
-    var objSpaceEnv = glEnv($("#objCanvas"));
-    var worldSpaceEnv = glEnv($("#worldCanvas"));
+    function runWebGL(cornellImage) {
+        var gl = initializeWebGL($("#webglCanvas"));
+        var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
 
-    function updateWebGL(time) {
+        // Create the Cornell texture.
+        // Step 1: Create the texture object.
+        var cornellTexture = gl.createTexture();
+        // Step 2: Bind the texture object to the "target" TEXTURE_2D
+        gl.bindTexture(gl.TEXTURE_2D, cornellTexture);
+        // Step 3: (Optional) Tell WebGL that pixels are flipped vertically,
+        //         so that we don't have to deal with flipping the y-coordinate.
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        // Step 4: Download the image data to the GPU.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cornellImage);
+        // Step 5: Creating a mipmap so that the texture can be anti-aliased.
+        gl.generateMipmap(gl.TEXTURE_2D);
+        // Step 6: Clean up.  Tell WebGL that we are done with the target.
+        gl.bindTexture(gl.TEXTURE_2D, null);
 
-        worldSpaceEnv.setXf(getMatrix());
-    
-        objSpaceEnv.drawFrame();
-        worldSpaceEnv.drawFrame();
+        var vertexData = [
+            -0.5, -0.5, 0.0,
+            0.0, 0.0,
+            0.5, -0.5, 0.0,
+            1.0, 0.0,
+            0.5, 0.5, 0.0,
+            1.0, 1.0,
+            -0.5, 0.5, 0.0,
+            0.0, 1.0
+        ];
+        var indexData = [
+            0, 1, 2, 0, 2, 3
+        ];
+        var rectangle = createShape(gl, vertexData, indexData);
 
-        // Reschedule the next frame.
+        function updateWebGL() {
+            gl.clearColor(0.5, 0.5, 0.5, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(program);
+
+            if (gl.getUniformLocation(program, "texture") != null) {
+                // Step 1: Activate a "texture unit" of your choosing.
+                gl.activeTexture(gl.TEXTURE0);
+                // Step 2: Bind the texture you want to use.
+                gl.bindTexture(gl.TEXTURE_2D, cornellTexture);
+                // Step 3: Set the uniform to the "index" of the texture unit you just activated.
+                var textureLocation = gl.getUniformLocation(program, "texture");
+                gl.uniform1i(textureLocation, 0);
+            }
+
+            drawShape(gl, program, rectangle);
+
+            gl.useProgram(null);
+
+            // Reschedule the next frame.
+            window.requestAnimationFrame(updateWebGL);
+        }
+
         window.requestAnimationFrame(updateWebGL);
     }
 
-    window.requestAnimationFrame(updateWebGL);
-
-    var objCanvas = $("#objCanvas");
-
-    objCanvas.click(function(event) {
-    });
-    objCanvas.mousemove(function(event) {
-    });
+    startWebGL();
 </script>
-
 </body>
 </html>

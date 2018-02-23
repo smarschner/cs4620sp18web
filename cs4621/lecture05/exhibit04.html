@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 7 -- Exhibit #4: Textures and Transparency</title>
+    <title>CS 4621: Lecture 5 -- Exhibit #4: Textures and Transparency</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -37,14 +37,14 @@
 
     <canvas id="webglCanvas" style="border: none; background-color: black;" width="512" height="512"></canvas>
 
-    <h2>What are we doing?</h2>
+    <h2>What We Did</h2>
 
     <ul>
         <li>
             Some image file formats contain the alpha channel, which specifies the transparency
             of the pixels.
             <ul>
-                <li>PNG and GIF file formats has it, but JPG does not.</li>
+                <li>PNG and GIF file formats have it, but JPG does not.</li>
             </ul>
         </li>
         <li>
@@ -69,22 +69,22 @@
             </table>
         </li>
         <li>
-            In WebGL, <b>alpha channel is generally used in tandem with blending.</b>
+            In WebGL, <b>the alpha channel is generally used in tandem with blending.</b>
             <ul>
-                <li>Howerver, you can write your shader to do whatever you want with it, like what we
+                <li>However, you can write your shader to do whatever you want with it, like what we
                 did in <a href="exhibit03.html">Exhibit #3</a>.</li>
             </ul>
         </li>
         <li>
-            To simulate the transparency that is commonly understood (i.e., alpha indicates how much the image
-            allows what behind it to be seen), you need to do three things:
+            To implement image opacity that is commonly associated with the alpha channel, you need to do three things:
             <ul>
                 <li>
-                    Enable blending and use <code>gl.SRC_ALPHA</code> and <code>gl.ONE_MINUS_SRC_ALPHA</code>
-                    as your blend functions.
+                    Before drawing, let WebGL know that you would like to blend values from different fragments, and specify how they should blend:
+                    <pre class="prettyprint">gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);</pre>
                 </li>
                 <li>
-                    Draw your images from <b>BACK TO FRONT</b>.  This is very important.
+                    Draw multiple pieces of geometry that reference the different textures. Draw your images from <b>BACK TO FRONT</b>. This is very important.
                 </li>
                 <li>
                     In the fragment shader, just fetch and output the texture value.  No special processing
@@ -92,9 +92,9 @@
                 </li>
             </ul>
         </li>
-        <li>Btw, we took the images from <a href="http://opengameart.org/content/bevouliin-free-mountain-game-background">OpenGameArt</a>.
+        <li>Sidenote: we took these images from <a href="http://opengameart.org/content/bevouliin-free-mountain-game-background">OpenGameArt</a>.
         They were created by <a href="http://bevouliin.com">bevouliin.com</a>, and the images are in the public domain.
-        We're very thankful of this generous artist.
+        We're very grateful to this generous artist.
             <ul>
                 <li>If you want to look for art assets for your final project, OpenGameArt is a good place to start.</li>
             </ul>
