@@ -89,12 +89,12 @@ gl.bindTexture(gl.TEXTURE_2D, null);
                     There are other targets such as <code>TEXTURE_CUBE_MAP</code>, and WebGL 2 has
                     <code>TEXTURE_3D</code>.
                     <ul>
-                        <li>In a sense, WebGL API deals with one texture at a time.</li>
-                        <li>Remember to bind the image before using it in any context.</li>
+                        <li>In a sense, WebGL API deals with one texture at a time, that is, whichever is bound to the appropriate target.
+                        Remember to bind the image before using it in any context.</li>
                     </ul>
                 </li>
                 <li>
-                    <code>texImage2D</code> sends the image data to GPU.
+                    <code>texImage2D</code> sends the image data to the GPU.
                     <ul>
                         <li>See <a href="../lecture03/">Textures (Part 1)</a> for more information on the function arguments.</li>
                         <li>Alternatively, you can look at the documentation <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D">here</a>.</li>
