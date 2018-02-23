@@ -22,47 +22,98 @@
     <h1>CS 4621: Lecture 5</h1>
 
     <section>
-        <h2>Recap</h2>
+        <h2>Textures (Part 2)</h2>
 
         <ul>
-            <li>The GLSL Programming Language
-                <ul>
-                    <li>Vector data types: <code>vec2</code>, <code>vec3</code>, <code>vec4</code>, and so on.</li>
-                    <li>Matrix data types: <code>mat2</code>, <code>mat3</code>, and <code>mat4</code>.</li>
-                    <li>Arrays</li>
-                    <li>Swizzling</li>
-                </ul>
-            </li>
-            <li>Three ways to pass data to GLSL
-                <ul>
-                    <li>Vertex attributes</li>
-                    <li>Uniform variables</li>
-                    <li>Varying variables</li>
-                </ul>
-            </li>
-            <li>Using matrices in GLSL
-                <ul>
-                    <li>The <code>glMatrix</code> library</li>
-                    <li>Passing vectors and matrices to WebGL</li>
-                    <li>Applying linear and affine transformations in GLSL code</li>
-                </ul>
-            </li>
-        </ul>
-
-        <h2>This time</h2>
-
-        <ul>
-            <li>Chains of transformations.</li>
-            <li>The 3D matrix pipeline.</li>
+            <li>Textures are a way to pass image data from Javascript to WebGL.</li>
+            <li>GLSL shaders (almost always the fragment shader) have access to this image data through samplers.</li>
+            <li>This can return the color of a pixel, or blended colors from several pixels.</li>
         </ul>
 
         <h2>Exhibits</h2>
 
         <ul>
-            <li><a href="exhibit00.html">#0: Chaining transforms in 2D</a></li>
-            <li><a href="exhibit01.html">#1: Chaining transforms in 3D</a></li>
-            <li><a href="exhibit02.html">#2: Orthographic viewing</a></li>
-            <li><a href="exhibit03.html">#3: Perspective viewing</a></li>
+            <li><a href="exhibit00.html">#0: Using an Image Texture</a></li>
+        </ul>
+
+        <h2>Interlude: Image sampling and mipmaps</h2>
+
+        <ul>
+            <li>
+                Textures contain discrete pixels (called texels), but they are referenced using continuous uv coordinates. What if a UV-coordinate doesn't fall right on a texel?
+                <ul>
+                    <li>
+                        Simplest solution: just return the nearest texel.
+                        <ul>
+                            <li>This is easy to implement, and works fine in some cases, but can cause aliasing problems in others.
+                                <br/>
+                                <img src="point-sampling.png">
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Another idea: linearly interpolate between the nearest texels.
+                        <ul>
+                            <li>We need to do this for both the <tt>u</tt> and <tt>v</tt> coordinates, so take a weighted average of up to 4 pixels.</li>
+                            <li>This is called bilinear interpolation.</li>
+                            <li>This looks a little better, but the aliasing problems don't go away.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>What is going on here?
+                <br/>
+                <img src="pixel-footprint-1.png">
+                <ul>
+                    <li>One pixel in the image plane may map to many texels. Each texel in the pixel's footprint should contribute to the final color.</li>
+                    <li>Also, some pixels may map to a space smaller than a texel (this doesn't contribute to aliasing problems, though).</li>
+                    <li>We need to account for the first case (minification) and the second case (magnification) when using textures in WebGL.</li>
+                </ul>
+                <br/>
+                <img src="pixel-footprint.png" width="500px">
+            </li>
+            <li>
+                Mipmaps are a cheap way to reduce aliasing artifacts when displaying minified textures.
+                <ul>
+                    <li>MIP stands for "Multum in Parvo" meaning "much in little" or "many in small places."</li>
+                    <li>
+                        Basic idea: keep several copies of the image, each resampled to different sizes.
+                        <br/>
+                        <img src="mipmap-layers.png">
+                        <br/>
+                        <small>[Akenine-Moller and Haines 2002]</small>
+                    </li>
+                    <li>When we need to look up a pixel value, we can estimate the size of that pixel's footprint on the texture.</li>
+                    <li>Then, we can use that information to decide which level of the texture to sample.</li>
+                    <li>
+                        We can even linearly sample between nearby levels.
+                        <ul>
+                            <li>If used together with bilinear interpolation on adjacent layers, this is called trilinear interpolation.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        This method effectively blurs out the aliasing artifacts.
+                        <br/>
+                        <img src="mipmap-sampling.png">
+                    </li>
+                    <li>
+                        Notice that this increases the memory footprint of an image by 1/3.
+                        <br/>
+                        <img src="dragon.png">
+                        <img src="dragon-mipmap.png">
+                        <br/>
+                        <small>[Kavita Bala]</small>
+                    </li>
+                    <li>Since this is a commonly used tool, WebGL does most of this for you.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>Exhibits, Continued</h2>
+        <ul>
+            <li><a href="exhibit01.html">#1: Texture Parameters</a></li>
+            <li><a href="exhibit02.html">#2: Minification Parameters and Textured 3D Mesh</a></li>
+            <li><a href="exhibit03.html">#3: Loading and Using Multiple Texture</a></li>
+            <li><a href="exhibit04.html">#4: Textures and Transparency</a></li>
         </ul>
     </section>
 </div>

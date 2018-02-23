@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 5 -- Exhibit #3: Perspective viewing</title>
+    <title>CS 4621: Lecture 5 -- Exhibit #3: Loading and Using More Than One Texture</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -30,291 +30,161 @@
     <script type="text/javascript" async
             src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
-    <style>
-    input.numeric { width: 5em; }
-    </style>
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit 3 <span class="subtitle">Perspective viewing</span></h1>
+    <h1>Exhibit 3 <span class=subtitle>Loading and Using More Than One Texture</a></h1>
 
-    <div class="center-block">
-        <canvas id="objCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
-        <canvas id="worldCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
-    </div>
+    <canvas id="webglCanvas" style="border: none; background-color: black;" width="512" height="512"></canvas>
 
-    <table class="table table-bordered">
-        <tr>
-            <td colspan="5" align="center"><b>Projection transformation</b></td>
-        </tr>
-        <tr>
-            <td>
-                Projection:
-            </td>
-            <td>
-                left = <input type="text" class="numeric" id="left" value="-1.0"><br>
-                right = <input type="text" class="numeric" id="right" value="1.0">
-            </td>
-            <td>
-                bot = <input type="text" class="numeric" id="bottom" value="-1.0"><br>
-                top = <input type="text" class="numeric" id="top" value="1.0">
-            </td>
-            <td>
-                near = <input type="text" class="numeric" id="near" value="1.0"><br>
-                far = <input type="text" class="numeric" id="far" value="3.0">
-            </td>
-            <td>
-                <table id="projMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="5" align="center"><b>Model-view transformation</b></td>
-        </tr>
-        <tr>
-            <td>
-                Translation:
-            </td>
-            <td>
-                X = <input type="text" class="numeric" id="transX" value="0.0">
-            </td>
-            <td>
-                Y = <input type="text" class="numeric" id="transY" value="0.0">
-            </td>
-            <td>
-                Z = <input type="text" class="numeric" id="transZ" value="-2.0">
-            </td>
-            <td>
-                <table id="transMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Rotation: 
-            </td>
-            <td>
-                X angle = <input type="text" class="numeric" id="rotX" value="0.0">
-            </td>
-            <td>
-                Y angle = <input type="text" class="numeric" id="rotY" value="0.0">
-            </td>
-            <td>
-                Z angle = <input type="text" class="numeric" id="rotZ" value="0.0">
-            </td>
-            <td>
-                <table id="rotMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Scale: 
-            </td>
-            <td>
-                X = <input type="text" class="numeric" id="scaleX" value="1.0">
-            </td>
-            <td>
-                Y = <input type="text" class="numeric" id="scaleY" value="1.0">
-            </td>
-            <td>
-                Z = <input type="text" class="numeric" id="scaleZ" value="1.0">
-            </td>
-            <td>
-                <table id="scaleMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Compound Transformation: 
-            </td>
-            <td>
-              <fieldset>
-                <legend>Composition order: </legend>
-                <label for="orderTRS">TRS</label>
-                <input type="radio" name="comp-order" id="orderTRS" checked="true">
-                <label for="orderSRT">SRT</label>
-                <input type="radio" name="comp-order" id="orderSRT">
-              </fieldset>
-            </td>
-            <td>
-              <fieldset>
-                <legend>Rotation order: </legend>
-                <label for="orderXYZ">XYZ</label>
-                <input type="radio" name="rot-order" id="orderXYZ" checked="true">
-                <label for="orderZYX">ZYX</label>
-                <input type="radio" name="rot-order" id="orderZYX">
-              </fieldset>
-            </td>
-            <td>
-            </td>
-            <td>
-                <table id="compMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+    <h2>What We Did</h2>
 
+    <ul>
+        <li>
+            The way we load an image in <a href="exhibit00.html">Exhibit #0</a> is troublesome.
+            If we want to load multiple images, we need to chain the callback functions together:
+            Once one image loads, we need to load the next, and so on. This is a hassle.
+        </li>
+        <li>
+            To make life easier, we use a library called <a href="http://www.createjs.com/preloadjs">PreloadJS</a>.
+            <ul>
+                <li>Before you initialize WebGL:
+<pre class="prettyprint">// Step 1: Create a LoadQueue object.
+var queue = new createjs.LoadQueue();
+// Step 2: Register the callback function to run when all images have loaded.
+queue.on("complete", function() { runWebGL(queue) }, this);
+// Step 3: List the files you want to load, with their correponding ID.
+queue.loadManifest([
+    {
+        id: "cornell",
+        src: "cornell-logo.jpg"
+    },
+    {
+        id: "wood",
+        src: "wood1.png"
+    },
+    {
+        id: "checker",
+        src: "checker.jpg"
+    }
+]);
+</pre>
+                </li>
+                <li>
+                    Notice that we pass the <code>queue</code> to the callback function, so that
+                    it will have access to the queue and the loaded images.
+                </li>
+                <li>
+                    In the callback function, we can retrieve the loaded images from
+                    the queue with the following method: <code>queue.getResult(&lt;id>)</code>
+                    <ul>
+                        <li><code>&lt;id></code> is the ID you speicified in the above manifest.</li>
+                        <li>PreloadJS figures out the file type from the extension, and returns an HTML <code>img</code> object.</li>
+                        <li>Sidenote: if you want the raw data instead, use <code>queue.getResult(&lt;id>, true)</code>.</li>
+                    </ul>
+                </li>
+                <li>
+                    We can then fetch the loaded images by name and create textures from them:
+<pre class="prettyprint">
+var cornellTexture = createTexture(gl, queue.getResult("cornell", false));
+var woodTexture = createTexture(gl, queue.getResult("wood", false));
+var checkerTexture = createTexture(gl, queue.getResult("checker", false));
+</pre>
+                </li>
+                <li>
+                    The <code>createTexture</code> function does what we did in Exhibit #0 to create
+                    a texture.  You might find it useful in your programming assignment and final project.
+                </li>
+            </ul>
+        </li>
+        <li>
+            To use multiple textures, the fragment shader should have multiple uniforms of type
+            <code>sampler2D</code>.  Here's the fragment shader code:
+<pre class="prettyprint">
+precision highp float;
+
+varying vec2 geom_texCoord;
+
+uniform sampler2D texture0;
+uniform sampler2D texture1;
+uniform sampler2D textureAlpha;
+
+void main() {
+    vec4 c0 = texture2D(texture0, geom_texCoord);
+    vec4 c1 = texture2D(texture1, geom_texCoord);
+    float alpha = texture2D(textureAlpha, geom_texCoord).x;
+    gl_FragColor = (1.0-alpha)*c0 + alpha*c1;
+}
+</pre>
+        </li>
+        <li>
+            Then, we need to hook up the textures to the uniforms.  This time,
+            <b>we activate multiple texture units and assign different indices to the uniforms.</b>
+<pre class="prettyprint">
+if (program.texture0 != null) {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, cornellTexture);
+    gl.uniform1i(program.texture0, 0);
+}
+if (program.texture1 != null) {
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, woodTexture);
+    gl.uniform1i(program.texture1, 1);
+}
+if (program.textureAlpha != null) {
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, checkerTexture);
+    gl.uniform1i(program.textureAlpha, 2);
+}
+</pre>
+        </li>
+        <li>Here are the raw images used:
+            <div id="cornellTexture"></div>
+            <div id="woodTexture"></div>
+            <div id="checkerTexture"></div>
+        </li>
+    </ul>
 </div>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="../js/jquery-3.1.1.min.js"></script>
 <script src="../js/jquery-ui.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<!-- <script src="../js/bootstrap.min.js"></script> -->
-<script src="../js/gl-matrix-min.js"></script>
 <!-- Google Code Prettifier -->
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+<script src="../js/preloadjs-0.6.2.min.js"></script>
+
 
 <script id="vertexShader" type="x-shader/x-vertex">
-    attribute vec3 position;
+    attribute vec3 vert_position;
+    attribute vec2 vert_texCoord;
 
-    uniform mat4 projection;
-    uniform mat4 toWorld;
+    varying vec2 geom_texCoord;
 
     void main() {
-        gl_Position = projection * toWorld * vec4(position, 1.0);
+        gl_Position = vec4(vert_position, 1.0);
+        geom_texCoord = vert_texCoord;
     }
 </script>
 
 <script id="fragmentShader" type="x-shader/x-fragment">
     precision highp float;
 
-    uniform vec3 color;
+    varying vec2 geom_texCoord;
+
+    uniform sampler2D texture0;
+    uniform sampler2D texture1;
+    uniform sampler2D textureAlpha;
 
     void main() {
-        gl_FragColor = vec4(color, 1.0);
+        vec4 c0 = texture2D(texture0, geom_texCoord);
+        vec4 c1 = texture2D(texture1, geom_texCoord);
+        float alpha = texture2D(textureAlpha, geom_texCoord).x;
+        gl_FragColor = (1.0-alpha)*c0 + alpha*c1;
     }
 </script>
 
 <script>
-    var cubeData = {
-        vertices: [
-            -0.5, -0.5, -0.5,
-            -0.5, -0.5,  0.5,
-            -0.5,  0.5, -0.5,
-            -0.5,  0.5,  0.5,
-             0.5, -0.5, -0.5,
-             0.5, -0.5,  0.5,
-             0.5,  0.5, -0.5,
-             0.5,  0.5,  0.5,
-        ],
-        lineInd: [
-            0, 1, 0, 2, 0, 4, 1, 3, 1, 5, 2, 3, 2, 6, 4, 5, 4, 6, 6, 7, 5, 7, 3, 7
-        ],
-        triInd: [
-        ],
-        lineColor: [0.8, 0.8, 0.8],
-        fillColor: [1.0, 0.9, 0.7]
-    };
-
-    function initGUI() {
-        $('#left').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#right').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#top').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#bottom').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#near').spinner({'min': 0.1, 'max': 2, 'step': 0.1});
-        $('#far').spinner({'min': 2.1, 'max': 5, 'step': 0.1});
-        $('#transX').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#transY').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#transZ').spinner({'min': -4, 'max': 4, 'step': 0.1});
-        $('#rotX').spinner({'min': -360, 'max': 360, 'step': 5});
-        $('#rotY').spinner({'min': -360, 'max': 360, 'step': 5});
-        $('#rotZ').spinner({'min': -360, 'max': 360, 'step': 5});
-        $('#scaleX').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#scaleY').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#scaleZ').spinner({'min': -2, 'max': 2, 'step': 0.1});
-    }
-
-    function displayMatrix4(sel, M) {
-        $(sel).find('tr').each(function (i, elt) {
-            $(elt).find('td').each(function (j, elt) {
-                $(elt).html(M[i + 4 * j].toFixed(3));
-            });
-        });
-    }
-
-    var xAxis = vec3.fromValues(1, 0, 0);
-    var yAxis = vec3.fromValues(0, 1, 0);
-    var zAxis = vec3.fromValues(0, 0, 1);
-
-    function getProjMatrix() {
-        var t = vec3.fromValues($('#transX').spinner('value'), $('#transY').spinner('value'), $('#transZ').spinner('value'));
-        var l = $('#left').spinner('value'), r = $('#right').spinner('value');
-        var b = $('#bottom').spinner('value'), t = $('#top').spinner('value'); 
-        var n = $('#near').spinner('value'), f = $('#far').spinner('value');
-
-        var P = mat4.fromValues(
-            2*n / (r - l),      0       , (l + r) / (r - l),       0,
-                 0       , 2*n / (t - b), (b + t) / (t - b),       0,
-                 0       ,      0       , (n + f) / (n - f), 2*f*n / (n - f),
-                 0       ,      0       ,        -1        ,       0
-            );
-        mat4.transpose(P, P);
-        displayMatrix4('#projMatrix', P);
-        return P;
-    }
-
-    function getMVMatrix() {
-        var t = vec3.fromValues($('#transX').spinner('value'), $('#transY').spinner('value'), $('#transZ').spinner('value'));
-        var T = mat4.create();
-        mat4.fromTranslation(T, t);
-        displayMatrix4('#transMatrix', T);
-
-        var R = mat4.create();
-        if ($('#orderXYZ').get(0).checked) { 
-            mat4.rotate(R, R, $('#rotX').spinner('value') * Math.PI/180, xAxis);
-            mat4.rotate(R, R, $('#rotY').spinner('value') * Math.PI/180, yAxis);
-            mat4.rotate(R, R, $('#rotZ').spinner('value') * Math.PI/180, zAxis);
-        } else { 
-            mat4.rotate(R, R, $('#rotZ').spinner('value') * Math.PI/180, zAxis);
-            mat4.rotate(R, R, $('#rotY').spinner('value') * Math.PI/180, yAxis);
-            mat4.rotate(R, R, $('#rotX').spinner('value') * Math.PI/180, xAxis);
-        }
-        displayMatrix4('#rotMatrix', R);
-
-        var s = vec3.fromValues($('#scaleX').spinner('value'), $('#scaleY').spinner('value'), $('#scaleZ').spinner('value'));
-        var S = mat4.create();
-        mat4.fromScaling(S, s);
-        displayMatrix4('#scaleMatrix', S);
-
-        var M = mat4.create();
-        if ($('#orderTRS').get(0).checked) { 
-            mat4.mul(M, M, T);
-            mat4.mul(M, M, R);
-            mat4.mul(M, M, S);
-        } else  { 
-            mat4.mul(M, M, S);
-            mat4.mul(M, M, R);
-            mat4.mul(M, M, T);
-        }
-        displayMatrix4('#compMatrix', M);
-        return M;
-    }
-
-    initGUI();
-
     function initializeWebGL(canvas) {
         // Getting WebGL context the right way
         var gl = null;
@@ -371,112 +241,142 @@
         }
     }
 
-
-    function createShape(gl, data) {
+    function createShape(gl, vertexData, indexData) {
         var shape = {};
 
-        shape.vertexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, shape.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertices), gl.STATIC_DRAW);
+        var vertexArray = new Float32Array(vertexData);
+        var vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        shape.lineIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.lineIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.lineInd), gl.STATIC_DRAW);
+        var indexArray = new Uint16Array(indexData);
+        var indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-        shape.triIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triInd), gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-        shape.lineLen = data.lineInd.length;
-        shape.triLen = data.triInd.length;
-        shape.lineColor = data.lineColor;
-        shape.fillColor = data.fillColor;
+        shape.vertexBuffer = vertexBuffer;
+        shape.indexBuffer = indexBuffer;
+        shape.size = indexData.length;
 
         return shape;
     }
 
-    function drawShape(gl, shape, program, xf, proj) {
-        gl.useProgram(program);
-
+    function drawShape(gl, program, shape) {
         gl.bindBuffer(gl.ARRAY_BUFFER, shape.vertexBuffer);
-        var positionLocation = gl.getAttribLocation(program, "position");
+        var positionLocation = gl.getAttribLocation(program, "vert_position");
         gl.enableVertexAttribArray(positionLocation);
-        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 4 * 3, 0);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 4 * 5, 0);
+        var texCoordLocation = gl.getAttribLocation(program, "vert_texCoord");
+        gl.enableVertexAttribArray(texCoordLocation);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 4 * 5, 4 * 3);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "toWorld"), false, xf);
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "projection"), false, proj);
-
-        gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.fillColor);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
-        gl.drawElements(gl.TRIANGLES, shape.triLen, gl.UNSIGNED_SHORT, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-        gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.lineColor);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.lineIndexBuffer);
-        gl.drawElements(gl.LINES, shape.lineLen, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.indexBuffer);
+        gl.drawElements(gl.TRIANGLES, shape.size, gl.UNSIGNED_SHORT, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
         gl.useProgram(null);
     }
 
-    function glEnv(canvas) {
-
-        var gl = initializeWebGL(canvas);
-        var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
-        var cat = createShape(gl, cubeData);
-
-        var xf = mat4.create();
-        function setXf(newXf) {
-            mat4.copy(xf, newXf);
-        }
-
-        var proj = mat4.create();
-        function setProj(newProj) {
-            mat4.copy(proj, newProj);
-        }
-
-        function drawFrame() {
-            gl.clearColor(0.15, 0.2, 0.5, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            drawShape(gl, cat, program, xf, proj);
-        }
-
-        return {
-            setXf: setXf,
-            setProj: setProj,
-            drawFrame: drawFrame
-        }
+    function startWebGL() {
+        // Step 1: Create a LoadQueue object.
+        var queue = new createjs.LoadQueue();
+        // Step 2: Register the callback function.
+        queue.on("complete", function() { runWebGL(queue) }, this);
+        // Step 3: List the files you want to load, with their correponding ID.
+        queue.loadManifest([
+            {
+                id: "cornell",
+                src: "cornell-logo.jpg"
+            },
+            {
+                id: "wood",
+                src: "wood1.png"
+            },
+            {
+                id: "checker",
+                src: "checker.jpg"
+            }
+        ]);
     }
 
-    var objSpaceEnv = glEnv($("#objCanvas"));
-    var worldSpaceEnv = glEnv($("#worldCanvas"));
+    function createTexture(gl, image) {
+        var texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        return texture;
+    }
 
-    function updateWebGL(time) {
+    function runWebGL(queue) {
+        var gl = initializeWebGL($("#webglCanvas"));
 
-        worldSpaceEnv.setXf(getMVMatrix());
-        worldSpaceEnv.setProj(getProjMatrix());
-    
-        objSpaceEnv.drawFrame();
-        worldSpaceEnv.drawFrame();
+        var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
+        ["texture0", "texture1", "textureAlpha"].forEach(function(name) {
+            program[name] = gl.getUniformLocation(program, name);
+        });
 
-        // Reschedule the next frame.
+        var cornellTexture = createTexture(gl, queue.getResult("cornell", false));
+        var woodTexture = createTexture(gl, queue.getResult("wood", false));
+        var checkerTexture = createTexture(gl, queue.getResult("checker", false));
+
+        $("#cornellTexture").append(queue.getResult("cornell", false));
+        $("#woodTexture").append(queue.getResult("wood", false));
+        $("#checkerTexture").append(queue.getResult("checker", false));
+
+        var vertexData = [
+            -0.9, -0.9, 0.0,
+            0.0, 0.0,
+            0.9, -0.9, 0.0,
+            1.0, 0.0,
+            0.9, 0.9, 0.0,
+            1.0, 1.0,
+            -0.9, 0.9, 0.0,
+            0.0, 1.0
+        ];
+        var indexData = [
+            0, 1, 2, 0, 2, 3
+        ];
+        var rectangle = createShape(gl, vertexData, indexData);
+
+        function updateWebGL() {
+            gl.clearColor(0.5, 0.5, 0.5, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(program);
+
+            if (program.texture0 != null) {
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, cornellTexture);
+                gl.uniform1i(program.texture0, 0);
+            }
+            if (program.texture1 != null) {
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, woodTexture);
+                gl.uniform1i(program.texture1, 1);
+            }
+            if (program.textureAlpha != null) {
+                gl.activeTexture(gl.TEXTURE2);
+                gl.bindTexture(gl.TEXTURE_2D, checkerTexture);
+                gl.uniform1i(program.textureAlpha, 2);
+            }
+
+            drawShape(gl, program, rectangle);
+
+            gl.useProgram(null);
+
+            // Reschedule the next frame.
+            window.requestAnimationFrame(updateWebGL);
+        }
+
         window.requestAnimationFrame(updateWebGL);
     }
 
-    window.requestAnimationFrame(updateWebGL);
-
-    var objCanvas = $("#objCanvas");
-
-    objCanvas.click(function(event) {
-    });
-    objCanvas.mousemove(function(event) {
-    });
+    startWebGL();
 </script>
-
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 5 -- Exhibit #1: Chaining 3D Transforms</title>
+    <title>CS 4621: Lecture 5 -- Exhibit #1: Texture Parameters</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -33,232 +33,240 @@
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit 1 <span class="subtitle">Chaining 3D Transformations</span></h1>
+    <h1>Exhibit 1 <span class=subtitle>Texture Parameters</a></h1>
 
-    <div class="center-block">
-        <canvas id="objCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
-        <canvas id="worldCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
-    </div>
+    <center>
+        <canvas id="webglCanvas" style="border: none; background-color: black;" width="512" height="512"></canvas>
+    </center>
+
+    <h3>What to Display</h3>
+    <select id="displayModeSelect">
+        <option value="0">Texture</option>
+        <option value="1">Texture Coordinates (fractional part only)</option>
+    </select>
+
+    <h3>Filtering Parameters</h3>
 
     <table class="table table-bordered">
         <tr>
-            <td colspan="4" align="center"><b>Transformation</b></td>
-        </tr>
-        <tr>
-            <td>
-                Translation:
+            <td align="right" width="20%"><code>gl.TEXTURE_MAG_FILTER</code></td>
+            <td width="30%">
+                <select id="textureMagFilterSelect">
+                    <option value="LINEAR">LINEAR</option>
+                    <option value="NEAREST">NEAREST</option>
+                </select>
             </td>
-            <td>
-                X = <input type="text" id="transX" value="0.0">
-            </td>
-            <td>
-                Y = <input type="text" id="transY" value="0.0">
-            </td>
-            <td>
-                Z = <input type="text" id="transZ" value="0.0">
-            </td>
-            <td>
-                <table id="transMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Rotation: 
-            </td>
-            <td>
-                X angle = <input type="text" id="rotX" value="0.0">
-            </td>
-            <td>
-                Y angle = <input type="text" id="rotY" value="0.0">
-            </td>
-            <td>
-                Z angle = <input type="text" id="rotZ" value="0.0">
-            </td>
-            <td>
-                <table id="rotMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Scale: 
-            </td>
-            <td>
-                X = <input type="text" id="scaleX" value="1.0">
-            </td>
-            <td>
-                Y = <input type="text" id="scaleY" value="1.0">
-            </td>
-            <td>
-                Z = <input type="text" id="scaleZ" value="1.0">
-            </td>
-            <td>
-                <table id="scaleMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Compound Transformation: 
-            </td>
-            <td>
-              <fieldset>
-                <legend>Composition order: </legend>
-                <label for="orderTRS">TRS</label>
-                <input type="radio" name="comp-order" id="orderTRS" checked="true">
-                <label for="orderSRT">SRT</label>
-                <input type="radio" name="comp-order" id="orderSRT">
-              </fieldset>
-            </td>
-            <td>
-              <fieldset>
-                <legend>Rotation order: </legend>
-                <label for="orderXYZ">XYZ</label>
-                <input type="radio" name="rot-order" id="orderXYZ" checked="true">
-                <label for="orderZYX">ZYX</label>
-                <input type="radio" name="rot-order" id="orderZYX">
-              </fieldset>
-            </td>
-            <td>
-            </td>
-            <td>
-                <table id="compMatrix" class="matrix">
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                    <tr><td></td><td></td><td></td><td></td></tr>
-                </table>
+            <td width="20%" align="right"><code>gl.TEXTURE_MIN_FILTER</code></td>
+            <td width="30%">
+                <select id="textureMinFilterSelect">
+                    <option value="LINEAR">LINEAR</option>
+                    <option value="NEAREST">NEAREST</option>
+                    <option value="NEAREST_MIPMAP_NEAREST">NEAREST_MIPMAP_NEAREST</option>
+                    <option value="LINEAR_MIPMAP_NEAREST">LINEAR_MIPMAP_NEAREST</option>
+                    <option value="NEAREST_MIPMAP_LINEAR" selected="selected">NEAREST_MIPMAP_LINEAR</option>
+                    <option value="LINEAR_MIPMAP_LINEAR">LINEAR_MIPMAP_LINEAR</option>
+                </select>
             </td>
         </tr>
     </table>
 
+    <h3>Wrapping Parameters</h3>
+
+    <table class="table table-bordered">
+        <tr>
+            <td align="right" width="20%"><code>gl.TEXTURE_WRAP_S</code></td>
+            <td colspan="3">
+                <select id="textureWrapSSelect">
+                    <option value="REPEAT">REPEAT</option>
+                    <option value="CLAMP_TO_EDGE">CLAMP_TO_EDGE</option>
+                    <option value="MIRRORED_REPEAT">MIRRORED_REPEAT</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="20%" align="right">$s$ of left edge</td>
+            <td width="30%">
+                <input type="text" id="s0Spinner" value="0.0">
+            </td>
+            <td width="20%" align="right">$s$ of right edge</td>
+            <td width="30%">
+                <input type="text" id="s1Spinner" value="1.0">
+            </td>
+        </tr>
+        <tr>
+            <td width="20%" align="right"><code>gl.TEXTURE_WRAP_T</code></td>
+            <td colspan="30%">
+                <select id="textureWrapTSelect">
+                    <option value="REPEAT">REPEAT</option>
+                    <option value="CLAMP_TO_EDGE">CLAMP_TO_EDGE</option>
+                    <option value="MIRRORED_REPEAT">MIRRORED_REPEAT</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="20%" align="right">$t$ of bottom edge</td>
+            <td width="30%">
+                <input type="text" id="t0Spinner" value="0.0">
+            </td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td width="20%" align="right">$t$ of top edge</td>
+            <td width="30%">
+                <input type="text" id="t1Spinner" value="1.0">
+            </td>
+            <td colspan="2"></td>
+        </tr>
+    </table>
+
+    <h2>What We Did</h2>
+
+    <ul>
+        <li>
+            After binding a texture to the <code>TEXTURE_2D</code> target, you can
+            specify how pixel values are fetched from the texture.
+        </li>
+        <li>
+            Specification is done by the <code>gl.texParameteri</code>, whose documentation
+            can be found <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter">here</a>.
+            <ul>
+                <li>We are using this version of the function: <code>void gl.texParameteri(GLenum target, GLenum pname, GLint param);</code></li>
+                <li><code>target</code>, again, specifies the texture system.
+                In our case, it's always <code>gl.TEXTURE_2D</code></li>
+                <li><code>pname</code> is where you put a WebGL constant that specifies the name of the
+                parameters you would like to set.</li>
+                <li><code>param</code> is the actual parameter value, and it is usally another WebGL constant.</li>
+            </ul>
+        </li>
+        <li>
+            In this exhibit, we are interested in two set of parameters: <i>filtering parameters</i> and <i>wrapping parameters</i>.
+        </li>
+        <li>
+            A filtering parameter specifies how texture values are averaged together when
+            the texture is displayed on a shape whose resolution does not match the texture resolution.
+            <ul>
+                <li>
+                    <code>gl.TEXTURE_MAG_FILTER</code> specifies what to do when surface resolution is
+                    <i>larger</i> than texture resolution.
+                </li>
+                <li>
+                    <code>gl.TEXTURE_MIN_FILTER</code> specifies what to do when surface resolution is
+                    <i>smaller</i> than texture resolution.
+                </li>
+            </ul>
+        </li>
+        <li>
+            A mipmap can be used when minification happens, so we have parameter values that specify how to use the mipmap.
+            <ul>
+                <li>Simply call <code>gl.generateMipmap(gl.TEXTURE_2D)</code> after uploading image data.</li>
+                <li>Then you can use the mipmap options in the minification filter.</li>
+            </ul>
+        </li>
+        <li>Note that not all options are available unless your image's width and height are powers of 2.
+            <ul>
+                <li>
+                    According to <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL">documentation at Mozilla</a>:
+                    <blockquote>
+                        But, if you must have a non power-of-two (NPOT) texture, WebGL does include limited native support.
+                        [...]
+                        The catch: these textures cannot be used with mipmapping and they must not "repeat" (tile or wrap).
+                    </blockquote>
+                </li>
+                <li>Sidenote: WebGL 2 does not have these restrictions.</li>
+            </ul>
+        </li>
+        <li>
+            A wrapping parameter specifies how to fetch texture values when the texture coordinate is
+            out of the default $[0,1]$ range.
+            <ul>
+                <li>
+                    Because texture coordinates have two components (called $s$ and $t$ instead of $u$ and $v$),
+                    we have parameters that allow us to control each component separately.</li>
+            </ul>
+        </li>
+    </ul>
 </div>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="../js/jquery-3.1.1.min.js"></script>
 <script src="../js/jquery-ui.min.js"></script>
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<!-- <script src="../js/bootstrap.min.js"></script> -->
-<script src="../js/gl-matrix-min.js"></script>
 <!-- Google Code Prettifier -->
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 
 <script id="vertexShader" type="x-shader/x-vertex">
-    attribute vec3 position;
+    attribute vec3 vert_position;
+    attribute float vert_index;
 
-    uniform mat4 toWorld;
+    uniform float s0;
+    uniform float t0;
+    uniform float s1;
+    uniform float t1;
+
+    varying vec2 geom_texCoord;
 
     void main() {
-        gl_Position = toWorld * vec4(position, 1.0);
+        gl_Position = vec4(vert_position, 1.0);
+        if (vert_index == 0.0) {
+            geom_texCoord = vec2(s0, t0);
+        } else if (vert_index == 1.0) {
+            geom_texCoord = vec2(s1, t0);
+        } else if (vert_index == 2.0) {
+            geom_texCoord = vec2(s1, t1);
+        } else {
+            geom_texCoord = vec2(s0, t1);
+        }
     }
 </script>
 
 <script id="fragmentShader" type="x-shader/x-fragment">
-    precision highp float;
+precision highp float;
 
-    uniform vec3 color;
+#define TEXTURE_MODE 0
+#define TEXTURE_COORD_MODE 1
 
-    void main() {
-        gl_FragColor = vec4(color, 1.0);
-    }
+varying vec2 geom_texCoord;
+
+uniform sampler2D texture;
+uniform int displayMode;
+
+void main() {
+    if (displayMode == TEXTURE_MODE)
+        gl_FragColor = texture2D(texture, geom_texCoord);
+    else
+        gl_FragColor = vec4(fract(geom_texCoord.x), fract(geom_texCoord.y), 0.0, 1.0);
+}
 </script>
 
 <script>
-    var cubeData = {
-        vertices: [
-            -0.5, -0.5, -0.5,
-            -0.5, -0.5,  0.5,
-            -0.5,  0.5, -0.5,
-            -0.5,  0.5,  0.5,
-             0.5, -0.5, -0.5,
-             0.5, -0.5,  0.5,
-             0.5,  0.5, -0.5,
-             0.5,  0.5,  0.5,
-        ],
-        lineInd: [
-            0, 1, 0, 2, 0, 4, 1, 3, 1, 5, 2, 3, 2, 6, 4, 5, 4, 6, 6, 7, 5, 7, 3, 7
-        ],
-        triInd: [
-        ],
-        lineColor: [0.8, 0.8, 0.8],
-        fillColor: [1.0, 0.9, 0.7]
-    };
+    var s0Spinner = $("#s0Spinner");
+    var s1Spinner = $("#s1Spinner");
+    var t0Spinner = $("#t0Spinner");
+    var t1Spinner = $("#t1Spinner");
 
-    function initGUI() {
-        $('#transX').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#transY').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#transZ').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#rotX').spinner({'min': -360, 'max': 360, 'step': 5});
-        $('#rotY').spinner({'min': -360, 'max': 360, 'step': 5});
-        $('#rotZ').spinner({'min': -360, 'max': 360, 'step': 5});
-        $('#scaleX').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#scaleY').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#scaleZ').spinner({'min': -2, 'max': 2, 'step': 0.1});
-    }
-
-    function displayMatrix4(sel, M) {
-        $(sel).find('tr').each(function (i, elt) {
-            $(elt).find('td').each(function (j, elt) {
-                $(elt).html(M[i + 4 * j].toFixed(3));
-            });
-        });
-    }
-
-    var xAxis = vec3.fromValues(1, 0, 0);
-    var yAxis = vec3.fromValues(0, 1, 0);
-    var zAxis = vec3.fromValues(0, 0, 1);
-
-    function getMatrix() {
-        var t = vec3.fromValues($('#transX').spinner('value'), $('#transY').spinner('value'), $('#transZ').spinner('value'));
-        var T = mat4.create();
-        mat4.fromTranslation(T, t);
-        displayMatrix4('#transMatrix', T);
-
-        var R = mat4.create();
-        if ($('#orderXYZ').get(0).checked) { 
-            mat4.rotate(R, R, $('#rotX').spinner('value') * Math.PI/180, xAxis);
-            mat4.rotate(R, R, $('#rotY').spinner('value') * Math.PI/180, yAxis);
-            mat4.rotate(R, R, $('#rotZ').spinner('value') * Math.PI/180, zAxis);
-        } else { 
-            mat4.rotate(R, R, $('#rotZ').spinner('value') * Math.PI/180, zAxis);
-            mat4.rotate(R, R, $('#rotY').spinner('value') * Math.PI/180, yAxis);
-            mat4.rotate(R, R, $('#rotX').spinner('value') * Math.PI/180, xAxis);
-        }
-        displayMatrix4('#rotMatrix', R);
-
-        var s = vec3.fromValues($('#scaleX').spinner('value'), $('#scaleY').spinner('value'), $('#scaleZ').spinner('value'));
-        var S = mat4.create();
-        mat4.fromScaling(S, s);
-        displayMatrix4('#scaleMatrix', S);
-
-        var M = mat4.create();
-        if ($('#orderTRS').get(0).checked) { 
-            mat4.mul(M, M, T);
-            mat4.mul(M, M, R);
-            mat4.mul(M, M, S);
-        } else  { 
-            mat4.mul(M, M, S);
-            mat4.mul(M, M, R);
-            mat4.mul(M, M, T);
-        }
-        displayMatrix4('#compMatrix', M);
-        return M;
-    }
-
-    initGUI();
+    s0Spinner.spinner({
+        min: -100.0,
+        max: 100.0,
+        step: 0.1
+    });
+    s0Spinner.spinner("value", 0.0);
+    s1Spinner.spinner({
+        min: -100.0,
+        max: 100.0,
+        step: 0.1
+    });
+    s1Spinner.spinner("value", 1.0);
+    t0Spinner.spinner({
+        min: -100.0,
+        max: 100.0,
+        step: 0.1
+    });
+    t0Spinner.spinner("value", 0.0);
+    t1Spinner.spinner({
+        min: -100.0,
+        max: 100.0,
+        step: 0.1
+    });
+    t1Spinner.spinner("value", 1.0);
 
     function initializeWebGL(canvas) {
         // Getting WebGL context the right way
@@ -316,104 +324,135 @@
         }
     }
 
-
-    function createShape(gl, data) {
+    function createShape(gl, vertexData, indexData) {
         var shape = {};
 
-        shape.vertexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, shape.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertices), gl.STATIC_DRAW);
+        var vertexArray = new Float32Array(vertexData);
+        var vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        shape.lineIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.lineIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.lineInd), gl.STATIC_DRAW);
+        var indexArray = new Uint16Array(indexData);
+        var indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-        shape.triIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triInd), gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-        shape.lineLen = data.lineInd.length;
-        shape.triLen = data.triInd.length;
-        shape.lineColor = data.lineColor;
-        shape.fillColor = data.fillColor;
+        shape.vertexBuffer = vertexBuffer;
+        shape.indexBuffer = indexBuffer;
+        shape.size = indexData.length;
 
         return shape;
     }
 
-    function drawShape(gl, shape, program, xf) {
-        gl.useProgram(program);
-
+    function drawShape(gl, program, shape) {
         gl.bindBuffer(gl.ARRAY_BUFFER, shape.vertexBuffer);
-        var positionLocation = gl.getAttribLocation(program, "position");
+        var positionLocation = gl.getAttribLocation(program, "vert_position");
         gl.enableVertexAttribArray(positionLocation);
-        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 4 * 3, 0);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 4 * 4, 0);
+        var indexLocation = gl.getAttribLocation(program, "vert_index");
+        gl.enableVertexAttribArray(indexLocation);
+        gl.vertexAttribPointer(indexLocation, 1, gl.FLOAT, false, 4 * 4, 4 * 3);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, "toWorld"), false, xf);
-
-        gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.fillColor);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
-        gl.drawElements(gl.TRIANGLES, shape.triLen, gl.UNSIGNED_SHORT, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-        gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.lineColor);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.lineIndexBuffer);
-        gl.drawElements(gl.LINES, shape.lineLen, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.indexBuffer);
+        gl.drawElements(gl.TRIANGLES, shape.size, gl.UNSIGNED_SHORT, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
         gl.useProgram(null);
     }
 
-    function glEnv(canvas) {
-
-        var gl = initializeWebGL(canvas);
-        var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
-        var cat = createShape(gl, cubeData);
-
-        var xf = mat4.create();
-        function setXf(newXf) {
-            mat4.copy(xf, newXf);
-        }
-
-        function drawFrame() {
-            gl.clearColor(0.15, 0.2, 0.5, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            drawShape(gl, cat, program, xf);
-        }
-
-        return {
-            setXf: setXf,
-            drawFrame: drawFrame
-        }
+    function startWebGL() {
+        var checkerImage = new Image();
+        checkerImage.onload = function() {
+            runWebGL(checkerImage);
+        };
+        checkerImage.src = "checker.jpg";
     }
 
-    var objSpaceEnv = glEnv($("#objCanvas"));
-    var worldSpaceEnv = glEnv($("#worldCanvas"));
+    function runWebGL(checkerImage) {
+        var gl = initializeWebGL($("#webglCanvas"));
 
-    function updateWebGL(time) {
+        var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
+        program.texture = gl.getUniformLocation(program, "texture");
+        program.s0 = gl.getUniformLocation(program, "s0");
+        program.s1 = gl.getUniformLocation(program, "s1");
+        program.t0 = gl.getUniformLocation(program, "t0");
+        program.t1 = gl.getUniformLocation(program, "t1");
+        program.displayMode = gl.getUniformLocation(program, "displayMode");
 
-        worldSpaceEnv.setXf(getMatrix());
-    
-        objSpaceEnv.drawFrame();
-        worldSpaceEnv.drawFrame();
+        // Create the Cornell texture.
+        var texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, checkerImage);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.bindTexture(gl.TEXTURE_2D, null);
 
-        // Reschedule the next frame.
+        var vertexData = [
+            -0.95, -0.95, 0.0,
+            0.0,
+            0.95, -0.95, 0.0,
+            1.0,
+            0.95, 0.95, 0.0,
+            2.0,
+            -0.95, 0.95, 0.0,
+            3.0
+        ];
+        var indexData = [
+            0, 1, 2, 0, 2, 3
+        ];
+        var rectangle = createShape(gl, vertexData, indexData);
+
+        function updateWebGL() {
+            gl.clearColor(1.0, 0.5, 0.5, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(program);
+
+            if (program.texture != null) {
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl[$("#textureMagFilterSelect").val()]);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl[$("#textureMinFilterSelect").val()]);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl[$("#textureWrapSSelect").val()]);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl[$("#textureWrapTSelect").val()]);
+                gl.uniform1i(program.texture, 0);
+            }
+            if (program.s0 != null) {
+                var s0 = $("#s0Spinner").spinner("value");
+                gl.uniform1f(program.s0, s0);
+            }
+            if (program.s1 != null) {
+                var s1 = $("#s1Spinner").spinner("value");
+                gl.uniform1f(program.s1, s1);
+            }
+            if (program.t0 != null) {
+                var t0 = $("#t0Spinner").spinner("value");
+                gl.uniform1f(program.t0, t0);
+            }
+            if (program.t1 != null) {
+                var t1 = $("#t1Spinner").spinner("value");
+                gl.uniform1f(program.t1, t1);
+            }
+            if (program.displayMode != null) {
+                var displayMode = parseInt($("#displayModeSelect").val());
+                gl.uniform1i(program.displayMode, displayMode);
+            }
+
+            drawShape(gl, program, rectangle);
+
+            gl.useProgram(null);
+
+            // Reschedule the next frame.
+            window.requestAnimationFrame(updateWebGL);
+        }
+
         window.requestAnimationFrame(updateWebGL);
     }
 
-    window.requestAnimationFrame(updateWebGL);
-
-    var objCanvas = $("#objCanvas");
-
-    objCanvas.click(function(event) {
-    });
-    objCanvas.mousemove(function(event) {
-    });
+    startWebGL();
 </script>
-
 </body>
 </html>
