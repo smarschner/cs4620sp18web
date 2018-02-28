@@ -20,9 +20,9 @@
 <body>
 <div class="container">
     <h1>CS 4621 PPA2 <span class="subtitle">Street View</span></h1>
-    <p class="courseinfo">Out: Friday March 3, 2017</p>
-    <p class="courseinfo">Due: Friday March 17, 2017 at 11:59pm</p>
-    <p class="courseinfo">Work in groups of up to 4</p>
+    <p class="courseinfo">Out: Friday March 2, 2018</p>
+    <p class="courseinfo">Due: Friday March 16, 2018 at 11:59pm</p>
+    <p class="courseinfo">Work in groups of up to 4.</p>
 
     <h2>Overview</h2>
 
@@ -39,8 +39,7 @@
     <h2>Demonstration</h2>
 
     <center>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/LTV2EBb68dw" frameborder="0"
-                allowfullscreen></iframe>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/5mZmo0clVAo" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </center>
 
     <h2>Logistics</h2>
@@ -60,11 +59,11 @@
         in the video. You may also add other code to the directory. However, do not use any 3D rendering
         framework such as <a href="https://threejs.org/">three.js</a>. Linear algebra libraries such as
         <a href="http://glmatrix.net/">glMatrix</a> are fine. Our solution code, however, does not use any
-        extra code besides what is already in the ZIP file.
+        extra libraries besides what is already in the ZIP file.
     </p>
 
     <p>
-        Once you're done writing your solution, ZIP the <code>cs4621/ppa02_student</code>, and submit
+        Once you're done writing your solution, ZIP the <code>cs4621/ppa02_student</code> directory, and submit
         the ZIP file to CMS.
     </p>
 
@@ -109,15 +108,15 @@
         the user is looking near the poles, however, this requirement is relaxed. You should prevent the user from tilting upwards when they
         are looking straight up or tilting downwards when they are looking straight down, and you shouldn't allow the user to flip the camera
         upside down or otherwise modify the camera's roll.
-        In short, the camera movement behavior should be the same as in Google Street View.
+        In short, the camera rotation behavior should be similar to that of Google Street View.
         As a side note, you might find it useful to keep the camera rotating as the user drags beyond the bounds of the canvas, though
         this is not required.
     </p>
 
     <p>
         When a user scrolls on the canvas, you should prevent the page from scrolling as it normally would. Instead, you should zoom
-        the camera in or out, i.e., modify the camera's field of view. You should clamp the field of view to a range of reasonable
-        values (e.g., between 1 and 80 degrees).
+        the camera in when the user scrolls up, or zoom the camera out when the user scrolls down. You can zoom by modifying the camera's
+        field of view. You should clamp the field of view to a range of reasonable values (e.g., between 1 and 80 degrees).
     </p>
 
     <h3>Moving Between Panoramas</h3>
@@ -132,7 +131,7 @@
     <p>
         To ease this process, we have provided a function called <code>getImageMetadata(queue, callback)</code> in
         <code>index.html</code>. This function takes as arguments a PreloadJS <code>LoadQueue</code> object (in which all
-        images have previously been loaded), and a callback function. The <code>getImageMetadata</code> returns immediately,
+        images have previously been loaded), and a callback function. The <code>getImageMetadata</code> function returns immediately,
         but the images will be processed asynchronously. When the metadata is ready, the input callback function will be called
         with a single argument, which is an array of objects that is the same length as the input queue. Each object in this array
         contains four fields:
@@ -221,7 +220,7 @@
         </li>
     </ul>
 
-    <h2>Errata</h2>
+    <h2>Etc.</h2>
 
     <p>
         If you would like to make your own spherical panorama images, you can do so with a modern smartphone. The Google Street View app allows you
