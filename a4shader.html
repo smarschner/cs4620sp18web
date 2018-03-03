@@ -13,9 +13,15 @@
     <h4>1. Transforming Normal Vectors</h4>
     In 3D, surface normal vectors are perpendicular to the tangent plane of a surface. These normals do not transform the way we would like when the underlying surface is transformed. You can refer to 6.2.2 of the book or the Transformations slides for how to transform normal vectors. 
 
-    <h5>1)</h5> Similarly in 2D, the curve normal is perpendicular to the tangent of the curve. For a unit circle centered at the origin, what is the outward normal vector at each point (x,y) on the circle? Prove that if we scale y to be half of before without changing x, the normal vectors with the same transformations are not the normals of the new shape. (Hint: you can either show that the vector perpendicular to the transformed normal is not tagent vector of the new shape; or calculate the new shape normal directly and show it is different from the transformed normal.)
+    <h5>1)</h5> Similarly in 2D, the curve normal is perpendicular to the tangent of the curve. For a unit circle centered at the origin, what is the outward normal vector at each point (x,y) on the circle? Suppose we transform this circle by the matrix
+    \[T = \begin{pmatrix}
+    1 & 0\\
+    0 & 0.5
+    \end{pmatrix},\]
 
-    <h5>2)</h5> If we do non-uniform scaling, where we only scale y to be half of before, what is the normal transformation matrix?
+ show that the normal vectors with the same transformations are not the normals of the new shape. (Hint: you can either show the vector perpendicular to the transformed normal is not tagent vector of the new shape; or calculate the new shape normal directly and show it is different from the transformed normal.)
+
+    <h5>2)</h5> If we apply T, what is the normal transformation matrix?
 
     <h4>2. Texture Filtering</h4>
 
