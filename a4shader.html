@@ -200,6 +200,10 @@ Similarly to a 2D texture, you can look up into a cube using the <tt>textureCube
 
 <p>Color values in the range \([0,1]\) in GLSL correspond to the full range of brightnesses that can be displayed. However, the range of brightnesses in a scene can be quite wide. Therefore, we use a scaling factor for all pixel values of the final image. This can be used to fine tune the final image brightness. It is called <tt>exposure</tt> and it can be reached from all shaders. You should multiply the computed pixel color with <tt>exposure</tt>, before setting the final pixel color: <tt>gl_FragColor = computedColor * exposure;</tt>
 
+<h5>sRGB conversion</h5>
+
+<p>The color computed in the shader needs to be translated into the sRGB space for display. We have provided the conversion functions <tt>to_sRGB()</tt> and <tt>from_sRGB()</tt>. You should convert from sRGB when reading colors from textures, and convert to sRGB when outputing to the screen. Thus the final pixel color will look like <tt>gl_FragColor = to_sRGB(computedColor * exposure);</tt>
+
 <h5>Developer Console</h5>
 
 <p>When debugging it can be helpful to bring up your browser's developer console so you can see any errors that are occuring. In addition, Firefox has a built-in shader editor which allows you to edit the shader code on the fly. Similar plugins exist for other browsers as well. Just remember to copy and save your work if you use these, as there is generally no direct save option!
