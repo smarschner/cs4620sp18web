@@ -93,19 +93,17 @@ There are four main components to the assignment:
     <img src="images/a4/cook_torrance_reference.jpg" alt="">
 </div>
 
-<p>Blinn-Phong shading can give you nice results and it's fast and easy to implement -- but it's far from the reality of light reflection. For more realistic appearance, we should use more sophisticated models like Cook-Torrance shading.
+<p>The Blinn-Phong shading implemented in the example shader gives OK results -- but it's far from the reality of light reflection. For more realistic appearance, we should use more sophisticated models based on the microfacet framework, like the one we used in Ray 1.  In this assignment we will implement another microfacet model, known as Cook-Torrance; it's an older model that is a bit simpler, making it well suited to an interactive application. If you are interested in this topic, we suggest reading Cook's original 1982 paper, <cite>A Reflectance Model for Computer Graphics</cite>.
 
-<p>The Cook-Torrance shading model starts with the same Lambertian diffuse shading as Blinn-Phong, but it models the surface's microstructure to give a more physically accurate approximation for the specular term. The microfacet model used in Cook-Torrance shading assumes that the surface consists of randomly aligned small smooth planar facets. The model also takes the Fresnel refraction-reflection term and the shadowing effect of the microfacets into account. If you are interested in this topic, we suggest reading Cook's original 1982 paper, <cite>A Reflectance Model for Computer Graphics</cite>.
-
-<p>To compute Cook-Torrance shading, you will need the same vectors which you used in Blinn-Phong shading: the viewing direction vector, the normal vector and the light direction vector (for each light source). The shading equation is the following in case of one light source, taken from the book by Dutre, Bala, and Bekaert <cite>Advanced Global Illumination</cite>:
+<p>To compute Cook-Torrance shading, you will need the same vectors which are used by the Phong shader: the viewing direction vector, the normal vector, and the light direction vector (for each light source). The shading equation is the following in case of one light source, taken from the book by Dutre, Bala, and Bekaert <cite>Advanced Global Illumination</cite>:
 
 \[
-color = \left(k_s\frac{F(\beta)}{\pi} \frac{D(\theta_h)G}{(N\cdot V)(N\cdot L)} + k_d\right) max(N\cdot L, 0) \frac{I}{r^2} + k_d * I_a
+color = \left(k_s\frac{F(\beta)}{\pi} \frac{D(\theta_h)G}{(N\cdot V)(N\cdot L)} + k_d\right) max(N\cdot L, 0) \frac{I}{r^2}
 \]
 
-<p>where \(F\) is the Fresnel term, \(D\) is the microfacet distribution, \(G\) is the geometric attenuation, \(N\) is the normal vector of the surface, \(V\) is the viewing direction, \(L\) is the light direction, \(I\) is the light intensity, \(r\) is the shaded point's distance from the light source, \(I_a\) is the ambient light intensity, \(k_s\) and \(k_d\) are the diffuse and specular reflectance of the surface, and the angles \(\beta\) and \(\theta_h\) are as defined below.
+<p>where \(F\) is the Fresnel term, \(D\) is the microfacet distribution, \(G\) is the geometric attenuation, \(N\) is the normal vector of the surface, \(V\) is the viewing direction, \(L\) is the light direction, \(I\) is the light intensity, \(r\) is the shaded point's distance from the light source, \(I_a\) is the ambient light intensity, \(k_s\) and \(k_d\) are the diffuse BRDF value and the specular coefficient, and the angles \(\beta\) and \(\theta_h\) are as defined below.
 
-<p>For this assignment, we will assume \(k_s\) is always pure white, i.e. <tt>1.0</tt> in every component. As for \(k_d\), you will need to look it up in <tt>uniform sampler2D diffuseTexture</tt>, which you can do using the <tt>texture2D</tt> function that is built into GLSL.
+<p>For this assignment, we will assume \(k_s\) is always pure white, i.e. <tt>1.0</tt> in every component. As for \(k_d\), you will need to look up the diffuse reflectance \(R_d\) in <tt>uniform sampler2D diffuseTexture</tt>, which you can do using the <tt>texture2D</tt> function that is built into GLSL.  Then \(k_d = R_d/\pi\)
 
 <h5>Fresnel Term</h5>
 The Fresnel equations describe the reflective/refractive behavior of the light when it reaches a smooth surface. For this assignment we'll use an approximation of the reflectance part here and ignore refraction. This approximation uses \(\beta\) which is the angle between the viewing direction \(V\) and the half vector \(H\):
