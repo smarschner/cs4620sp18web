@@ -255,13 +255,9 @@
         var b = $('#bottom').spinner('value'), t = $('#top').spinner('value'); 
         var n = $('#near').spinner('value'), f = $('#far').spinner('value');
 
-        var P = mat4.fromValues(
-            2*n / (r - l),      0       , (l + r) / (r - l),       0,
-                 0       , 2*n / (t - b), (b + t) / (t - b),       0,
-                 0       ,      0       , (n + f) / (n - f), 2*f*n / (n - f),
-                 0       ,      0       ,        -1        ,       0
-            );
-        mat4.transpose(P, P);
+        var P = mat4.create();
+        mat4.frustum(P, l, r, b, t, n, f);
+
         displayMatrix4('#projMatrix', P);
         return P;
     }
