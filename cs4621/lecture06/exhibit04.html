@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 6 -- Exhibit #1: 2D Linear Transformations</title>
+    <title>CS 4621: Lecture 6 -- Exhibit #4: Chaining 3D Transformations</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -23,7 +23,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit 1 <span class="subtitle">2D Linear Transformations</span></h1>
+    <h1>Exhibit 1 <span class="subtitle">Chaining 3D Transformations</span></h1>
 
     <div class="center-block">
         <canvas id="objCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
@@ -32,22 +32,105 @@
 
     <table class="table table-bordered">
         <tr>
-            <td colspan="3" align="center"><b>Transformation Matrix</b></td>
+            <td colspan="4" align="center"><b>Transformation</b></td>
         </tr>
         <tr>
             <td>
-                a11 = <input type="text" id="a11" value="1.0">
+                Translation:
             </td>
             <td>
-                a12 = <input type="text" id="a12" value="0.0">
+                X = <input type="text" id="transX" value="0.0">
+            </td>
+            <td>
+                Y = <input type="text" id="transY" value="0.0">
+            </td>
+            <td>
+                Z = <input type="text" id="transZ" value="0.0">
+            </td>
+            <td>
+                <table id="transMatrix" class="matrix">
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                </table>
             </td>
         </tr>
         <tr>
             <td>
-                a21 = <input type="text" id="a21" value="0.0">
+                Rotation: 
             </td>
             <td>
-                a22 = <input type="text" id="a22" value="1.0">
+                X angle = <input type="text" id="rotX" value="0.0">
+            </td>
+            <td>
+                Y angle = <input type="text" id="rotY" value="0.0">
+            </td>
+            <td>
+                Z angle = <input type="text" id="rotZ" value="0.0">
+            </td>
+            <td>
+                <table id="rotMatrix" class="matrix">
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Scale: 
+            </td>
+            <td>
+                X = <input type="text" id="scaleX" value="1.0">
+            </td>
+            <td>
+                Y = <input type="text" id="scaleY" value="1.0">
+            </td>
+            <td>
+                Z = <input type="text" id="scaleZ" value="1.0">
+            </td>
+            <td>
+                <table id="scaleMatrix" class="matrix">
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Compound Transformation: 
+            </td>
+            <td>
+              <fieldset>
+                <legend>Composition order: </legend>
+                <label for="orderTRS">TRS</label>
+                <input type="radio" name="comp-order" id="orderTRS" checked="true">
+                <label for="orderSRT">SRT</label>
+                <input type="radio" name="comp-order" id="orderSRT">
+              </fieldset>
+            </td>
+            <td>
+              <fieldset>
+                <legend>Rotation order: </legend>
+                <label for="orderXYZ">XYZ</label>
+                <input type="radio" name="rot-order" id="orderXYZ" checked="true">
+                <label for="orderZYX">ZYX</label>
+                <input type="radio" name="rot-order" id="orderZYX">
+              </fieldset>
+            </td>
+            <td>
+            </td>
+            <td>
+                <table id="compMatrix" class="matrix">
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                </table>
             </td>
         </tr>
     </table>
@@ -64,12 +147,12 @@
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 
 <script id="vertexShader" type="x-shader/x-vertex">
-    attribute vec2 position;
+    attribute vec3 position;
 
-    uniform mat2 toWorld;
+    uniform mat4 toWorld;
 
     void main() {
-        gl_Position = vec4(toWorld * position, 0.0, 1.0);
+        gl_Position = toWorld * vec4(position, 1.0);
     }
 </script>
 
@@ -84,85 +167,85 @@
 </script>
 
 <script>
-    var catData = {
+    var cubeData = {
         vertices: [
-            -0.2461,  0.2279,
-            -0.4069,  0.4277,
-            -0.4069, -0.1475,
-            -0.3561, -0.2904,
-             0.    , -0.4164,
-             0.3561, -0.2904,
-             0.4068, -0.1475,
-             0.4068,  0.4277,
-             0.2461,  0.2279,
-             0.    , -0.3226,
-             0.    , -0.243 ,
-            -0.1142, -0.2912,
-             0.    , -0.3226,
-             0.1142, -0.2912,
-            -0.26  ,  0.0102,
-            -0.2157,  0.06  ,
-            -0.1001,  0.0454,
-            -0.0842, -0.0121,
-            -0.1178, -0.0487,
-            -0.245 , -0.0326,
-             0.26  ,  0.0102,
-             0.2157,  0.06  ,
-             0.1001,  0.0454,
-             0.0842, -0.0121,
-             0.1179, -0.0487,
-             0.245 , -0.0326,
-            -0.0842, -0.0121,
-            -0.0746, -0.1475,
-             0.0842, -0.0121,
-             0.0746, -0.1475,
-            -0.0746, -0.1475,
-             0.0746, -0.1475,
-             0.0398, -0.243 ,
-            -0.0398, -0.243 ,
-            -0.1721,  0.0333,
-            -0.1788, -0.0168,
-             0.1721,  0.0333,
-             0.1788, -0.0168,
-             0.2265,  0.205 ,
-             0.3098,  0.1672,
-             0.2894,  0.3481,
-             0.2102,  0.2676,
-             0.1412,  0.2513,
-             0.0344,  0.2879,
-             0.097 ,  0.117 ,
-             0.1546,  0.1881,
-             0.2251,  0.2047
+            -0.5, -0.5, -0.5,
+            -0.5, -0.5,  0.5,
+            -0.5,  0.5, -0.5,
+            -0.5,  0.5,  0.5,
+             0.5, -0.5, -0.5,
+             0.5, -0.5,  0.5,
+             0.5,  0.5, -0.5,
+             0.5,  0.5,  0.5,
         ],
         lineInd: [
-            0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 0, // head
-            14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 14, // eye
-            20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 20, // eye
-            30, 31, 31, 32, 32, 33, 33, 30,  // nose
-            9, 10, 11, 12, 12, 13, 26, 27, 28, 29, 34, 35, 36, 37, // nose and mouth
-            //38, 39, 39, 40, 40, 41, 41, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 38  // bow
+            0, 1, 0, 2, 0, 4, 1, 3, 1, 5, 2, 3, 2, 6, 4, 5, 4, 6, 6, 7, 5, 7, 3, 7
         ],
         triInd: [
-            0,1,2, 0,2,3, 0,3,4, 8,6,7, 8,5,6, 8,4,5, 4,8,0,
         ],
-        lineColor: [0.2, 0.2, 0.2],
+        lineColor: [0.8, 0.8, 0.8],
         fillColor: [1.0, 0.9, 0.7]
     };
 
     function initGUI() {
-        ['1', '2'].forEach(function (j) {
-            ['1', '2'].forEach(function (i) {
-                $(`#a${i}${j}`).spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#transX').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#transY').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#transZ').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#rotX').spinner({'min': -360, 'max': 360, 'step': 5});
+        $('#rotY').spinner({'min': -360, 'max': 360, 'step': 5});
+        $('#rotZ').spinner({'min': -360, 'max': 360, 'step': 5});
+        $('#scaleX').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#scaleY').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#scaleZ').spinner({'min': -2, 'max': 2, 'step': 0.1});
+    }
+
+    function displayMatrix4(sel, M) {
+        $(sel).find('tr').each(function (i, elt) {
+            $(elt).find('td').each(function (j, elt) {
+                $(elt).html(M[i + 4 * j].toFixed(3));
             });
         });
     }
 
+    var xAxis = vec3.fromValues(1, 0, 0);
+    var yAxis = vec3.fromValues(0, 1, 0);
+    var zAxis = vec3.fromValues(0, 0, 1);
+
     function getMatrix() {
-        var m = mat2.create();
-        mat2.copy(m, ['11','21','12','22'].map(function (ij) {
-            return $(`#a${ij}`).spinner('value')
-        }));
-        return m;
+        var t = vec3.fromValues($('#transX').spinner('value'), $('#transY').spinner('value'), $('#transZ').spinner('value'));
+        var T = mat4.create();
+        mat4.fromTranslation(T, t);
+        displayMatrix4('#transMatrix', T);
+
+        var R = mat4.create();
+        if ($('#orderXYZ').get(0).checked) { 
+            mat4.rotate(R, R, $('#rotX').spinner('value') * Math.PI/180, xAxis);
+            mat4.rotate(R, R, $('#rotY').spinner('value') * Math.PI/180, yAxis);
+            mat4.rotate(R, R, $('#rotZ').spinner('value') * Math.PI/180, zAxis);
+        } else { 
+            mat4.rotate(R, R, $('#rotZ').spinner('value') * Math.PI/180, zAxis);
+            mat4.rotate(R, R, $('#rotY').spinner('value') * Math.PI/180, yAxis);
+            mat4.rotate(R, R, $('#rotX').spinner('value') * Math.PI/180, xAxis);
+        }
+        displayMatrix4('#rotMatrix', R);
+
+        var s = vec3.fromValues($('#scaleX').spinner('value'), $('#scaleY').spinner('value'), $('#scaleZ').spinner('value'));
+        var S = mat4.create();
+        mat4.fromScaling(S, s);
+        displayMatrix4('#scaleMatrix', S);
+
+        var M = mat4.create();
+        if ($('#orderTRS').get(0).checked) { 
+            mat4.mul(M, M, T);
+            mat4.mul(M, M, R);
+            mat4.mul(M, M, S);
+        } else  { 
+            mat4.mul(M, M, S);
+            mat4.mul(M, M, R);
+            mat4.mul(M, M, T);
+        }
+        displayMatrix4('#compMatrix', M);
+        return M;
     }
 
     initGUI();
@@ -256,10 +339,10 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, shape.vertexBuffer);
         var positionLocation = gl.getAttribLocation(program, "position");
         gl.enableVertexAttribArray(positionLocation);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 4 * 2, 0);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 4 * 3, 0);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        gl.uniformMatrix2fv(gl.getUniformLocation(program, "toWorld"), false, xf);
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "toWorld"), false, xf);
 
         gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.fillColor);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
@@ -278,11 +361,11 @@
 
         var gl = initializeWebGL(canvas);
         var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
-        var cat = createShape(gl, catData);
+        var cat = createShape(gl, cubeData);
 
-        var xf = mat2.create();
+        var xf = mat4.create();
         function setXf(newXf) {
-            mat2.copy(xf, newXf);
+            mat4.copy(xf, newXf);
         }
 
         function drawFrame() {

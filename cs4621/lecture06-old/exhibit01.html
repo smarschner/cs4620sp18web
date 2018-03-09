@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 6 -- Exhibit #1: 2D Linear Transformations</title>
+    <title>CS 4621: Lecture 6 -- Exhibit #1: Blending</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -20,34 +20,103 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+    </script>
+    <!-- MathJax -->
+    <script type="text/javascript" async
+            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit 1 <span class="subtitle">2D Linear Transformations</span></h1>
+    <h1>Exhibit 1 <span class="subtitle">Blending Modes</span></h1>
 
     <div class="center-block">
-        <canvas id="objCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
         <canvas id="worldCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
     </div>
 
     <table class="table table-bordered">
         <tr>
-            <td colspan="3" align="center"><b>Transformation Matrix</b></td>
+            <td colspan="4" align="center"><b>Transformation</b></td>
         </tr>
         <tr>
             <td>
-                a11 = <input type="text" id="a11" value="1.0">
+                Translation:
             </td>
             <td>
-                a12 = <input type="text" id="a12" value="0.0">
+                X = <input type="text" id="transX" value="0.0">
+            </td>
+            <td>
+                Y = <input type="text" id="transY" value="0.0">
+            </td>
+            <td>
+                <table id="transMatrix" class="matrix">
+                    <tr><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td></tr>
+                </table>
             </td>
         </tr>
         <tr>
             <td>
-                a21 = <input type="text" id="a21" value="0.0">
+                Rotation: 
             </td>
             <td>
-                a22 = <input type="text" id="a22" value="1.0">
+                angle = <input type="text" id="rotAngle" value="0.0">
+            </td>
+            <td>
+            </td>
+            <td>
+                <table id="rotMatrix" class="matrix">
+                    <tr><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td></tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Scale: 
+            </td>
+            <td>
+                X = <input type="text" id="scaleX" value="1.0">
+            </td>
+            <td>
+                Y = <input type="text" id="scaleY" value="1.0">
+            </td>
+            <td>
+                <table id="scaleMatrix" class="matrix">
+                    <tr><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td></tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Compound Transformation: 
+            </td>
+            <td>
+              <fieldset>
+                <legend>Order: </legend>
+                <label for="orderTRS">TRS</label>
+                <input type="radio" name="order" id="orderTRS" checked="true">
+                <label for="orderSRT">SRT</label>
+                <input type="radio" name="order" id="orderSRT">
+              </fieldset>
+            </td>
+            <td>
+            </td>
+            <td>
+                <table id="compMatrix" class="matrix">
+                    <tr><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td></tr>
+                </table>
             </td>
         </tr>
     </table>
@@ -66,20 +135,20 @@
 <script id="vertexShader" type="x-shader/x-vertex">
     attribute vec2 position;
 
-    uniform mat2 toWorld;
+    uniform mat3 toWorld;
 
     void main() {
-        gl_Position = vec4(toWorld * position, 0.0, 1.0);
+        gl_Position = vec4((toWorld * vec3(position, 1.0)).xy, 0.0, 1.0);
     }
 </script>
 
 <script id="fragmentShader" type="x-shader/x-fragment">
     precision highp float;
 
-    uniform vec3 color;
+    uniform vec4 color;
 
     void main() {
-        gl_FragColor = vec4(color, 1.0);
+        gl_FragColor = color;
     }
 </script>
 
@@ -145,24 +214,53 @@
         triInd: [
             0,1,2, 0,2,3, 0,3,4, 8,6,7, 8,5,6, 8,4,5, 4,8,0,
         ],
-        lineColor: [0.2, 0.2, 0.2],
-        fillColor: [1.0, 0.9, 0.7]
+        lineColor: [0.7, 0.7, 0.7, 1.0],
+        fillColor: [1.0, 0.9, 0.7, 0.5]
     };
 
     function initGUI() {
-        ['1', '2'].forEach(function (j) {
-            ['1', '2'].forEach(function (i) {
-                $(`#a${i}${j}`).spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#transX').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#transY').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#rotAngle').spinner({'min': -360, 'max': 360, 'step': 5});
+        $('#scaleX').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#scaleY').spinner({'min': -2, 'max': 2, 'step': 0.1});
+    }
+
+    function displayMatrix3(sel, M) {
+        $(sel).find('tr').each(function (i, elt) {
+            $(elt).find('td').each(function (j, elt) {
+                $(elt).html(M[i + 3 * j].toFixed(3));
             });
         });
     }
 
     function getMatrix() {
-        var m = mat2.create();
-        mat2.copy(m, ['11','21','12','22'].map(function (ij) {
-            return $(`#a${ij}`).spinner('value')
-        }));
-        return m;
+        var t = vec2.fromValues($('#transX').spinner('value'), $('#transY').spinner('value'));
+        var T = mat3.create();
+        mat3.fromTranslation(T, t);
+        displayMatrix3('#transMatrix', T);
+
+        var R = mat3.create();
+        mat3.fromRotation(R, $('#rotAngle').spinner('value') * Math.PI/180);
+        displayMatrix3('#rotMatrix', R);
+
+        var s = vec2.fromValues($('#scaleX').spinner('value'), $('#scaleY').spinner('value'));
+        var S = mat3.create();
+        mat3.fromScaling(S, s);
+        displayMatrix3('#scaleMatrix', S);
+
+        var M = mat3.create();
+        if ($('#orderTRS').get(0).checked) { 
+            mat3.mul(M, S, M);
+            mat3.mul(M, R, M);
+            mat3.mul(M, T, M);
+        } else  { 
+            mat3.mul(M, M, S);
+            mat3.mul(M, M, R);
+            mat3.mul(M, M, T);
+        }
+        displayMatrix3('#compMatrix', M);
+        return M;
     }
 
     initGUI();
@@ -251,6 +349,8 @@
     }
 
     function drawShape(gl, shape, program, xf) {
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // gl.enable(gl.BLEND);
         gl.useProgram(program);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, shape.vertexBuffer);
@@ -259,19 +359,20 @@
         gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 4 * 2, 0);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        gl.uniformMatrix2fv(gl.getUniformLocation(program, "toWorld"), false, xf);
+        gl.uniformMatrix3fv(gl.getUniformLocation(program, "toWorld"), false, xf);
 
-        gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.fillColor);
+        gl.uniform4fv(gl.getUniformLocation(program, "color"), shape.fillColor);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
         gl.drawElements(gl.TRIANGLES, shape.triLen, gl.UNSIGNED_SHORT, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-        gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.lineColor);
+        gl.uniform4fv(gl.getUniformLocation(program, "color"), shape.lineColor);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.lineIndexBuffer);
         gl.drawElements(gl.LINES, shape.lineLen, gl.UNSIGNED_SHORT, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
         gl.useProgram(null);
+        // gl.disable(gl.BLEND)
     }
 
     function glEnv(canvas) {
@@ -280,15 +381,17 @@
         var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
         var cat = createShape(gl, catData);
 
-        var xf = mat2.create();
+        var eye = mat3.create();
+        var xf = mat3.create();
         function setXf(newXf) {
-            mat2.copy(xf, newXf);
+            mat3.copy(xf, newXf);
         }
 
         function drawFrame() {
-            gl.clearColor(0.15, 0.2, 0.5, 1.0);
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
             gl.clear(gl.COLOR_BUFFER_BIT);
 
+            drawShape(gl, cat, program, eye);
             drawShape(gl, cat, program, xf);
         }
 
@@ -298,14 +401,12 @@
         }
     }
 
-    var objSpaceEnv = glEnv($("#objCanvas"));
     var worldSpaceEnv = glEnv($("#worldCanvas"));
 
     function updateWebGL(time) {
 
         worldSpaceEnv.setXf(getMatrix());
     
-        objSpaceEnv.drawFrame();
         worldSpaceEnv.drawFrame();
 
         // Reschedule the next frame.

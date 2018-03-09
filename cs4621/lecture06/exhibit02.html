@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 6 -- Exhibit #1: 2D Linear Transformations</title>
+    <title>CS 4621: Lecture 6 -- Exhibit #2: 2D Affine Transformations</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -23,7 +23,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit 1 <span class="subtitle">2D Linear Transformations</span></h1>
+    <h1>Exhibit 2 <span class="subtitle">2D Affine Transformations</span></h1>
 
     <div class="center-block">
         <canvas id="objCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
@@ -41,6 +41,9 @@
             <td>
                 a12 = <input type="text" id="a12" value="0.0">
             </td>
+            <td>
+                a13 = <input type="text" id="a13" value="0.0">
+            </td>
         </tr>
         <tr>
             <td>
@@ -48,6 +51,20 @@
             </td>
             <td>
                 a22 = <input type="text" id="a22" value="1.0">
+            </td>
+            <td>
+                a23 = <input type="text" id="a23" value="0.0">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                a31 = <input type="text" id="a31" value="0.0">
+            </td>
+            <td>
+                a32 = <input type="text" id="a32" value="0.0">
+            </td>
+            <td>
+                a33 = <input type="text" id="a33" value="1.0">
             </td>
         </tr>
     </table>
@@ -66,10 +83,10 @@
 <script id="vertexShader" type="x-shader/x-vertex">
     attribute vec2 position;
 
-    uniform mat2 toWorld;
+    uniform mat3 toWorld;
 
     void main() {
-        gl_Position = vec4(toWorld * position, 0.0, 1.0);
+        gl_Position = vec4((toWorld * vec3(position, 1.0)).xy, 0.0, 1.0);
     }
 </script>
 
@@ -150,16 +167,18 @@
     };
 
     function initGUI() {
-        ['1', '2'].forEach(function (j) {
-            ['1', '2'].forEach(function (i) {
+        ['1', '2', '3'].forEach(function (j) {
+            ['1', '2', '3'].forEach(function (i) {
                 $(`#a${i}${j}`).spinner({'min': -2, 'max': 2, 'step': 0.1});
             });
         });
     }
 
     function getMatrix() {
-        var m = mat2.create();
-        mat2.copy(m, ['11','21','12','22'].map(function (ij) {
+        var m = mat3.create();
+        mat3.copy(m, ['11','21','31',
+                      '12','22','32',
+                      '13','23','33'].map(function (ij) {
             return $(`#a${ij}`).spinner('value')
         }));
         return m;
@@ -259,7 +278,7 @@
         gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 4 * 2, 0);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        gl.uniformMatrix2fv(gl.getUniformLocation(program, "toWorld"), false, xf);
+        gl.uniformMatrix3fv(gl.getUniformLocation(program, "toWorld"), false, xf);
 
         gl.uniform3fv(gl.getUniformLocation(program, "color"), shape.fillColor);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shape.triIndexBuffer);
@@ -280,9 +299,9 @@
         var program = createGlslProgram(gl, "vertexShader", "fragmentShader");
         var cat = createShape(gl, catData);
 
-        var xf = mat2.create();
+        var xf = mat3.create();
         function setXf(newXf) {
-            mat2.copy(xf, newXf);
+            mat3.copy(xf, newXf);
         }
 
         function drawFrame() {
