@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 6 -- Exhibit #6: Perspective Viewing From Frustum</title>
+    <title>CS 4621: Lecture 6 -- Exhibit #7: Perspective Viewing From FOV</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -26,7 +26,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Exhibit 6 <span class="subtitle">Perspective Viewing From Frustum</span></h1>
+    <h1>Exhibit 7 <span class="subtitle">Perspective Viewing From FOV</span></h1>
 
     <div class="center-block">
         <canvas id="objCanvas" style="border: none; background-color: black;" width="500" height="500"></canvas>
@@ -42,12 +42,10 @@
                 Projection:
             </td>
             <td>
-                left = <input type="text" class="numeric" id="left" value="-1.0"><br>
-                right = <input type="text" class="numeric" id="right" value="1.0">
+                fovy = <input type="text" class="numeric" id="fovy" value="45.0"><br>
             </td>
             <td>
-                bot = <input type="text" class="numeric" id="bottom" value="-1.0"><br>
-                top = <input type="text" class="numeric" id="top" value="1.0">
+                aspect = <input type="text" class="numeric" id="aspect" value="1.0"><br>
             </td>
             <td>
                 near = <input type="text" class="numeric" id="near" value="1.0"><br>
@@ -220,10 +218,8 @@
     };
 
     function initGUI() {
-        $('#left').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#right').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#top').spinner({'min': -2, 'max': 2, 'step': 0.1});
-        $('#bottom').spinner({'min': -2, 'max': 2, 'step': 0.1});
+        $('#fovy').spinner({'min': 1, 'max': 80, 'step': 1});
+        $('#aspect').spinner({'min': 0.25, 'max': 4, 'step': 0.1});
         $('#near').spinner({'min': 0.1, 'max': 2, 'step': 0.1});
         $('#far').spinner({'min': 2.1, 'max': 5, 'step': 0.1});
         $('#transX').spinner({'min': -2, 'max': 2, 'step': 0.1});
@@ -250,12 +246,12 @@
     var zAxis = vec3.fromValues(0, 0, 1);
 
     function getProjMatrix() {
-        var l = $('#left').spinner('value'), r = $('#right').spinner('value');
-        var b = $('#bottom').spinner('value'), t = $('#top').spinner('value'); 
+        var fovy = $('#fovy').spinner('value') * Math.PI/180;
+        var aspect = $('#aspect').spinner('value'); 
         var n = $('#near').spinner('value'), f = $('#far').spinner('value');
 
         var P = mat4.create();
-        mat4.frustum(P, l, r, b, t, n, f);
+        mat4.perspective(P, fovy, aspect, n, f);
 
         displayMatrix4('#projMatrix', P);
         return P;
