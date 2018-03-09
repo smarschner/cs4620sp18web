@@ -101,7 +101,7 @@ There are four main components to the assignment:
 color = \left(k_s\frac{F(\beta)}{\pi} \frac{D(\theta_h)G}{(N\cdot V)(N\cdot L)} + k_d\right) max(N\cdot L, 0) \frac{I}{r^2}
 \]
 
-<p>where \(F\) is the Fresnel term, \(D\) is the microfacet distribution, \(G\) is the geometric attenuation, \(N\) is the normal vector of the surface, \(V\) is the viewing direction, \(L\) is the light direction, \(I\) is the light intensity, \(r\) is the shaded point's distance from the light source, \(I_a\) is the ambient light intensity, \(k_s\) and \(k_d\) are the diffuse BRDF value and the specular coefficient, and the angles \(\beta\) and \(\theta_h\) are as defined below.
+<p>where \(F\) is the Fresnel term, \(D\) is the microfacet distribution, \(G\) is the geometric attenuation, \(N\) is the normal vector of the surface, \(V\) is the viewing direction, \(L\) is the light direction, \(I\) is the light intensity, \(r\) is the shaded point's distance from the light source, \(k_s\) and \(k_d\) are the diffuse BRDF value and the specular coefficient, and the angles \(\beta\) and \(\theta_h\) are as defined below.
 
 <p>For this assignment, we will assume \(k_s\) is always pure white, i.e. <tt>1.0</tt> in every component. As for \(k_d\), you will need to look up the diffuse reflectance \(R_d\) in <tt>uniform sampler2D diffuseTexture</tt>, which you can do using the <tt>texture2D</tt> function that is built into GLSL.  Then \(k_d = R_d/\pi\)
 
