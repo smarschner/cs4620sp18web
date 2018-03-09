@@ -203,11 +203,17 @@ Similarly to a 2D texture, you can look up into a cube using the <tt>textureCube
 
 <h5>sRGB conversion</h5>
 
-<p>The color computed in the shader needs to be translated into the sRGB space for display. We have provided the conversion functions <tt>to_sRGB()</tt> and <tt>from_sRGB()</tt>. You should convert from sRGB when reading colors from textures, and convert to sRGB when outputing to the screen. Thus the final pixel color will look like <tt>gl_FragColor = to_sRGB(computedColor * exposure);</tt>
+<p>The color computed in the shader needs to be translated into the sRGB space for display. We have provided the conversion functions <tt>to_sRGB()</tt> and <tt>from_sRGB()</tt>. You should convert from sRGB when reading colors from textures, and convert to sRGB when outputing to the screen. Thus the final pixel color will look like <tt>gl_FragColor = vec4(to_sRGB(computedColor * exposure), 1);</tt>
 
 <h5>Developer Console</h5>
 
 <p>When debugging it can be helpful to bring up your browser's developer console so you can see any errors that are occuring. In addition, Firefox has a built-in shader editor which allows you to edit the shader code on the fly. Similar plugins exist for other browsers as well. Just remember to copy and save your work if you use these, as there is generally no direct save option!
+
+<h5>Running a Server</h5>
+
+<p>In some cases (for instance, for the environment mapping page), our web pages need to be able to load other data (for instance, the cubemap textures) in addition to the page text itself.  The problem is, most browsers will not allow pages that are loaded from the filesystem (using a <tt>file://</tt> URL) to do this (they consider requests for other files to be <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">cross-origin requests</a> but there is no way to permit them).  For this reason it's best to load these pages from a server.
+
+<p>Fortunately it's easy to run a local server for this purpose.  Our favorite way is to use Python's built-in web server from the command line by running <tt>python -m SimpleHTTPServer</tt> (if you have Python 2.x) or <tt>python -m http.server</tt> (if you have Python 3.x).  If you run the server in the same directory with the <tt>.http</tt> files, you can access the pages at URLs like <tt>http://localhost:8000/cook_torrance.html</tt>.
 
 <h5>Uniforms, Attributes, and Varyings</h5>
 
