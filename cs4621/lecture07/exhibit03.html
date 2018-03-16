@@ -49,55 +49,49 @@
         </div>
     </div>
 
-    <h2>What Are We Doing?</h2>
+    <p><b>Note:</b> this exhibit relies on an extension that may not work in certain environments.</p>
+
+    <h2>What We Did</h2>
 
     <ul>
         <li>
-            <b>Picking</b> refers to the action of using a mouse pointer to "pick" a 3D object inside
-            a viewport.
+            <b>Picking</b> refers to using WebGL to find which object is responsible for drawing a particular pixel, e.g., the object underneath a mouse pointer.
         </li>
         <li>
-            What is needed for picking is the ability to know which object is right under the mouse pointer. <br>
-            We'll show one approach to picking in this exhibit.
+            There are a few ways to do this; in <a href="../ppa02/index.html">PPA2</a>, the scene was simple enough that no special WebGL rendering was required. However, in complicated 3D scenes, this may not be the case. We'll show one approach to picking in arbitrary 3D scenes in this exhibit.
         </li>
         <li>
             Our approach:
             <ul>
-                <li>Render <b>two</b> images.
+                <li>Render <b>two</b> images at the same time.
                     <ul>
-                        <li>First is the image that you'll display to the user.  It's the usual 3D rendering.</li>
-                        <li>Second is the image where each pixel's color encode the ID of the object at that pixel.</li>
+                        <li>The first is the image that you'll display to the user.  It's the usual 3D rendering.</li>
+                        <li>The second is an image where each pixel's color encodes the ID of the object that colored that pixel.</li>
                     </ul>
                 </li>
                 <li>
-                    If you want to know which object is under the mouse cursor,
-                    just read the ID image at the position of the mouse pointer.
+                    If you want to know which object is under the mouse cursor, you can transfer pixel data from the GPU to the CPU and extract the object ID from the second image.
                 </li>
             </ul>
         </li>
         <li>
-            The above approach requires us to render two images at once. <br>
-            This is not possible with vanilla WebGL. <br>
-            We need an extension called <code>WEBGL_draw_buffers</code>.<br>
-            This is how to enable that extension:
+            The above approach requires us to render two images at once. To do this in WebGL 1, we need an extension called <code>WEBGL_draw_buffers</code> (this extension in included by default in WebGL 2).
 <pre class="prettyprint">
 var webglCanvas = $("#webglCanvas")
 var gl = initializeWebGL(webglCanvas);
 gl.getExtension("OES_texture_float");
-gl.getExtension("OES_texture_float_linear");
 gl.webGlDrawBuffers = gl.getExtension("WEBGL_draw_buffers");
 </pre>
             Note that we save the return value of <code>gl.getExtension("WEBGL_draw_buffers")</code>
-            in a field of the <code>gl</code> object. <br>
-            The return value contains more commands and constants that we will need later.
+            in a field of the <code>gl</code> object. The return value contains more commands and constants that we will need later.
         </li>
         <li>
-            To render to more than one textures at once.  There are two things you need to do.
+            To render to more than one texture at once, there are two steps:
             <ol>
                 <li>
-                    Write your fragment shader so that outputs to more than one textures.
+                    Write your fragment shader so that outputs to more than one texture.
 <pre class="prettyprint">
-// The line below is needed to enable writing to more than one buffers.
+// The line below is needed to enable writing to more than one buffer.
 #extension GL_EXT_draw_buffers : require
 
 precision highp float;
@@ -111,6 +105,7 @@ void main() {
     // Instead of writing to gl_FragColor, we write to elements of gl_FragData.
     // gl_FragData[0] is the texture that is attached to the zeroth color attachment slot.
     // Here, we write the ID of the primitive to the zeroth color attachment.
+    // Note that the alpha is 0.0; we will use this to see if any object at all is under the cursor.
     gl_FragData[0] = vec4(id, 0.0, 0.0, 0.0);
     // gl_FragData[1] is the texture that is attached to the first color attachment slot.
     // Here, we write the primitive color to the first color attachment.
@@ -119,7 +114,7 @@ void main() {
 </pre>
                 </li>
                 <li>
-                    Prepare the FBO to write to more than one textures.
+                    Prepare the FBO to write to more than one texture.
 <pre class="prettyprint">
 // Bind the FBO
 gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
@@ -131,16 +126,16 @@ gl.framebufferTexture2D(
     gl.webGlDrawBuffers.COLOR_ATTACHMENT0_WEBGL,
     gl.TEXTURE_2D,
     // We attach the primitiveIndexTexture here because we will read from it later.
-    // We can only read (to Javascript) from the zeroth color attachment.
+    // We can only transfer data from the zeroth color attachment back to the CPU.
     primitiveIndexTexture,
     0);
-// Bind another buffer of the first color attachment slot.
+// Bind another buffer to the first color attachment slot.
 gl.framebufferTexture2D(
     gl.FRAMEBUFFER,
     // This is the first color attachment slot.
     gl.webGlDrawBuffers.COLOR_ATTACHMENT1_WEBGL,
     gl.TEXTURE_2D,
-    // We attach the render buffer here because we do not need to read from it to Javascript.
+    // We attach the render buffer here because we do not need to transfer it to the CPU.
     renderBuffer.getWriteBuffer(),
     0);
 // Since we are doing 3D rendering, we need the depth buffer.
@@ -209,14 +204,11 @@ renderBuffer.swap();
             </ol>
         </li>
         <li>
-            With the code above, we render the ID of the primitives to the zeroth color attachment. <br>
-            Now, we need to know the value of the pixel under the mouse pointer. <br>
-            To do so, we use the <code>gl.readPixels</code> command while the FBO is still bound
-            and the texture still attached. <br>
-            The code is as follows.
+            With the code above, we render the ID of the primitives to the zeroth color attachment. To read this from within JavaScript, we use the <code>gl.readPixels</code> command while the FBO is still bound and the texture still attached.
 <pre class="prettyprint">
-// First, we allocate space to contains the pixel value.
-// Since we use float texture and each pixel has RGBA components, we need an array of 4 floats.
+// First, we allocate space to store the pixel value.
+// Since we are using a floating point texture and each pixel has RGBA components,
+// we need an array of 4 floats to store the value of 1 pixel.
 var primitiveIndexPixel = new Float32Array(4);
 
     :
@@ -237,7 +229,7 @@ gl.readPixels(
     gl.RGBA,
     // Type of each component of the pixel.
     gl.FLOAT,
-    // The array to store the value in.
+    // The array to which the pixel data is stored.
     primitiveIndexPixel
 );
 
@@ -257,10 +249,13 @@ if (primitiveIndexPixel[3] == 1.0) {
     } else if (primitiveIndexPixel[0] == 2.0) {
         hoverDiv.html("The mouse pointer is hovering over the green square.");
     } else {
-        hoverDiv.html("This case should not happen!.");
+        hoverDiv.html("This case should not happen!");
     }
 }
 </pre>
+        </li>
+        <li>
+            Note that there are ways to implement picking that do not require the <code>WEBGL_draw_buffers</code> extension. For example, you could render the scene twice: once using an FBO with a GLSL program that outputs the object index, and once without an FBO that draws the scene as usual. You could then read pixel values from the FBO's render texture to extract the object index at a particular pixel.
         </li>
     </ul>
 </div>
@@ -725,7 +720,7 @@ if (primitiveIndexPixel[3] == 1.0) {
         var primitiveIndexTextureDiv = $("#primitiveIndexTextureDiv");
         if (mousePos.x < 0 || mousePos.x >= 512 || mousePos.y < 0 || mousePos.y >= 512) {
             primitiveIndexTextureDiv.html("The mouse is outside the canvas");
-            hoverDiv.html("The mouse pointer is not hovering on anything.");
+            hoverDiv.html("The mouse pointer is not hovering over anything.");
         } else {
             gl.readPixels(mousePos.x, mousePos.y, 1, 1, gl.RGBA, gl.FLOAT, primitiveIndexPixel);
 
@@ -742,7 +737,7 @@ if (primitiveIndexPixel[3] == 1.0) {
                 } else if (primitiveIndexPixel[0] == 2.0) {
                     hoverDiv.html("The mouse pointer is hovering over the green square.");
                 } else {
-                    hoverDiv.html("This case should not happen!.");
+                    hoverDiv.html("This case should not happen!");
                 }
             }
         }
