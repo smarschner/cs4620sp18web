@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 7 -- Exhibit #8: Creating and Using a Framebuffer Object</title>
+    <title>CS 4621: Lecture 7 -- Exhibit #0: Creating and Using a Framebuffer Object</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -48,31 +48,30 @@
         </div>
     </div>
 
-    <h2>What Are We Doing?</h2>
+    <h2>What We Did</h2>
 
     <ul>
         <li>
-            A <b>framebuffer object (FBO)</b> allows WebGL programmer to render images to other memory
+            A <b>framebuffer object (FBO)</b> allows WebGL to render images to other memory
             location other than the default framebuffer.
         </li>
         <li>
-            Remember the jargons from the first lecture:
+            Remember the jargon from the first lecture:
             <ul>
-                <li><b>Buffer</b> = "a region of physical memory used to temporarily store data "
-                    (according <a href="https://en.wikipedia.org/wiki/Data_buffer">Wikipedia</a>).
+                <li>A <b>Buffer</b> is a region of physical memory used to temporarily store data.
                     <ul>
-                        <li>In our context, a buffer mostly resides in the GPU.</li>
+                        <li>In our context, buffers refer to regions of memory on the GPU.</li>
                     </ul>
                 </li>
-                <li><b>Framebuffer</b> = a buffer that holds the image that is displyaed on the monitor.</li>
+                <li>A <b>Framebuffer</b> is a buffer that holds the image that is displayed on the monitor.</li>
             </ul>
         </li>
         <li>
             With an FBO, you can ask WebGL to render to receivers other than the monitor:
             <ul>
-                <li><b>Textures:</b> We are already familiar with this.</li>
+                <li><b>Textures:</b> We are already familiar with these.</li>
                 <li>
-                    <b>Render buffers:</b> Same as textures but support fewer operations.
+                    <b>Render buffers:</b> These are the same as textures, but support fewer operations.
                     <ul>
                         <li>You cannot use WebGL commands to read anything from a render buffer.</li>
                         <li>You cannot access a render buffer in a shader.</li>
@@ -85,71 +84,11 @@
         <li>
             An FBO allows for <b>post-processing</b> of rendered images.
             <ul>
-                <li>Render a 3D scene to a texture.</li>
-                <li>Operate on the rendered image with another shader.</li>
+                <li>First, render a scene as normal, but tell WebGL to render it to a target texture.</li>
+                <li>Then, draw again with another shader, which samples the texture output by the first pass.</li>
             </ul>
         </li>
-        <li>
-            To create an FBO, use the <code>gl.createFramebufferObject()</code> command.
-            You only need one FBO most of the time, so this command is only called once in an application.
-<pre class="prettyprint">
-var fbo = gl.createFramebuffer();
-</pre>
-        </li>
-        <li>
-            Here's how to render to a texture rather than the monitor:
-<pre class="prettyprint lang-javascript">// Step 1: Bind the FBO.
-gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-// Step 2: Attach the texture to the FBO.
-gl.framebufferTexture2D(
-    // First argument is always gl.FRAMEBUFFER
-    gl.FRAMEBUFFER,
-    // The second argument indicates the "attachment slot" of the FBO.
-    // Basically, it indicates the function of the texture that you are attaching.
-    // gl.COLOR_ATTACHMENT0 means that the texture will serve as the zeroth color buffer.
-    // By default, this is the only color buffer attachment slot of that you can use in vanially WebGL.
-    // To use other color buffer attachment slot, you need an extension.  (We will cover this later.)
-    gl.COLOR_ATTACHMENT0,
-    // The third argument indicates the kind of texture we are attaching.
-    // Since we are attaching a TEXTURE_2D, we give it gl.TEXTURE_2D
-    gl.TEXTURE_2D,
-    // The fourth argument is the texture that you want to attach.
-    // Of course, this must be created before hand.
-    renderTexture,
-    // The fifth argument is the mipmap level of the texture.
-    // This is always 0.
-    0
-);
-// Step 3: Do your rendering as usual.
-{
-    gl.clearColor(0.75, 0.75, 0.75, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    //
-    // Code omitted for brevity.
-    //
-
-    // Step 4: Flush the buffer just to be sure everything is rendered to the texture.
-    gl.flush();
-}
-// Step 4: Detach the texture.
-// Use the same arguments as the command in Step 2, but now the texture is null.
-gl.framebufferTexture2D(
-    gl.FRAMEBUFFER,
-    gl.COLOR_ATTACHMENT0,
-    gl.TEXTURE_2D,
-    null,                  // null texture means we are detaching.
-    0);
-// Step 5: Unbind the FBO.
-gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-</pre>
-        </li>
-        <li>
-            In Lecture 7, we learned how to create a texture from an image. <br>
-            However, the <code>renderTexture</code> we used above is not created from an image. <br>
-            It is originally a blank texture. <br>
-            To create a blank texture is a slightly different from creating a texture from an image. <br>
-            Everything is the same except for the use of the <code>texImage2D</code> command.
+        <li>First, we'll need to create a blank texture, which will be the target of our first drawing pass.
 <pre class="prettyprint">
 function createFloatTexture(gl, width, height) {
     var texture = gl.createTexture();
@@ -190,24 +129,77 @@ var renderTexture = createFloatTexture(gl, 512, 512);
 </pre>
         </li>
         <li>
-            With the command above, we create a texture whose pixel components are stored as floating point
-            numbers. <br>
-            This is not a feature supported by vanilla WebGL. <br>
-            We need WebGL extensions to use it, and here is how to enable the extensions:
+            With the command above, we created a texture whose pixel components are stored as floating point numbers. Recall that this is not a feature supported by vanilla WebGL. We need to activate a WebGL extension to use it:
 <pre class="prettyprint">
-var gl = initializeWebGL($("#webglCanvas"));
 gl.getExtension("OES_texture_float");
+</pre>
+        </li>
+        <li>
+            Because we are sampling from this texture in the second pass, we may want to apply a linear sample filter if the texture is minified or magnified. (See <a href="../lecture05/exhibit02.html">Lecture 5 exhibit 2</a> to see the different between sampling using NEAREST and LINEAR.) To enable this option, you can activate a second extension:
+<pre class="prettyprint">
 gl.getExtension("OES_texture_float_linear");
 </pre>
-            There are two extensions that we enabled.
-            <ul>
-                <li><code>OES_texture_float</code> allows floating point textures.</li>
-                <li>
-                    <code>OES_texture_float_linear</code> allows <code>gl.LINEAR</code> to be specified
-                    as <code>TEXTURE_MAG_FILTER</code> and <code>TEXTURE_MIN_FILTER</code> parameters
-                    of floating point textures.
-                </li>
-            </ul>
+            Then you can set the following parameters instead:
+<pre class="prettyprint">
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+</pre>
+        </li>
+        <li>
+            To create an FBO, use the <code>gl.createFramebufferObject()</code> command.
+            You only need one FBO most of the time, so this command is only called once in an application.
+<pre class="prettyprint">
+var fbo = gl.createFramebuffer();
+</pre>
+        </li>
+        <li>
+            Here's how to render to a texture rather than the monitor:
+<pre class="prettyprint lang-javascript">// Step 1: Bind the FBO.
+gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+// Step 2: Attach the texture to the FBO.
+gl.framebufferTexture2D(
+    // First argument is always gl.FRAMEBUFFER
+    gl.FRAMEBUFFER,
+    // The second argument indicates the "attachment slot" of the FBO.
+    // Basically, it indicates the purpose of the texture that you are attaching.
+    // gl.COLOR_ATTACHMENT0 means that the texture will serve as the zeroth color buffer.
+    // By default, this is the only color buffer attachment slot of that you can use in vanilla WebGL.
+    // To use other color buffer attachment slots, you need another extension.  (We will cover this later.)
+    gl.COLOR_ATTACHMENT0,
+    // The third argument indicates the kind of texture we are attaching.
+    // Since we are attaching a TEXTURE_2D, we give it gl.TEXTURE_2D
+    gl.TEXTURE_2D,
+    // The fourth argument is the texture that you want to attach.
+    // Of course, this texture must be created beforehand.
+    renderTexture,
+    // The fifth argument is the mipmap level of the texture.
+    // This is always 0.
+    0
+);
+// Step 3: Do your rendering as usual.
+{
+    gl.clearColor(0.75, 0.75, 0.75, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    //
+    // Code omitted for brevity.
+    //
+
+    // Step 4: Flush the command buffer just to be sure everything is rendered to the texture.
+    // This makes sure that all WebGL calls have been completed on the GPU before continuing.
+    gl.flush();
+}
+// Step 4: Detach the texture.
+// Use the same arguments as the command in Step 2, but now the texture is null.
+gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    null,                  // null texture means we are detaching.
+    0);
+// Step 5: Unbind the FBO.
+gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+</pre>
         </li>
     </ul>
 </div>
@@ -423,7 +415,8 @@ gl.getExtension("OES_texture_float_linear");
 
     var gl = initializeWebGL($("#webglCanvas"));
     gl.getExtension("OES_texture_float");
-    gl.getExtension("OES_texture_float_linear");
+    // If you want to sample floating point textures with linear min/mag filters:
+    // gl.getExtension("OES_texture_float_linear");
 
     // Geometric primitives.
     var triangle = createShape(gl,
@@ -546,6 +539,9 @@ gl.getExtension("OES_texture_float_linear");
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, null);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        // ... or, if the OES_texture_float_linear extension is activated...
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
@@ -601,6 +597,10 @@ gl.getExtension("OES_texture_float_linear");
             null,
             0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        // gl.bindTexture(gl.TEXTURE_2D, renderTexture);
+        // gl.generateMipmap(gl.TEXTURE_2D);
+        // gl.bindTexture(gl.TEXTURE_2D, null);
 
         var selectedProgram = $("#programName").val();
         if (selectedProgram == "copy") {

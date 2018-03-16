@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 8 -- Exhibit #1: Double Buffering</title>
+    <title>CS 4621: Lecture 7 -- Exhibit #1: Double Buffering</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -45,19 +45,14 @@
         </div>
     </div>
 
-    <h2>What Are We Doing?</h2>
+    <h2>What We Did</h2>
 
     <ul>
         <li>
-            This exhibit is a bit different from the last one.
-            <ul>
-                <li>In the last one, we can only use one post-processing filter a time.</li>
-                <li>In this exhibit, we chain the filters together, and we can turn each one on and off.</li>
-            </ul>
+            In the last exhibit, we only used one post-processing filter a time. In this exhibit, we chain multiple filters together.</li>
         </li>
         <li>
-            Doing <b>multi-step image processing</b> requires reading the output of the last filtering step. <br>
-            How do you actually manage it?
+            <b>Multi-step image processing</b> requires several drawing passes which each read the output of the last filtering step. How do we manage this sort of structure?
             <ul>
                 <li>If there are $n$ steps, we can allocate $n+1$ buffers for all inputs and outputs.</li>
                 <li>Alternatively, we can use only $2$ buffers with the help of <i>double buffering.</i></li>
@@ -67,11 +62,8 @@
             <b>Double buffering</b>, aka ping-pong buffering, is a technique to simplify programming
             when multiple operations are applied to the same image in succession.
             <ul>
-                <li>We have buffers.</li>
                 <li>
-                    At any time, one buffer is the <i>write</i> buffer and the other is the <i>read</i> buffer. <br>
-                    The operation you can perform on the buffer is as indicated by the name. <br>
-                    You can only read from the read buffer, and you can only write from the write buffer.
+                    At any time, we only have two buffers: the <i>write</i> buffer and the <i>read</i> buffer. You can only read from the read buffer, and you can only write to the write buffer.
                 </li>
                 <li>We can <i>swap</i> the buffer to exchange their roles.</li>
             </ul>
@@ -89,14 +81,14 @@
             </ul>
         </li>
         <li>
-            Here's how we implemented a double buffer in Javascript:
+            Here's how we implemented a double buffer in JavaScript:
 <pre class="prettyprint">
 function createDoubleBuffer(gl, width, height) {
     var output = {
-        // An integer index telling which one is the read buffer.
-        readBufferIndex: 0,
         // An array of textures, containing only two textures.
         textures: [],
+        // An integer index telling which one is the read buffer.
+        readBufferIndex: 0,
         // Return the read buffer.
         getReadBuffer: function() {
             return this.textures[this.readBufferIndex];
@@ -134,7 +126,7 @@ function drawToBufferAndSwap(gl, fbo, doubleBuffer, drawFunc) {
         doubleBuffer.getWriteBuffer(),
         0);
 
-    // Let the user code do its magic.
+    // Let the input function draw as necessary.
     drawFunc();
 
     // Detach the write buffer.
@@ -148,7 +140,7 @@ function drawToBufferAndSwap(gl, fbo, doubleBuffer, drawFunc) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     // Swap the buffers.
     doubleBuffer.swap();
-    // After this, what was written to the write buffer is in the read buffer and is ready for the next step.
+    // After this point, what was written to the write buffer is now in the read buffer and is ready for the next step.
 }
 </pre>
         </li>
@@ -420,7 +412,6 @@ if ($("#srgbCheckBox").is(":checked")) {
     var webglCanvas = $("#webglCanvas");
     var gl = initializeWebGL(webglCanvas);
     gl.getExtension("OES_texture_float");
-    gl.getExtension("OES_texture_float_linear");
 
     // Geometric primitives.
     var triangle = createShape(gl,
@@ -551,8 +542,8 @@ if ($("#srgbCheckBox").is(":checked")) {
     // Double buffer
     function createDoubleBuffer(gl, width, height) {
         var output = {
-            readBufferIndex: 0,
             textures: [],
+            readBufferIndex: 0,
             getReadBuffer: function() {
                 return this.textures[this.readBufferIndex];
             },

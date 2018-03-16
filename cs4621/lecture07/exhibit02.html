@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>CS 4621: Lecture 8 -- Exhibit #2: Depth Buffer and FBO</title>
+    <title>CS 4621: Lecture 7 -- Exhibit #2: Depth Buffer and FBO</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -44,25 +44,24 @@
         </div>
     </div>
 
-    <h2>What Are We Doing?</h2>
+    <h2>What We Did</h2>
 
     <ul>
         <li>
-            In the past 2 exhibits, we render 2D scenes to a texture. <br>
-            WebGL is primarily used for 3D rendering, and we can certainly render 3D scenes to a texture. <br>
-            However, to render a 3D scene, we typically need a depth buffer. <br>
-            The depth buffer also need to be attached to the FBO <br>
-            In this exhibit, we'll tell you now.
+            In the last 2 exhibits, we rendered 2D scenes to a texture. WebGL is primarily used for 3D rendering, and we can certainly render 3D scenes to a texture.
+        </li>
+        <li>
+            However, to render a 3D scene, we typically need a depth buffer to keep track of which fragments should be drawn to the screen. We need to explicitly create the depth buffer, just like we created the render texture in earlier exhibits.
         </li>
         <li>
             Instead of using a texture as a depth buffer, we'll use a <i>render buffer</i>.
         </li>
         <li>
-            <b>A render buffer</b> is the same as textures but support fewer operations.
+            A render buffer is the same as a texture, but supports fewer operations.
             <ul>
-                <li>You cannot use WebGL commands to read anything from a render buffer.</li>
-                <li>You cannot access a render buffer in a shader.</li>
-                <li>They only serve as targets for rendered images and must be use with an FBO.</li>
+                <li>You cannot use WebGL commands to read data from a render buffer.</li>
+                <li>You cannot access a render buffer from within a shader.</li>
+                <li>They only serve as targets for rendered images and must be used with an FBO.</li>
                 <li>However, they are less of a hassle to maintain than a texture.</li>
             </ul>
         </li>
@@ -85,7 +84,7 @@ gl.renderbufferStorage(
     // First argument is always gl.RENDERBUFFER.
     gl.RENDERBUFFER,
     // Second argument indicates the internal pixel format.
-    // This is either gl.DEPTH_COMPONENT16 or gl.DEPTH_COMPONENT.
+    // For depth buffers, this is gl.DEPTH_COMPONENT16 (16 bits per pixel).
     gl.DEPTH_COMPONENT16,
     // Third argument is the width of the buffer.
     512,
@@ -97,13 +96,7 @@ gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 </pre>
         </li>
         <li>
-            Notice that when creating a render buffer, we do not have to specify many other stuffs
-            that we specify with a texture.  These include:
-            <ul>
-                <li>Minification filter.</li>
-                <li>Magnification filter.</li>
-                <li>Wrapping modes</li>
-            </ul>
+            Notice that when creating a render buffer, we do not have to specify minification/magnification filters or wrapping modes.
         </li>
         <li>
             To attach a render buffer as a depth buffer to an FBO, use the <code>gl.framebufferRenderbuffer</code>
@@ -138,7 +131,7 @@ function drawToBufferAndSwap(gl, fbo, buffer, depthBuffer, drawFunc) {
         )
     }
 
-    // Let the user's code do its magic.
+    // Let the input function draw as necessary.
     drawFunc();
 
     // Detach the color buffer.
@@ -165,6 +158,9 @@ function drawToBufferAndSwap(gl, fbo, buffer, depthBuffer, drawFunc) {
 </pre>
         </li>
         <li>
+            Now that we can render a 3D scene to a texture, there's no reason we can't use that texture again within the scene. This allows us to recursively render a scene within itself: simply render the scene to the write buffer, swap buffers, and use the read buffer as a texture within the scene.
+        </li>
+        <li>
             Here is the overall structure of our WebGL program:
 <pre class="prettyprint">
 // Draw scene to frame buffer.
@@ -182,7 +178,7 @@ drawToBufferAndSwap(gl, fbo, renderBuffer, depthBuffer, function() {
     gl.flush();
 });
 
-// Copy pixel from render buffer.
+// Copy pixels from renderBuffer to imageBuffer.
 {
     drawToBufferAndSwap(gl, fbo, imageBuffer, null, function() {
         gl.useProgram(textureCopyProgram);
@@ -221,7 +217,7 @@ if ($("#srgbCheckBox").is(":checked")) {
     });
 }
 
-// Copy pixel from image buffer to screen.
+// Draw imageBuffer to the screen.
 {
     gl.useProgram(textureCopyProgram);
     if (textureCopyProgram.texture != null) {
@@ -232,14 +228,6 @@ if ($("#srgbCheckBox").is(":checked")) {
     drawFullScreenQuad(gl, textureCopyProgram);
 }
 </pre>
-        </li>
-        <li>
-            One of the cool thing that we did here is that we use the rendered image as a texture
-            in the scene. <br>
-            This allows us to implement something like having a video camera taping a flat screen
-            that is showing the footage of the video. <br>
-            To do this, it is not hard at all: render to the write buffer, and use the read buffer
-            as a texture.
         </li>
     </ul>
 </div>
@@ -656,8 +644,8 @@ if ($("#srgbCheckBox").is(":checked")) {
         var texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, null);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
@@ -783,7 +771,7 @@ if ($("#srgbCheckBox").is(":checked")) {
             gl.flush();
         });
 
-        // Copy pixel from render buffer.
+        // Copy pixels from renderBuffer to imageBuffer.
         {
             drawToBufferAndSwap(gl, fbo, imageBuffer, null, function() {
                 gl.useProgram(textureCopyProgram);
@@ -850,7 +838,7 @@ if ($("#srgbCheckBox").is(":checked")) {
             });
         }
 
-        // Copy pixel from image buffer to screen.
+        // Draw imageBuffer to the screen.
         {
             gl.useProgram(textureCopyProgram);
             if (textureCopyProgram.texture != null) {
