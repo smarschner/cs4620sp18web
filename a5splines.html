@@ -49,42 +49,36 @@ control points do we need to specify?</li>
 spline?</li>
 </ol>
 
-<h5>b) Constraint modifications</h5>
-<p>In this question we want to modify our spline constraints. Assume we have control points \(p_0,p_1,p_2\) and the spline order is 2, i.e. parabola shaped. In addition to having control over \(f(0)\) and \(f(1)\), we'd now add control over \(\int_0^1f(u)du\). To do this, first assume we have a piece-wise linear spline of the control points and the integration of linear spline between \(p_0\) and \(p_1\) is
-	\[S = \int_0^1(p_0+(p_1-p_0)u)du + \int_0^1(p_1+(p_2-p_1)u)du = \frac{1}{2}p_0 + p_1 + \frac{1}{2}p_2
-	\] 
-We enforce
-\[
-\int_0^1f(u)du = S
-\]
-</p>
-<ol>
-    <li>Give a matrix \(A\) such that this new type of curve can be expressed as \(f(u) = uAP\) where
-    \(u\) is a vector of \([1, u, u^2]\) and \(P\) is a 3 by 2 matrix where rows correspond
-    to control points.</li>
-</ol>
-<!--
 <h5>b) B&eacute;zier Modifications</h5>
 <p>
 In this question we want to add additional control by upgrading our Bezier with the
 addition of certain properties. Specifically, we would like to modify our spline so that, in
 addition to having control over \(f(0), f(1), f'(0),\) and \(f'(1)\), we'd now add control over
-\(f''(0)\) and \(f''(1)\). 
+\(f'(\frac{1}{2})\). 
 </p>
 
 <p>
-To do this, assume we specify two additional control points \(p_4\) and \(p_5\). Define \(p4\) such
+To do this, assume we specify an additional control points \(p_4\). Similar to how \(f'(0)\) is proportional to 
+\((p_1 − p_0)\) in our original derivation, \(f'(\frac{1}{2})\) is proportional to \((p_3 - p_1)\). Overall, the constraints are
+\[ f(0) = p_0 \]
+\[ f(1) = p_4 \]
+\[ f'(0) = 4(p_1 - p_0) \]
+\[ f'(1) = 4(p_4 - p_3) \]
+\[ f'(\frac{1}{2}) = 2(p_3 - p_1) \]
+And the order of the spline is 4. 
+<!--Define \(p4\) such
 that \(f''(0)\) is proportional to \((p_4 − p_0)\) similar to how \(f'(0)\) is proportional to 
 \((p_1 − p_0)\) in our original derivation. In the original derivation of B&eacute;ziers, we assumed a 
 proportionality constant of 3 for convenience. Similarly, let the proportionality constant associated
 with \((p_4 − p_0)\) be 4 – that is, \(f''(0) = 4(p_4 - p_0)\). Similarly, we want \(f''(1) = 4(p_5 - p_3)\).
+-->
 </p>
 
 <ol>
     <li>Give a matrix \(A\) such that this new type of curve can be expressed as \(f(u) = uAP\) where
-    \(u\) is a vector of \([1, u, u^2, u^3, u^4, u^5]\) and \(P\) is a 6 by 2 matrix where rows correspond
+    \(u\) is a vector of \([1, u, u^2, u^3, u^4]\) and \(P\) is a 5 by 2 matrix where rows correspond
     to control points.</li>
-</ol>-->
+</ol>
 
 
 <h5>c) Basis functions</h5>
