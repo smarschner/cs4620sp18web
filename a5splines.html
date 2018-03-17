@@ -195,7 +195,11 @@ We have marked all the functions or parts of the functions you need to complete 
     <li>BSpline.java (extra credit)</li>
 </ul>
 
-The overall goal is to create code that lets you rotate a Catmull-Rom Spline around the Z-axis in 3-space. To see exactly what we mean by this, here are some screenshots of the user interface (in RevolutionApp.java) using our solution code.
+<p>
+If you run <tt>splines.RevolutionApp</tt> with a fresh pull from the repo, you should get a NullPointerException since <tt>SplineCurve.setBeziers()</tt> currently does nothing. Once you implement that, the code should run.
+</p>
+
+<p>The overall goal is to create code that lets you rotate a Catmull-Rom Spline around the Z-axis in 3-space. To see exactly what we mean by this, here are some screenshots of the user interface (in RevolutionApp.java) using our solution code.</p>
 
 <div class="thumbnails" style="text-align: center">
     <img src="images/a5/A56.png" />
@@ -283,9 +287,6 @@ sure you have the algorithm right.</p>
 <p> You will need to rotate the input 2D vertices (which lie in the XY-plane) such that the surface revolves around the Z-axis. Simultaneously, you will need to use the scale argument to scale the surface of revolution. </p>
 
 <p> As a convention, your mesh should be oriented so that when the cross sectional spline has outward-pointing normals and is within the positive X half space, the triangles should be oriented in counter-clockwise order (i.e., the surface should appear as red with Blinn-Phong highlights). </p>
-
-<h4 id="part4">Testing</h4>
-<p>If you run RevolutionApp with a fresh pull from the repo, you should get a NullPointerException since setBeziers() currently does nothing. Once you implement that the code should run.</p>
 
 <h4 id="part5">Extra credit: B-Splines</h4>
 
