@@ -54,18 +54,26 @@ spline?</li>
 In this question we want to add additional control by upgrading our Bezier with the
 addition of certain properties. Specifically, we would like to modify our spline so that, in
 addition to having control over \(f(0), f(1), f'(0),\) and \(f'(1)\), we'd now add control over
-\(f'(\frac{1}{2})\). 
+\(f(\frac{1}{2})\) and \(f'(\frac{1}{2})\). 
+<!--\(f(\frac{1}{2})\). -->
+<!--\(f'(\frac{1}{2})\). -->
 </p>
 
 <p>
-To do this, assume we specify an additional control points \(p_4\). Similar to how \(f'(0)\) is proportional to 
-\((p_1 − p_0)\) in our original derivation, \(f'(\frac{1}{2})\) is proportional to \((p_3 - p_1)\). Overall, the constraints are
+To do this, assume we specify an additional control points \(p_4\) and \(p_5\). 
+<!-- To do this, assume we specify additional control point \(p_4\). -->
+<!--Similar to how \(f'(0)\) is proportional to 
+\((p_1 − p_0)\) in our original derivation, \(f'(\frac{1}{2})\) is proportional to \((p_3 - p_1)\). -->
+<!--Similar to how the endpoints \(f(0)\) and \(f(1)\) in the original formulation match the control points \(p_0\) and \(p_3\), in this new spline the midpoint \(f(\frac{1}{2})\) matches the control point \(p_2\).-->
+Similar to how the positions and derivatives at the endpoints in the original formulation are defined by the control points and their differences, the position and derivative at the midpoint in our new spline are controlled by the center two control points.  Specifically, the midpoint position \(f(\frac{1}{2})\) is the average of \(p_2\) and \(p_3\), and the derivative \(f'(\frac{1}{2})\) is proportional to the difference \(p_3 - p_2\).
+Overall, the constraints are
 \[ f(0) = p_0 \]
-\[ f(1) = p_4 \]
+\[ f(1) = p_5 \]
 \[ f'(0) = 4(p_1 - p_0) \]
-\[ f'(1) = 4(p_4 - p_3) \]
-\[ f'(\frac{1}{2}) = 2(p_3 - p_1) \]
-And the order of the spline is 4. 
+\[ f'(1) = 4(p_5 - p_4) \]
+\[ f(\frac{1}{2}) = (p_2 + p_3) / 2 \]
+\[ f'(\frac{1}{2}) = 4(p_3 - p_2) \]
+And the degree of the spline is 5. 
 <!--Define \(p4\) such
 that \(f''(0)\) is proportional to \((p_4 − p_0)\) similar to how \(f'(0)\) is proportional to 
 \((p_1 − p_0)\) in our original derivation. In the original derivation of B&eacute;ziers, we assumed a 
@@ -76,7 +84,7 @@ with \((p_4 − p_0)\) be 4 – that is, \(f''(0) = 4(p_4 - p_0)\). Similarly, w
 
 <ol>
     <li>Give a matrix \(A\) such that this new type of curve can be expressed as \(f(u) = uAP\) where
-    \(u\) is a vector of \([1, u, u^2, u^3, u^4]\) and \(P\) is a 5 by 2 matrix where rows correspond
+    \(u\) is a vector of \([1, u, u^2, u^3, u^4, u^5]\) and \(P\) is a 6 by 2 matrix where rows correspond
     to control points.</li>
 </ol>
 
@@ -90,42 +98,19 @@ plot in your response.
 
 <h4>3. Catmull-Rom Splines</h4>
 
-The Catmull-Rom spline is a member of the Cardinal spline family, with <i>C<sup>1</sup></i>
+The Catmull-Rom spline is a cubic spline with with <i>C<sup>1</sup></i>
 continuity and control points that <b>lie directly on the spline</b>. Given a vector of control points, 
-\(P_{CR}\), the Catmull-Rom spline satisfies the matrix equation:
+\(P_{CR}\), the Catmull-Rom spline, as presented in lecture, satisfies the matrix equation:
 
 \[
 f_{CR}(u) = [u^3, u^2, u, 1]M_{CR}P_{CR}
 \]
 
+The matrix \(M_{CR}\) can be computed by multiplying the two matrices in the slides, leading to the result:
+
 \[
 \text{where }
-M_{CR} = \begin{pmatrix}
--\tau & 2-\tau & \tau - 2 & \tau \\
-2\tau & \tau - 3 & 3 - 2\tau & -\tau \\
--\tau & 0 & \tau & 0 \\
-0 & 1 & 0 & 0 \\
-\end{pmatrix}
-=
-\tau
-\begin{pmatrix}
--1 & 2/\tau - 1 & 1 - 2/\tau & 1 \\
-2 & 1 - 3/\tau & 3/\tau - 1 & -1 \\
--1 & 0 & 1 & 0 \\
-0 & 1/\tau & 0 & 0 \\
-\end{pmatrix}
-\]
-
-\(\tau\) is a tension parameter chosen from the interval \((0,1)\). When \(\tau = 1/2\), we have
-
-\[
-M_{CR} = \begin{pmatrix}
--1/2 & 3/2 & -3/2 & 1/2 \\
-1 & -5/2 & 2 & -1/2 \\
--1/2 & 0 & 1/2 & 0 \\
-0 & 1 & 0 & 0 \\
-\end{pmatrix}
-=
+M_{CR} =
 \frac{1}{2}
 \begin{pmatrix}
 -1 & 3 & -3 & 1 \\
@@ -172,13 +157,13 @@ M_{CR} = \begin{pmatrix}
 
     </li>
     <li>
-        Convert the 4 Catmull-Rom control points (\(\tau = 0.5\)) below into B&eacute;zier control points.
+        Convert the 4 Catmull-Rom control points below into B&eacute;zier control points.  That is, give the control points for the B&eacute;zier segment that is equivalent to the segment of the Catmull-Rom spline between \(p_1\) and \(p_2\).
 
         \[
-            p_0 = (-5, 3) \\
-            p_1 = (0, 0) \\
-            p_2 = (1, 2) \\
-            p_3 = (3, 8) \\
+            p_0 = (-1, 0) \\
+            p_1 = (-1, 1) \\
+            p_2 = (1, 1) \\
+            p_3 = (1, 0) \\
         \]
     </li>
 </ol>
