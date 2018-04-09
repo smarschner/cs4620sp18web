@@ -1,0 +1,35 @@
+<h4>Introduction</h4>
+<p>
+    In this assignment, we will explore a common topic in animation: key frame animation. You will solve some written problems (by yourself) to get a better understanding of the underlying theory of animations and then write code to animate scenes using key frames. Key frame animation is a technique wherein we define the layout of a scene at certain times (key frames), and we create frames between them by cleverly interpolating between our defined key frames. This rapid rendering of scenes gives us the illusion of animation. The award winning animation short film Hunger (1974) was one of the first applications of computerized key frame animation. http://bit.ly/1EDvU6R
+</p>
+
+
+<h3>Written Part</h3>
+<p class="duedate">Due: Friday April 13th 2017 (11:59pm)</p>
+
+    <h4>Written Problem 1 - Interpolating in 2D</h4>
+
+    Below are pictures of a square object (rotated by 45 degrees and with its edges marked so you can tell them apart) under three pairs of linear transformations. Each small cell has size 0.5 (e.g. both vertical and horizontal coordinates range from -1.5 to 1.5). For each pair (keeping in mind that transformations are with respect to initial figure):
+
+    <ol>
+        <li>Write the 2x2 transformation matrices for each pose; call them \(M_0\) and \(M_1\).</li>
+        <li>Write the matrix \(M_{0.5}^{lin}\) by linearly interpolating elementwise halfway between \(M_0\) and \(M_1\).</li>
+        <li>Write each of these two poses in the form \(M_i = R_iS_i\), where \(R_i\) is a rotation and \(S_i\) is a symmetric matrix with positive entries on the diagonal.</li>
+        <li>Use this decomposition to interpolate a matrix \(M_{0.5}^{pol}\) that is halfway between \(M_0\) and \(M_1\).</li>
+        <li>Draw the two intermediate states of the object (you can export a PDF and draw on it if you want).</li>
+    </ol>
+
+    <div class="thumbnails" style="text-align: center">
+        <img src="images/a6/a6anim_fig.png" />
+    </div>
+
+
+    <h4>Written Problem 2 - Interpolating 3D Rotations</h4>
+
+    Feel free to use the <tt> egl.math.Quat </tt> class to convert between quaternions and rotation matrices.
+
+    <ol>
+        <li>Write down the quaternion \(q_1\)that corresponds to the identity rotation and the quaternion \(q_2\) that corresponds to a rotation of 180 degrees around the y axis.</li>
+        <li>Using the formula for spherical linear interpolation, generate the quaternion \(q_3\) that is one-sixth of the way from \(q_1\) to \(q_2\). What are the axis and angle of the rotation \(q_3\) represents?</li>
+        <li>Convert \(q_3\) to a 3x3 rotation matrix \(M(q_3)\). Verify that starting with the identity and applying this matrix 6 times results in the rotation corresponding to \(q_2\).</li>
+    </ol>
