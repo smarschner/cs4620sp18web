@@ -6,6 +6,7 @@
 
 <h3>Written Part</h3>
 <p class="duedate">Due: Friday April 13th 2018 (11:59pm)</p>
+<p><strong>Do this part alone or in groups of two, as you prefer.</strong>
 
 <h4>Written Problem 1 - Interpolating in 2D</h4>
 
@@ -39,6 +40,8 @@ In your computations you might like to use the <tt>egl.math.Quat</tt> class to c
 
 <h3>Programming Part</h3>
 <p class="duedate">Due: Friday April 20th 2018 (11:59pm)</p>
+<p><strong>Do this part alone or in groups of two, as you prefer.</strong>
+
     <h3>Problem 1: Keyframe Animation</h3>
 
     <h4>Getting Started</h4>
@@ -50,7 +53,7 @@ In your computations you might like to use the <tt>egl.math.Quat</tt> class to c
     <ul>
         <li> Select a frame: Left click on the frame in the timeline.</li>
         <li> Adding a frame: Double click your left mouse button.</li>
-        <li> Editing a keyframe: Left click on it, edit the transformations at that state, and left click again.</li>
+        <li> Editing a keyframe: Left click on it, edit the transformations at that state, and left click again to update the keyframe's transformation.</li>
         <li> Removing a keyframe: Double click your right mouse button.</li>
         <li> Playing and pausing the animation: The space bar is used to play or pause the animation.</li>
         <li> Changing the method of rotation: The <tt>/</tt> is used to alternate between three methods of rotation.</li>
@@ -63,7 +66,7 @@ In your computations you might like to use the <tt>egl.math.Quat</tt> class to c
         <li> A <tt>TreeSet</tt> of <tt>AnimKeyFrame</tt>. Each key frame contains a frame index number and a 4 x 4 matrix transformation.</li>
         <li> A <tt>SceneObject</tt> that this timeline operates on.</li>
     </ul>
-    Every time the <tt>update</tt> loop is called in the Game loop, <tt>AnimationEngine.updateTransformations</tt> is called.  For each timeline, we call its updateTransformation method. AnimationTimeline.updateTransformation method computes the transformation for the current time. Finally AnimationEngine.updateTransformations sends a transformation-update event to the corresponding <tt>SceneObject</tt>.
+    Every time the <tt>update</tt> loop is called in the Game loop, <tt>AnimationEngine.updateTransformations</tt> is called.  For each timeline, this method calls <tt>AnimationTimeline.updateTransformation</tt>, which computes the transformation for a single object at the current time. Finally <tt>AnimationEngine.updateTransformations</tt> sends a transformation-update event to the corresponding <tt>SceneObject</tt>.
 
 
     <h4>What You Will Do</h4>
@@ -72,33 +75,50 @@ In your computations you might like to use the <tt>egl.math.Quat</tt> class to c
     <ul>
         <li> Implement <tt>AnimationTimeline.addKeyFrame</tt>.</li>
         <li> Implement <tt>AnimationTimeline.removeKeyFrame</tt>.</li>
-        <li> Implement <tt>AnimationTimeline.updateTransformation</tt> - 
+        <li> Implement <tt>AnimationTimeline.updateTransformation</tt> &mdash; 
             A method that computes the transformation for the current time.</li>
-        <li> Create Interesting Animation - 
+        <li> Create Interesting Animation &mdash; 
             After completing this short coding assignment, use one of the included scenes to create an interesting animation. This should showcase all of your working transformations (rotation, scaling, and translation). Screen capture your animation and include this video in your submission.</li>
-        <li> Create Buggy Animation -
+        <li> Create Buggy Animation &mdash;
             After you have implemented the three methods of rotation use one of the included scenes to demonstrate a "bug" with using Euler angles to interpolate rotations, and then show how using a spherical linear interpolation between quaternions resolves the issue. Screen capture your animation and include this video in your submission.</li>
     </ul>
     
     <h4>Interpolation Overview</h4>
 
-    <h5>Naive Approach</h5>
+    <h5>The na&iuml;ve linear approach</h5>
 
     When computing the interpolation of two transformations, the naive approach is to linearly interpolate each of the 12 free values of the 4 x 4 matrix. You may want to try this out and see why this doesn’t work so well. See what happens when you rotate an object 180 degrees!
 
-    <h5>The more accurate approach</h5>
+    <h5>A better approch</h5>
 
-    Linearly interpolating rotations by value does not work very well. While scales and translations can be linearly interpolated to give good results, the same doesn’t apply to rotations. So what can we do? It turns out there is a good way to interpolate between two pure rotations: first express the rotations as quaternions, then use a method called <tt>slerp</tt>, or spherical linear interpolation, to interpolate between the quaternions. Therefore, the general idea for a more accurate interpolation is:
-    <ul>
-        <li> Decompose the surrounding 4x4 matrix transformations around the current key frame into rotations, translations, and scales.
-        </li><li> Linearly interpolate the translations and scales, and interpolate the rotations by converting to quaternions, slerping, and then converting the result back to a rotation matrix.
-        </li><li> Recompose the constituents to give a transformation for the current frame.
-        </li></ul>
+    Linearly interpolating rotations by value does not work very well. While scales and translations can be linearly interpolated to give good results, the same doesn’t apply to rotations. So what can we do? 
 
+    <p>Part of the problem with the linear approach is that the interpolated transformation might not be a rotation even if the two keyframe transformations are pure rotations.  One approach is to generalize we would do in 2D: convert the rotation matrix to an angle, and interpolate the angle.  The easiest way to generalize this is using Euler angles: we write the transformation as a product of three rotations that are around coordinate axes, like this:
+    \[R(\theta_x, \theta_y, \theta_z) = R_x(\theta_x) R_y(\theta_y) R_z(\theta_z).\]
+    (This is the same way we represented rotations in the Manipulators assignment, though we didn't call them Euler angles at the time.)  If we have two rotations \(R_1\) and \(R_2\), we first convert them to \((\theta_x, \theta_y, \theta_z)_1\) and \((\theta_x, \theta_y, \theta_z)_2\).  Then we linearly interpolate these two 3-vectors to get an interpolated set of angles, and then compute the interpolated rotation from the interpolated Euler angles.
+
+    <p>The general idea for making this work while still supporting general matrix transformations is:
+    <p><ul>
+        <li> Decompose the surrounding 4x4 matrix transformations around the current key frame into rotations, translations, and scales.  (Details below.)</li>
+        <li> Linearly interpolate the translations and scales, and interpolate the rotations by converting to Euler angles, interpolating, and then converting the resulting angles back to a rotation matrix.</li>
+        <li> Recompose the constituents to give a transformation for the current frame.</li>
+    </ul>
+
+    <p>You can use the provided <tt>eulerDecomp</tt> method to convert a matrix to Euler angles.  Try this out once you get it working&mdash;it should work pretty nicely for coordinate axis rotations, but you should be able to find some cases that behave really strangely.  (See the lecture notes for some hints.)
+
+    <h5>The best approach</h5>
+
+    It turns out there is a good way to interpolate between two pure rotations, that behaves well for any two rotations: first express the rotations as quaternions, then interpolate between the quaternions.  As discussed in lecture, the best way to interpolate (which results in a constant speed across the whole interval between two keyframes) is to use spherical linear interpolation, abbreviated &ldquo;slerp,&rdquo; to interpolate between the quaternions.  This replaces the middle step with:
+
+    <p><ul>
+        <li> Linearly interpolate the translations and scales, and interpolate the rotations by converting them to quaternions, interpolating between the quaternions, and then converting the resulting quaternion back to a rotation matrix.</li>
+    </ul>
+
+    <p>See below for a discussion of the conversions and interpolation methods.
 
     <h5>Decomposing transformations</h5>
 
-    A homogenous transformation M is a 4x4 matrix that can be decomposed firstly as follows
+    Both of the better methods require taking a general matrix and expressing it as a combination of rotation, translation, and scale.  A homogenous transformation M is a 4x4 matrix that can be decomposed firstly as follows
 
     \[
     \begin{pmatrix}
@@ -107,7 +127,9 @@ In your computations you might like to use the <tt>egl.math.Quat</tt> class to c
     \end{pmatrix}
     \]
 
-    Here, \(T\) represents the translation, \(R\) the rotation and \(S\) the scale. So just how do we decompose the upper left 3x3 portion of the matrix into its constituents? Polar decomposition. We have conveniently written the <tt>egl.math.Matrix3.polar_decomp</tt> function for you. There is more about quaternions, spherical linear interpolation, and the polar decomposition, in the Animation lecture slides and notes, and in Chapter 17 of the textbook.
+    Here, \(T\) represents the translation, \(R\) the rotation and \(S\) the scale. So just how do we decompose the upper left 3x3 portion of the matrix into its constituents? Polar decomposition. You will find an algorighm to compute the polar decomposition implemented in <tt>egl.math.Matrix3.polar_decomp</tt> for you.
+
+    There is more about Euler angles, quaternions, spherical linear interpolation, and the polar decomposition in the Animation lecture slides and notes, and in Chapter 17 of the textbook.
 
     <h4>Slerp</h4>
 
@@ -115,7 +137,7 @@ In your computations you might like to use the <tt>egl.math.Quat</tt> class to c
 
     <h5>Converting between Rotation Matrices and Quaternions</h5>
 
-    We do not ask you to implement the inter-conversion between rotation matrices and Quaternions. You can use the class <tt> egl.math.Quat</tt> to convert from a rotation matrix (using the appropriate <tt>Quat</tt> constructor) and to a rotation matrix (using the <tt>toRotationMatrix</tt> method). Feel free to look at the code to understand how it works if you’re interested. All you need to know about Quaternions is that they are 4-vectors, and that unit-length quaternions, called unit quaternions, can represent 3D rotations and also interpolate them well. If you want to learn more, take CS 5625 next time it's offered!
+    We do not ask you to implement the inter-conversion between rotation matrices and Quaternions. You can use the class <tt>egl.math.Quat</tt> to convert from a rotation matrix (using the appropriate <tt>Quat</tt> constructor) and to a rotation matrix (using the <tt>toRotationMatrix</tt> method). Feel free to look at the code to understand how it works if you’re interested. All you need to know about Quaternions is that they are 4-vectors, and that unit-length quaternions, called unit quaternions, can represent 3D rotations and also interpolate them well.
 
 
     <h5>Linear Interpolation</h5>
@@ -125,7 +147,7 @@ In your computations you might like to use the <tt>egl.math.Quat</tt> class to c
     \[
     q = (1 - t)q_1 + tq_2
     \]
-    This will work, if we normalize the interpolated quaternion so that it’s a unit quaternion again, but unfortunately the rotation does not happen at constant speed—it will go faster towards t=0.5 and slower towards the ends.
+    This will work, if we normalize the interpolated quaternion so that it’s a unit quaternion again, but unfortunately the rotation does not happen at constant speed—it will go faster towards \(t=0.5\) and slower towards the ends.
 
     <h5>Spherical Linear Interpolation</h5>
     Intuitively, spherical linear interpolation, or slerp, gets around this problem by interpolating these quaternions (read: vectors) along the sphere they are both a part of. We’ll avoid the details of the derivation of the slerp formula, which are in the lecture slides. Let’s just review how slerp is calculated. Given quaternions \(q_1\) and \(q_2\) at the surrounding key frames and an interpolation ratio \(t\) such that \(0 < t < 1\), we first calculate the angle between \(q_1\) and \(q_2\), called \(\Omega\), as follows:
