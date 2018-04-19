@@ -97,8 +97,8 @@ In your computations you might like to use the <tt>egl.math.Quat</tt> class to c
     Linearly interpolating rotations by value does not work very well. While scales and translations can be linearly interpolated to give good results, the same doesn’t apply to rotations. So what can we do? 
 
     <p>Part of the problem with the linear approach is that the interpolated transformation might not be a rotation even if the two keyframe transformations are pure rotations.  One approach is to generalize we would do in 2D: convert the rotation matrix to an angle, and interpolate the angle.  The easiest way to generalize this is using Euler angles: we write the transformation as a product of three rotations that are around coordinate axes, like this:
-    \[R(\theta_x, \theta_y, \theta_z) = R_x(\theta_x) R_y(\theta_y) R_z(\theta_z).\]
-    (This is the same way we represented rotations in the Manipulators assignment, though we didn't call them Euler angles at the time.)  If we have two rotations \(R_1\) and \(R_2\), we first convert them to \((\theta_x, \theta_y, \theta_z)_1\) and \((\theta_x, \theta_y, \theta_z)_2\).  Then we linearly interpolate these two 3-vectors to get an interpolated set of angles, and then compute the interpolated rotation from the interpolated Euler angles.
+    \[R(\theta_x, \theta_y, \theta_z) = R_z(\theta_z) R_y(\theta_y) R_x(\theta_x).\]
+    If we have two rotations \(R_1\) and \(R_2\), we first convert them to \((\theta_x, \theta_y, \theta_z)_1\) and \((\theta_x, \theta_y, \theta_z)_2\).  Then we linearly interpolate these two 3-vectors to get an interpolated set of angles, and then compute the interpolated rotation from the interpolated Euler angles.
 
     <p>The general idea for making this work while still supporting general matrix transformations is:
     <p><ul>
