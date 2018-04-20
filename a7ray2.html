@@ -11,7 +11,7 @@ Consider integral
 $$\int_0^2 e^{-2x} \, dx$$
 <p> a.) Compute the analytic solution to this integral. <p>
 <p> b.) Write down a Monte Carlo estimator for this integral using uniform sampling. <p>
-<p> c.) Implement the Monte Carlo estimation in b) (You can choose whatever language you like). Estimate the integral with 2, 4, 8, ... number of samples and plot the absolute estimation error in log scale. What can you say from the plot? 
+<p> c.) Implement the Monte Carlo estimation in (b) (You can choose whatever language you like). For a given number of samples \(n\), you can measure how accurate your estimate is by doing \(m\) trials and computing the average absolute difference between the analytic solution and the Monte Carlo estimate.  Make a plot of the error as a function of the number of samples, on a log-log scale, using the number of samples 16, 32, 64, ..., 65536.  What can you say from the plot about how the error changes with the number of samples? 
 
 
 <p> 2. 2D Monte Carlo Integration and shading <p>
@@ -20,10 +20,17 @@ Consider a scene where a square light source is standing vertically on a planar 
 <p>b.) Compute the correct answer to this 2D integration problem for each of the three shading points using Wolfram Alpha or a similar tool.</p>
 <p>c.) Write down a Monte Carlo estimator for this integral using uniform sampling over the light source area and compute the mean and standard deviation of 1000 samples of this estimator.  In which case does it give the lowest and highest relative error (measured as standard deviation divided by the true answer), and, briefly, why? <p>
 
-3. (Continue with problem 2.)
-<p>a.) Now we want to change the light source to a radius 1 disk that is in the y = 2 plane. The center of the dsik is at (0,2,0). If we want to sample uniformly from this disk light, what is the probability that point (x, y) on the light is chosen?<p>
-<p>b.) To sample from the disk, we can start with two random variables \(s_1, s_2 \in [0, 1]\), which gives us a uniform sample from a unit square. The relation between sample from unit square to sample from unit disk is:
-$$ r = \sqrt{s_1}$$
-$$ \theta = 2\pi s_2$$
-where r and \(\theta\) are the polar coordinates of the points on the disk (A better approach is a “concentric” mapping from the unit square to the unit circle). Use the above formula to implement Monte Carlo integration and estimate reflected radiance at the 3 shading points in problem 2 for this given light source.
+3. (Continue with problem 2.)<p>
+Now we want to compute the same integral using a different strategy, integrating over directions at the receiving point.  In this case, the integrand is defined on the hemisphere of unit vector directions \(\omega_i\), and its value is 1 if the ray \((\mathbf{x}, \omega_i)\) hits the light, and 0 otherwise. We'll use the probability density \(p(\omega_i) = \cos\theta / \pi\) where \(\theta\) is the angle between the surface normal and \(\omega_i\).
+
+<p>a.) We can generate unit vectors in this cosine distribution in cylindrical coordinates, using the following equations. Start with two random variables \(s_1, s_2 \in [0, 1]\), which gives us a uniform sample from a unit square. The relationship between uniform samples in the unit square and cosine-distributed samples on the unit hemisphere is:
+\[ r = \sqrt{s_1}\]
+\[ \phi = 2\pi s_2\]
+\[ z = \sqrt{1 - r^2}\]
+where \(r\) and \(\phi\) are polar coordinates in the \(x\)-\(y\) plane, and z is the height above the plane.  (A better approach is based on a "concentric" mapping from the unit square to the unit circle, but this one will do).  Use the above formula to implement a function that produces points on the hemisphere, and demonstrate that the points are cosine-distributed using a histogram: bin 10,000 random points in to 100 equal-sized bins in theta, and make a plot of the fraction of samples in each bin divided by the soild angle (surface area) of the bin, as a function of \(\theta\).  Compare the results to the expected distribution \(p(\omega_i)\).
+
+<p>b.) If a ray starts from the point \((0, 0, z_0)\) with direction \((x_d, y_d, z_d)\), for what values of these coordinates does it hit the light?  Your answer is going to be 2 or 3 inequalities joined with "and."
+
+<p>c.) Now that you have a procedure to generate samples (a), and a way to evaluate the integrand (b), repeat part (c) from problem 2 using this new strategy.  For which distances does the cosine-based sampling outperform the rectangle-based sampling?
+
 
