@@ -1,0 +1,29 @@
+<!-- <h1><strong>PA 7: Ray2</strong></h1> -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+<h3> Written part</h3>
+<p class="duedate">Due:  Friday April 27th 2018 (11:59pm)</p>
+<p> 1. 1D Monte Carlo Integration<p>
+Consider integral
+$$\int_0^2 e^{-2x} \, dx$$
+<p> a.) Compute the analytic solution to this integral. <p>
+<p> b.) Write down a Monte Carlo estimator for this integral using uniform sampling. <p>
+<p> c.) Implement the Monte Carlo estimation in b) (You can choose whatever language you like). Estimate the integral with 2, 4, 8, ... number of samples and plot the absolute estimation error in log scale. What can you say from the plot? 
+
+
+<p> 2. 2D Monte Carlo Integration and shading <p>
+Consider a scene where a square light source is standing vertically on a planar Lambertian surface.  The light is in the \(z=0\) plane, covering the area \(0 \le y \le 1\) and \(-\frac{1}{2} \le x \le \frac{1}{2}\), and the surface is in the \(y=0\) plane.  In lecture, we talked about two ways to formulate the problem of computing the light reflected from ths surface.  One is an integral over points on the the light; let's see how this approach performs using Monte Carlo integration for shading points on the \(z\) axis at 0.1, 1, and 10 units away from the light. The diffuse reflectance of the Lambertian surface is \(k_r=0.5\). The square light source radiance equals to 1 and is uniform across the source area.
+<p>a.) For each of the three shading point, write out the reflected radiance as an integral over the light's area, as a function of \(x\) and \(y\).  Use your favorite plotting software to visualize the integrand, for instance as a height-field plot or a color-mapped square image, for each of the three shading points.</p>
+<p>b.) Compute the correct answer to this 2D integration problem for each of the three shading points using Wolfram Alpha or a similar tool.</p>
+<p>c.) Write down a Monte Carlo estimator for this integral using uniform sampling over the light source area and compute the mean and standard deviation of 1000 samples of this estimator.  In which case does it give the lowest and highest relative error (measured as standard deviation divided by the true answer), and, briefly, why? <p>
+
+3. (Continue with problem 2.)
+<p>a.) Now we want to change the light source to a radius 1 disk that is in the y = 2 plane. The center of the dsik is at (0,2,0). If we want to sample uniformly from this disk light, what is the probability that point (x, y) on the light is chosen?<p>
+<p>b.) To sample from the disk, we can start with two random variables \(s_1, s_2 \in [0, 1]\), which gives us a uniform sample from a unit square. The relation between sample from unit square to sample from unit disk is:
+$$ r = \sqrt{s_1}$$
+$$ \theta = 2\pi s_2$$
+where r and \(\theta\) are the polar coordinates of the points on the disk (A better approach is a “concentric” mapping from the unit square to the unit circle). Use the above formula to implement Monte Carlo integration and estimate reflected radiance at the 3 shading points in problem 2 for this given light source.
+
