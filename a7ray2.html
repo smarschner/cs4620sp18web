@@ -7,7 +7,7 @@
 <h3> Written part</h3>
 <p class="duedate">Due:  Friday April 27th 2018 (11:59pm)</p>
 <p> 1. 1D Monte Carlo Integration<p>
-Consider integral
+Consider the integral:
 $$\int_0^2 e^{-2x} \, dx$$
 <p> a.) Compute the analytic solution to this integral. <p>
 <p> b.) Write down a Monte Carlo estimator for this integral using uniform sampling. <p>
@@ -27,7 +27,7 @@ Now we want to compute the same integral using a different strategy, integrating
 \[ r = \sqrt{s_1}\]
 \[ \phi = 2\pi s_2\]
 \[ z = \sqrt{1 - r^2}\]
-where \(r\) and \(\phi\) are polar coordinates in the \(x\)-\(y\) plane, and z is the height above the plane.  (A better approach is based on a "concentric" mapping from the unit square to the unit circle, but this one will do).  Use the above formula to implement a function that produces points on the hemisphere, and demonstrate that the points are cosine-distributed using a histogram: bin 10,000 random points in to 100 equal-sized bins in theta, and make a plot of the fraction of samples in each bin divided by the soild angle (surface area) of the bin, as a function of \(\theta\).  Compare the results to the expected distribution \(p(\omega_i)\).
+where \(r\) and \(\phi\) are polar coordinates in the \(x\)-\(y\) plane, and z is the height above the plane.  (A better approach is based on a "concentric" mapping from the unit square to the unit circle, but this one will do).  Use the above formula to implement a function that produces points on the hemisphere, and demonstrate that the points are cosine-distributed using a histogram: bin 10,000 random points in to 100 equal-sized bins in theta, and make a plot of the fraction of samples in each bin divided by the soild angle of the bin, as a function of \(\theta\).  Compare the results to the expected distribution \(p(\omega_i)\).  (Remember the solid angle of a region on the hemisphere is just its surface area, treating the hemisphere as having unit radius.)
 
 <p>b.) If a ray starts from the point \((0, 0, z_0)\) with direction \((x_d, y_d, z_d)\), for what values of these coordinates does it hit the light?  Your answer is going to be 2 or 3 inequalities joined with "and."
 
