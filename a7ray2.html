@@ -34,3 +34,23 @@ where \(r\) and \(\phi\) are polar coordinates in the \(x\)-\(y\) plane, and z i
 <p>c.) Now that you have a procedure to generate samples (a), and a way to evaluate the integrand (b), repeat part (c) from problem 2 using this new strategy.  For which distances does the cosine-based sampling outperform the rectangle-based sampling?
 
 
+<h3> Programming part</h3>
+<p class="duedate">Due:  Wednesday May 9th 2018 (11:59pm)</p>
+
+<p>
+In this assignment you will implement the core algorithms in a modern ray tracer.  We provide the low-level components&mdash;the BSDFs, the light sources, the geometry and ray tracing code&mdash;and you implement the Monte Carlo illumination computations.  Specifically, you will implement the subclasses of the abstract class<tt>Integrator</tt>.
+
+<p>
+There are two parts to this assignment, corresponding to the two fundamental ways to sample illumination: using probability distributions that follow the BSDF of the surface, or using probability distributions that follow the distribution of incident light at the surface.  These two strategies are handled by the integrators <tt>LightSamplingIntegrator</tt> and <tt>BSDFSamplingIntegrator</tt>.  There is one warm-up step, to implement a simple Ray 1 style integrator called <tt>PointLightIntegrator</tt>.  And there is an extra credit step, which is to implement the integrator <tt>MISIntegrator</tt> that intelligently combines the light sampling and BSDF sampling approaches to get (nearly) the best of both worlds.
+
+<p>
+Step 1: implement the point light integrator.  This one loops over all lights, checking to be sure they are point lights, and does the simple computation with BRDF and one-over-r-squared.  It doesn't call Light.sample or BSDF.sample, and area lights and environments don't produce any illumination.  There are reflections of point sources but not of environments or other objects.  Question: could we make this include glazed and glass with traditional deterministic methods?
+
+<p>
+Step 2: implement light source sampling.  This one behaves more as a path tracer: it selects one light and samples a direction from it.  Do we describe it as integrating over light source points?  It uses shadow rays so that lights will block other lights, which means it is in some sense a light-surface integration method, not a hemisphere integration method.  It also computes illumination from environments by sampling proportional to the environment.  As a bonus, it computes recursive contributions only from delta reflections and refractions.  When this step is done, many scenes will work well, but not reflections of large lights in shiny surfaces.
+
+<p>
+Step 3: implement BSDF sampling.  This is actually almost simpler: you select a direction, trace a ray, and only pay attention to light coming from sources. You use the BRDF and pdf values to compute an estimator.  Reflections from mirror surfaces happen naturally, and I think we might want to have the rule that discrete reflections are followed recursively.  When this step is done, some scenes that did not work well before will render successfully, but many that previously worked OK will get missed.
+
+<p>
+Step 4: Multiple Importance Sampling.  For this, you paste the two previous parts together and merge them using the Balance Heuristic.  If you manage to get all the parts in the right places, this will be a program capable of rendering some pretty nice lighting effects.
