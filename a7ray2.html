@@ -38,7 +38,25 @@ where \(r\) and \(\phi\) are polar coordinates in the \(x\)-\(y\) plane, and z i
 <p class="duedate">Due:  Wednesday May 9th 2018 (11:59pm)</p>
 
 <p>
-In this assignment you will implement the core algorithms in a modern ray tracer.  We provide the low-level components&mdash;the BSDFs, the light sources, the geometry and ray tracing code&mdash;and you implement the Monte Carlo illumination computations.  Specifically, you will implement the subclasses of the abstract class<tt>Integrator</tt>.
+In this assignment you will implement the core algorithms in a modern ray tracer.  We provide the low-level components&mdash;the BSDFs, the light sources, the geometry and ray tracing code&mdash;and you implement the Monte Carlo illumination computations.  Specifically, you will implement the subclasses of the abstract class <tt>Integrator</tt>.
+
+<h4>About the ray tracer</h4>
+
+The ray tracer that is the framework for this assignment has an architecture typical of a modern production ray tracer.  It owes some aspects of its design to <a href="http://pbrt.org">PBRT</a> and <a href="http://www.mitsuba-renderer.org">Mitsuba</a>.  Many parts are similar to Ray 1, including the contents of ray2.camera, ray2.mesh, ray2.viewer, and the outer-loop and image I/O code in the ray2 package.  Like Ray 1 (and like every physics-based renderer) the default output format is the OpenEXR floating-point image format.
+
+<p>
+The way shading works is rather different, though.  Rather than having a shader associated with each surface in the scene&mdash;which amounts to writing a separate illumination algorithm for every type of material the renderer supports&mdash;we associate a BSDF with each material and pull the common rendering code into subclasses of <tt>Integrator</tt>.  Lights are also more general than in Ray 1, because we support area lights as well as point lights, and we support illumination from environments.  The packages that implement these pieces of the renderer are:
+<ul>
+	<li><tt>ray2.material</tt> contains <tt>BSDF</tt> and its subclasses, which are responsible for all calculations that are specific to particular material types.  There are just a few material types available: <tt>LambertianBSDF</tt> creates a diffuse surface; <tt>GlazedBSDF</tt> creates a surface with a diffuse and a mirror-like specular component; <tt>MicrofacetBSDF</tt> creates a surface with a diffuse and a soft specular component; and <tt>GlassBSDF</tt> creates a clear glass material.</li>
+	<li><tt>ray2.light</tt> contains <tt>Light</tt>, <tt>Environment</tt>, and their subclasses.  In addition to the familiar <tt>PointLight</tt>, there is also a rectangular area light <tt>RectangleLight</tt>.  Separately from Lights, there is the <tt>Environment</tt> interface, which are responsible for light that comes from an environment map, rather than from sources in the scene.  It has only one implementation, <tt>Cubemap</tt>.</li>
+	<li><tt>ray2.integrator</tt> contains <tt>Integrator</tt> and its subclasses.  Each integrator subclass implements a different algorithm for computing illumination on surfaces.  <tt>LightSamplingIntegrator</tt> works by generating samples on light sources, and <tt>BSDFSamplingIntegrator</tt> works by generating samples according to the surface's BSDF.
+</ul>
+
+<p>
+Check out the comments for <tt>BSDF</tt>, which explain how this class works.  You will need to understand this in order to use it in your illumination code.
+
+<p>
+Check out the comments for <tt>Light</tt> and <tt>Environment</tt>.  You'll also need to understand how these interfaces operate.
 
 <p>
 There are two parts to this assignment, corresponding to the two fundamental ways to sample illumination: using probability distributions that follow the BSDF of the surface, or using probability distributions that follow the distribution of incident light at the surface.  These two strategies are handled by the integrators <tt>LightSamplingIntegrator</tt> and <tt>BSDFSamplingIntegrator</tt>.  There is one warm-up step, to implement a simple Ray 1 style integrator called <tt>PointLightIntegrator</tt>.  And there is an extra credit step, which is to implement the integrator <tt>MISIntegrator</tt> that intelligently combines the light sampling and BSDF sampling approaches to get (nearly) the best of both worlds.
