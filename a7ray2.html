@@ -34,11 +34,13 @@ where \(r\) and \(\phi\) are polar coordinates in the \(x\)-\(y\) plane, and z i
 <p>c.) Now that you have a procedure to generate samples (a), and a way to evaluate the integrand (b), repeat part (c) from problem 2 using this new strategy.  For which distances does the cosine-based sampling outperform the rectangle-based sampling?
 
 
-<h3> Programming part</h3>
-<p class="duedate">Due:  Wednesday May 9th 2018 (11:59pm)</p>
+    <h3> Programming part</h3>
+    <p class="duedate">Due:  Wednesday May 9th 2018 (11:59pm)</p>
 
-<p>
-In this assignment you will implement the core algorithms in a modern ray tracer.  We provide the low-level components&mdash;the BSDFs, the light sources, the geometry and ray tracing code&mdash;and you implement the Monte Carlo illumination computations.  Specifically, you will implement the subclasses of the abstract class <tt>Integrator</tt>.
+<p>In this assignment you will implement the core algorithms in a modern ray tracer.  We provide the low-level components&mdash;the BSDFs, the light sources, the geometry and ray tracing code&mdash;and you implement the Monte Carlo illumination computations.  Specifically, you will implement the subclasses of the abstract class <tt>Integrator</tt>.
+
+<p> The framework is now in the repository. We are providing Bounding Volume Hierarchy (BVH) as an acceleration structure. You need to download and unzip accel.zip from CMS and add it to src/ray2/ . Also, you need go to modify native lirbarry location to match with your OS as we did in Ray1. (Project → Properties → Java Build Path → Libraries → Select the openexrjni-3.0.0.jar dropdown menu → Modify Native Library Location. Also in Project -> Properties -> Java Build Path → Select Source → Select the a2/src. Drop Down Menu → Modify Native Library Location.)
+
 
 <h4>About the ray tracer</h4>
 
@@ -67,7 +69,9 @@ Check out the comments for <tt>Light</tt> and <tt>Environment</tt>.  You'll also
 There are three parts to this assignment: one simple one to get started, and two corresponding to the two fundamental ways to sample illumination with Monte Carlo: using probability distributions that follow the BSDF of the surface, or using probability distributions that follow the distribution of incident light at the surface.  These two strategies are handled by the integrators <tt>LightSamplingIntegrator</tt> and <tt>BSDFSamplingIntegrator</tt>.  There is one warm-up step, to implement a simple Ray 1 style integrator called <tt>PointLightIntegrator</tt>.  And there is an extra credit step, which is to create the integrator <tt>MISIntegrator</tt> that intelligently combines the light sampling and BSDF sampling approaches to get (nearly) the best of both worlds.
 
 <p>
-<strong>Step A:</strong> implement the point light integrator.  This one loops over all lights, checking to be sure they are point lights, and does the simple computation with BRDF and inverse-square attenuation.  It doesn't call Light.sample or BSDF.sample, and area lights and environments don't produce any illumination.  With this integrator you won't see reflections from glazed surfaces, and glass will just be black.  You will find a detailed description of the algorithm in the comment for <tt>PointLightIntegraor.shade()</tt>.
+    <strong>Step A:</strong> implement the point light integrator.  This one loops over all lights, checking to be sure they are point lights, and does the simple computation with BRDF and inverse-square attenuation.  It doesn't call Light.sample or BSDF.sample, and area lights and environments don't produce any illumination.  With this integrator you won't see reflections from glazed surfaces, and glass will just be black.  You will find a detailed description of the algorithm in the comment for <tt>PointLightIntegraor.shade()</tt>.
+
+<p> Test: To test the point light integrator, render the scenes in pointLight directory (bbox-test.xml, bunny-norms.xml, horse_norms.xml, /slow/bunny-norms-aa.xml) and compare the reference images in reference/ . 
 
 <p>
 <strong>Step B:</strong> implement light source sampling.  This strategy considers lights one at a time and estimates the contribution of each, adding the estimates together.  For each light, it selects a single random sample and computes an estimator for the illumination integral from that source (an integral over area, like in written part 2).  It uses shadow rays to ensure it only includes light that would reach the shading point.  Point lights happen to be handled by the same computation: the point light always chooses the same location, and reports the probability of choosing that location as 1.
@@ -76,40 +80,48 @@ There are three parts to this assignment: one simple one to get started, and two
 Separately from the light, light source sampling also estimates the contribution of the environment by selecting a single direction from the environment and computing an estimate of the contribution to reflected radiance.
 
 <p>
-Light source sampling does not naturally include mirror-like reflections, because it's not possible to select a light source point or environment direction that exactly lines up with the reflection or refraction direction.  This has to be done by letting the material choose the direction, and a material with discrete components (that is, directions that have a finite probability of being selected, rather than just being part of a continuous range) lets us know it has chosen one of these directions by setting the <tt>isDiscrete</tt> flag.  So we can include sharp reflections and refractions by asking for a BSDF sample, then tracing a recursive ray only if it is a discrete sample. 
+    Light source sampling does not naturally include mirror-like reflections, because it's not possible to select a light source point or environment direction that exactly lines up with the reflection or refraction direction.  This has to be done by letting the material choose the direction, and a material with discrete components (that is, directions that have a finite probability of being selected, rather than just being part of a continuous range) lets us know it has chosen one of these directions by setting the <tt>isDiscrete</tt> flag.  So we can include sharp reflections and refractions by asking for a BSDF sample, then tracing a recursive ray only if it is a discrete sample. 
+
+    <p>
+        You will find a detailed description of the algorithm in the comment for <tt>LightSamplingIntegrator.shade()</tt>.  When this step is done, many scenes will work well, but not reflections of large lights or environments in glossy surfaces.
+
+<p> Test: To test the light source sampling integrator, render the scenes in lightSampling directory. 
 
 <p>
-You will find a detailed description of the algorithm in the comment for <tt>LightSamplingIntegrator.shade()</tt>.  When this step is done, many scenes will work well, but not reflections of large lights or environments in glossy surfaces.
+    <strong>Step C:</strong> implement BSDF sampling.  This strategy doesn't think about individual lights; it just thinks of all lights plus the environment as providing an incident radiance field that illuminates the surface.  It uses just a single sample, drawn from the BSDF, evaluates the radiance in the chosen direction, and computes an estimate of the surface reflection integral (an integral over solid angle, like in written part 3).  The incident radiance is found by tracing a ray: if it hits a light, the light's radiance is the incident radiance; if it misses everything, the environment radiance is the incident radiance.  If the direction was chosen discretely, then we use a full recursive evaluation, so as to include interreflections for sharp reflections and refractions.
+
+    <p>
+    With BSDF sampling, discrete reflections and refractions are handled naturally, but point light sources are not.  So we need to also include the same computation done in the point light integrator, to include the contribution from these simple lights.
+
+    <p>
+        You will find a detailed description of the algorithm in the comment for <tt>BSDFSamplingIntegrator.shade()</tt>.  You should find that this integrator does well with very large light sources or smooth, soft lighting from environment maps like the uniform map or the Ufizzi gallery.  But it will be really noisy for scenes with smaller area sources.
+
+<p> Test: To test the BSDF sampling integrator, render the scenes in bsdfSampling directory.
 
 <p>
-<strong>Step C:</strong> implement BSDF sampling.  This strategy doesn't think about individual lights; it just thinks of all lights plus the environment as providing an incident radiance field that illuminates the surface.  It uses just a single sample, drawn from the BSDF, evaluates the radiance in the chosen direction, and computes an estimate of the surface reflection integral (an integral over solid angle, like in written part 3).  The incident radiance is found by tracing a ray: if it hits a light, the light's radiance is the incident radiance; if it misses everything, the environment radiance is the incident radiance.  If the direction was chosen discretely, then we use a full recursive evaluation, so as to include interreflections for sharp reflections and refractions.
+<strong>Step D:</strong> Create at least one new input scene.  Feel free to use any meshes you like, and try to show off some of the capabilities of your program.  It doesn't need to be extremely elaborate if you are out of time, but we encourage you to have fun with it if you like! Please include in your README how we should render your new scene.
 
 <p>
-With BSDF sampling, discrete reflections and refractions are handled naturally, but point light sources are not.  So we need to also include the same computation done in the point light integrator, to include the contribution from these simple lights.
+    <strong>Step E (for extra credit):</strong> If you are looking for an extra challenge after finishing the first three integrators, implement Multiple Importance Sampling.  The idea here is to use both of the previous strategies together.  For each source, rather than choosing from the BSDF distribution \(p_b\) or the light distribution \(p_l\), you choose a sample from each, find the incident radiance due to each, and then compute an estimate of reflected radiance by considering them both to be samples from the distribution \(\frac{1}{2}(p_b + p_l)\).  So if we chose the direction \(\omega_b\) with pdf \(p_b(\omega_b)\) and the direction \(\omega_l\) with pdf \(p_l\omega_l)\), instead of averaging the estimators
+    $$
+    L_i(\omega_b)\, f_r(\omega_b, \omega_r)\, (\omega_b\!\cdot\!\mathbf{n}) \,/\, p_b(\omega_b)
+    $$ and $$
+    L_i(\omega_l)\, f_r(\omega_l, \omega_r)\, (\omega_l\!\cdot\!\mathbf{n}) \,/\, p_l(\omega_l),
+    $$
+    which is what we get if we just follow the light sampling and BSDF sampling strategies separately, we instead use the estimators
+    $$
+    2 L_i(\omega_b)\, f_r(\omega_b, \omega_r)\, (\omega_b\!\cdot\!\mathbf{n}) \,/\, (p_b(\omega_b) + p_l(\omega_b))
+    $$ and $$
+    2 L_i(\omega_l)\, f_r(\omega_l, \omega_r)\, (\omega_l\!\cdot\!\mathbf{n}) \,/\, (p_l(\omega_l) + p_b(\omega_l)).
+    $$
+    Doing this requires knowing the pdf with which we <i>might have chosen</i> the light source sample from the BSDF, and vice versa; these can be computed using te <tt>pdf</tt> functions in each of the interfaces.
 
-<p>
-You will find a detailed description of the algorithm in the comment for <tt>BSDFSamplingIntegrator.shade()</tt>.  You should find that this integrator does well with very large light sources or smooth, soft lighting from environment maps like the uniform map or the Ufizzi gallery.  But it will be really noisy for scenes with smaller area sources.
+    <p>
+        The MIS algorithm is a little more invovled, but it naturally includes both point lights and mirror reflections, which makes it a bit more elegant.  You should find that it is more robust than the previous two: in cases where one of those integrators performs poorly, MIS will be much better, though not always as good as the better of the two.
 
-<p>
-<strong>Step D:</strong> Create at least one new input scene.  Feel free to use any meshes you like, and try to show off some of the capabilities of your program.  It doesn't need to be extremely elaborate if you are out of time, but we encourage you to have fun with it if you like!
+        <h4>What to Submit</h4>
+        <p>
 
-<p>
-<strong>Step E (for extra credit):</strong> If you are looking for an extra challenge after finishing the first three integrators, implement Multiple Importance Sampling.  The idea here is to use both of the previous strategies together.  For each source, rather than choosing from the BSDF distribution \(p_b\) or the light distribution \(p_l\), you choose a sample from each, find the incident radiance due to each, and then compute an estimate of reflected radiance by considering them both to be samples from the distribution \(\frac{1}{2}(p_b + p_l)\).  So if we chose the direction \(\omega_b\) with pdf \(p_b(\omega_b)\) and the direction \(\omega_l\) with pdf \(p_l\omega_l)\), instead of averaging the estimators
-$$
-L_i(\omega_b)\, f_r(\omega_b, \omega_r)\, (\omega_b\!\cdot\!\mathbf{n}) \,/\, p_b(\omega_b)
-$$ and $$
-L_i(\omega_l)\, f_r(\omega_l, \omega_r)\, (\omega_l\!\cdot\!\mathbf{n}) \,/\, p_l(\omega_l),
-$$
-which is what we get if we just follow the light sampling and BSDF sampling strategies separately, we instead use the estimators
-$$
-2 L_i(\omega_b)\, f_r(\omega_b, \omega_r)\, (\omega_b\!\cdot\!\mathbf{n}) \,/\, (p_b(\omega_b) + p_l(\omega_b))
-$$ and $$
-2 L_i(\omega_l)\, f_r(\omega_l, \omega_r)\, (\omega_l\!\cdot\!\mathbf{n}) \,/\, (p_l(\omega_l) + p_b(\omega_l)).
-$$
-Doing this requires knowing the pdf with which we <i>might have chosen</i> the light source sample from the BSDF, and vice versa; these can be computed using te <tt>pdf</tt> functions in each of the interfaces.
-
-<p>
-The MIS algorithm is a little more invovled, but it naturally includes both point lights and mirror reflections, which makes it a bit more elegant.  You should find that it is more robust than the previous two: in cases where one of those integrators performs poorly, MIS will be much better, though not always as good as the better of the two.
 
 
 <h4>What to Submit</h4>
