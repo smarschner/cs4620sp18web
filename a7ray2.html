@@ -42,15 +42,18 @@ In this assignment you will implement the core algorithms in a modern ray tracer
 
 <h4>About the ray tracer</h4>
 
-The ray tracer that is the framework for this assignment has an architecture typical of a modern production ray tracer.  It owes some aspects of its design to <a href="http://pbrt.org">PBRT</a> and <a href="http://www.mitsuba-renderer.org">Mitsuba</a>.  Many parts are similar to Ray 1, including the contents of ray2.camera, ray2.mesh, ray2.viewer, and the outer-loop and image I/O code in the ray2 package.  Like Ray 1 (and like every physics-based renderer) the default output format is the OpenEXR floating-point image format.
+<p>
+The ray tracer that is the framework for this assignment has an architecture typical of a modern production ray tracer.  It owes some aspects of its design to <a href="http://pbrt.org">PBRT</a> and <a href="http://www.mitsuba-renderer.org">Mitsuba</a>.  Many parts are similar to Ray 1, including the contents of ray2.camera, ray2.mesh, ray2.viewer, and the outer-loop and image I/O code in the ray2 package.  Like Ray 1 the default output format is the OpenEXR floating-point image format.
 
 <p>
 The way shading works is rather different, though.  Rather than having a shader associated with each surface in the scene&mdash;which amounts to writing a separate illumination algorithm for every type of material the renderer supports&mdash;we associate a BSDF with each material and pull the common rendering code into subclasses of <tt>Integrator</tt>.  Lights are also more general than in Ray 1, because we support area lights as well as point lights, and we support illumination from environments.  The packages that implement these pieces of the renderer are:
 <ul>
 	<li><tt>ray2.material</tt> contains <tt>BSDF</tt> and its subclasses, which are responsible for all calculations that are specific to particular material types.  There are just a few material types available: <tt>LambertianBSDF</tt> creates a diffuse surface; <tt>GlazedBSDF</tt> creates a surface with a diffuse and a mirror-like specular component; <tt>MicrofacetBSDF</tt> creates a surface with a diffuse and a soft specular component; and <tt>GlassBSDF</tt> creates a clear glass material.</li>
-	<li><tt>ray2.light</tt> contains <tt>Light</tt>, <tt>Environment</tt>, and their subclasses.  In addition to the familiar <tt>PointLight</tt>, there is also a rectangular area light <tt>RectangleLight</tt>.  Separately from Lights, there is the <tt>Environment</tt> interface, which are responsible for light that comes from an environment map, rather than from sources in the scene.  It has only one implementation, <tt>Cubemap</tt>.</li>
+	<li><tt>ray2.light</tt> contains <tt>Light</tt>, <tt>Environment</tt>, and their subclasses.  In addition to the familiar <tt>PointLight</tt>, there is also a rectangular area light <tt>RectangleLight</tt>.  Separately from Lights, there is the <tt>Environment</tt> interface, which is responsible for light that comes from an environment map, rather than from sources in the scene.  It has only one implementation, <tt>Cubemap</tt>.</li>
 	<li><tt>ray2.integrator</tt> contains <tt>Integrator</tt> and its subclasses.  Each integrator subclass implements a different algorithm for computing illumination on surfaces.  <tt>LightSamplingIntegrator</tt> works by generating samples on light sources, and <tt>BSDFSamplingIntegrator</tt> works by generating samples according to the surface's BSDF.
 </ul>
+<p>
+Integrators, lights, and environments are specified in the input XML by adding them as children of the scene.  When you are trying out the different integrators it is handy to switch from one integrator to another by changing the type in an <tt>&lt;integrator type="..."/&gt;</tt> tag at the outer level of the scene.  BSDFs can be created once and then referenced by name from many surfaces; see the input files for examples of how this works.
 
 <p>
 Check out the comments for <tt>BSDF</tt>, which explain how this class works.  You will need to understand this in order to use it in your illumination code.
@@ -58,17 +61,62 @@ Check out the comments for <tt>BSDF</tt>, which explain how this class works.  Y
 <p>
 Check out the comments for <tt>Light</tt> and <tt>Environment</tt>.  You'll also need to understand how these interfaces operate.
 
-<p>
-There are two parts to this assignment, corresponding to the two fundamental ways to sample illumination: using probability distributions that follow the BSDF of the surface, or using probability distributions that follow the distribution of incident light at the surface.  These two strategies are handled by the integrators <tt>LightSamplingIntegrator</tt> and <tt>BSDFSamplingIntegrator</tt>.  There is one warm-up step, to implement a simple Ray 1 style integrator called <tt>PointLightIntegrator</tt>.  And there is an extra credit step, which is to implement the integrator <tt>MISIntegrator</tt> that intelligently combines the light sampling and BSDF sampling approaches to get (nearly) the best of both worlds.
+<h4>The assignment</h4>
 
 <p>
-Step 1: implement the point light integrator.  This one loops over all lights, checking to be sure they are point lights, and does the simple computation with BRDF and one-over-r-squared.  It doesn't call Light.sample or BSDF.sample, and area lights and environments don't produce any illumination.  There are reflections of point sources but not of environments or other objects.  Question: could we make this include glazed and glass with traditional deterministic methods?
+There are three parts to this assignment: one simple one to get started, and two corresponding to the two fundamental ways to sample illumination with Monte Carlo: using probability distributions that follow the BSDF of the surface, or using probability distributions that follow the distribution of incident light at the surface.  These two strategies are handled by the integrators <tt>LightSamplingIntegrator</tt> and <tt>BSDFSamplingIntegrator</tt>.  There is one warm-up step, to implement a simple Ray 1 style integrator called <tt>PointLightIntegrator</tt>.  And there is an extra credit step, which is to create the integrator <tt>MISIntegrator</tt> that intelligently combines the light sampling and BSDF sampling approaches to get (nearly) the best of both worlds.
 
 <p>
-Step 2: implement light source sampling.  This one behaves more as a path tracer: it selects one light and samples a direction from it.  Do we describe it as integrating over light source points?  It uses shadow rays so that lights will block other lights, which means it is in some sense a light-surface integration method, not a hemisphere integration method.  It also computes illumination from environments by sampling proportional to the environment.  As a bonus, it computes recursive contributions only from delta reflections and refractions.  When this step is done, many scenes will work well, but not reflections of large lights in shiny surfaces.
+<strong>Step A:</strong> implement the point light integrator.  This one loops over all lights, checking to be sure they are point lights, and does the simple computation with BRDF and inverse-square attenuation.  It doesn't call Light.sample or BSDF.sample, and area lights and environments don't produce any illumination.  With this integrator you won't see reflections from glazed surfaces, and glass will just be black.  You will find a detailed description of the algorithm in the comment for <tt>PointLightIntegraor.shade()</tt>.
 
 <p>
-Step 3: implement BSDF sampling.  This is actually almost simpler: you select a direction, trace a ray, and only pay attention to light coming from sources. You use the BRDF and pdf values to compute an estimator.  Reflections from mirror surfaces happen naturally, and I think we might want to have the rule that discrete reflections are followed recursively.  When this step is done, some scenes that did not work well before will render successfully, but many that previously worked OK will get missed.
+<strong>Step B:</strong> implement light source sampling.  This strategy considers lights one at a time and estimates the contribution of each, adding the estimates together.  For each light, it selects a single random sample and computes an estimator for the illumination integral from that source (an integral over area, like in written part 2).  It uses shadow rays to ensure it only includes light that would reach the shading point.  Point lights happen to be handled by the same computation: the point light always chooses the same location, and reports the probability of choosing that location as 1.
 
 <p>
-Step 4: Multiple Importance Sampling.  For this, you paste the two previous parts together and merge them using the Balance Heuristic.  If you manage to get all the parts in the right places, this will be a program capable of rendering some pretty nice lighting effects.
+Separately from the light, light source sampling also estimates the contribution of the environment by selecting a single direction from the environment and computing an estimate of the contribution to reflected radiance.
+
+<p>
+Light source sampling does not naturally include mirror-like reflections, because it's not possible to select a light source point or environment direction that exactly lines up with the reflection or refraction direction.  This has to be done by letting the material choose the direction, and a material with discrete components (that is, directions that have a finite probability of being selected, rather than just being part of a continuous range) lets us know it has chosen one of these directions by setting the <tt>isDiscrete</tt> flag.  So we can include sharp reflections and refractions by asking for a BSDF sample, then tracing a recursive ray only if it is a discrete sample. 
+
+<p>
+You will find a detailed description of the algorithm in the comment for <tt>LightSamplingIntegrator.shade()</tt>.  When this step is done, many scenes will work well, but not reflections of large lights or environments in glossy surfaces.
+
+<p>
+<strong>Step C:</strong> implement BSDF sampling.  This strategy doesn't think about individual lights; it just thinks of all lights plus the environment as providing an incident radiance field that illuminates the surface.  It uses just a single sample, drawn from the BSDF, evaluates the radiance in the chosen direction, and computes an estimate of the surface reflection integral (an integral over solid angle, like in written part 3).  The incident radiance is found by tracing a ray: if it hits a light, the light's radiance is the incident radiance; if it misses everything, the environment radiance is the incident radiance.  If the direction was chosen discretely, then we use a full recursive evaluation, so as to include interreflections for sharp reflections and refractions.
+
+<p>
+With BSDF sampling, discrete reflections and refractions are handled naturally, but point light sources are not.  So we need to also include the same computation done in the point light integrator, to include the contribution from these simple lights.
+
+<p>
+You will find a detailed description of the algorithm in the comment for <tt>BSDFSamplingIntegrator.shade()</tt>.  You should find that this integrator does well with very large light sources or smooth, soft lighting from environment maps like the uniform map or the Ufizzi gallery.  But it will be really noisy for scenes with smaller area sources.
+
+<p>
+<strong>Step D:</strong> Create at least one new input scene.  Feel free to use any meshes you like, and try to show off some of the capabilities of your program.  It doesn't need to be extremely elaborate if you are out of time, but we encourage you to have fun with it if you like!
+
+<p>
+<strong>Step E (for extra credit):</strong> If you are looking for an extra challenge after finishing the first three integrators, implement Multiple Importance Sampling.  The idea here is to use both of the previous strategies together.  For each source, rather than choosing from the BSDF distribution \(p_b\) or the light distribution \(p_l\), you choose a sample from each, find the incident radiance due to each, and then compute an estimate of reflected radiance by considering them both to be samples from the distribution \(\frac{1}{2}(p_b + p_l)\).  So if we chose the direction \(\omega_b\) with pdf \(p_b(\omega_b)\) and the direction \(\omega_l\) with pdf \(p_l\omega_l)\), instead of averaging the estimators
+$$
+L_i(\omega_b)\, f_r(\omega_b, \omega_r)\, (\omega_b\!\cdot\!\mathbf{n}) \,/\, p_b(\omega_b)
+$$ and $$
+L_i(\omega_l)\, f_r(\omega_l, \omega_r)\, (\omega_l\!\cdot\!\mathbf{n}) \,/\, p_l(\omega_l),
+$$
+which is what we get if we just follow the light sampling and BSDF sampling strategies separately, we instead use the estimators
+$$
+2 L_i(\omega_b)\, f_r(\omega_b, \omega_r)\, (\omega_b\!\cdot\!\mathbf{n}) \,/\, (p_b(\omega_b) + p_l(\omega_b))
+$$ and $$
+2 L_i(\omega_l)\, f_r(\omega_l, \omega_r)\, (\omega_l\!\cdot\!\mathbf{n}) \,/\, (p_l(\omega_l) + p_b(\omega_l)).
+$$
+Doing this requires knowing the pdf with which we <i>might have chosen</i> the light source sample from the BSDF, and vice versa; these can be computed using te <tt>pdf</tt> functions in each of the interfaces.
+
+<p>
+The MIS algorithm is a little more invovled, but it naturally includes both point lights and mirror reflections, which makes it a bit more elegant.  You should find that it is more robust than the previous two: in cases where one of those integrators performs poorly, MIS will be much better, though not always as good as the better of the two.
+
+
+<h4>What to Submit</h4>
+<p>Submit a zip file containing your solution organized the same way as the code on Github, along with your scene file and a full set of renderings of all the provided scenes that even partly work with your implementation.
+Include a readme in your zip that contains:
+<ul>
+  <li>You and your partner's names and NetIDs.
+  <li>Any problems with your solution.
+  <li>Anything else you want us to know.
+</ul>
